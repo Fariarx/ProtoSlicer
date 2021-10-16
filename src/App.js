@@ -1,13 +1,14 @@
-//import logo from './logo.svg';
 import './App.css';
+import Scene from './ThreeJs/Scene';
 
 function App() {
   return (
     <div className="App">
-        <div >
-        </div>
+        <Scene>
+        </Scene>
     </div>
   );
 }
+
 
 export default App;
