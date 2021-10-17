@@ -12,10 +12,20 @@ const url = require('url');
 let mainWindow;
 
 function createWindow() {
+    const screenElectron = electron.screen;
+    const display = screenElectron.getPrimaryDisplay();
+    const dimensions = display.workAreaSize;
+
+    const minSize = 0.5;
+
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: parseInt(dimensions.width * minSize),
+        height: parseInt(dimensions.height * minSize),
+        minWidth: parseInt(dimensions.width * minSize),
+        minHeight: parseInt(dimensions.height * minSize),
+        maxWidth: dimensions.width,
+        maxHeight: dimensions.height,
         autoHideMenuBar: true,
     });
 
