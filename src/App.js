@@ -1,5 +1,5 @@
 import './App.css';
-import Scene from './ThreeJs/Scene';
+import Scene from './Engine/Scene';
 
 function App() {
   return (

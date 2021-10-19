@@ -16,14 +16,14 @@ function createWindow() {
     const display = screenElectron.getPrimaryDisplay();
     const dimensions = display.workAreaSize;
 
-    const minSize = 0.5;
+    const size = 0.5*(dimensions.height + dimensions.width)/2;
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: parseInt(dimensions.width * minSize),
-        height: parseInt(dimensions.height * minSize),
-        minWidth: parseInt(dimensions.width * minSize),
-        minHeight: parseInt(dimensions.height * minSize),
+        width: parseInt( size * 1.2),
+        height: parseInt(size),
+        minWidth: parseInt(size * 1.2),
+        minHeight: parseInt(size),
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
         autoHideMenuBar: true,
@@ -43,6 +43,11 @@ function createWindow() {
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         mainWindow = null
+    });
+
+    mainWindow.webContents.on('crashed', (e) => {
+        app.relaunch();
+        app.quit()
     });
 }
 
