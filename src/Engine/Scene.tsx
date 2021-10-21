@@ -1,9 +1,16 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import * as THREE from 'three'
+
 import {Printer} from "./Configs/Printer";
 
-class Scene extends Component {
+export default this;
+
+export class Scene extends Component {
+    mount: any;
+
     componentDidMount() {
         // BASIC THREE.JS THINGS: SCENE, CAMERA, RENDERER
         // Three.js Creating a scene tutorial
@@ -40,7 +47,7 @@ class Scene extends Component {
         var cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        var lights = [];
+        var lights: THREE.PointLight[] = [];
         lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
         lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
         lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
@@ -53,7 +60,7 @@ class Scene extends Component {
         scene.add( lights[ 1 ] );
         scene.add( lights[ 2 ] );
 
-
+        scene.background = new THREE.Color( "#eceaea" );
 
         // SCALE ON RESIZE
 
@@ -97,8 +104,8 @@ class Scene extends Component {
         animate();
     }
     render() {
-        return <div ref={ref => (this.mount = ref)} />;
+        return <div ref={ref => (this.mount = ref)} style={{
+            position:"fixed"
+        }}/>;
     }
 }
-
-export default Scene

@@ -20,9 +20,9 @@ function createWindow() {
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: parseInt( size * 1.2),
+        width: parseInt( size * 1.0),
         height: parseInt(size),
-        minWidth: parseInt(size * 1.2),
+        minWidth: parseInt(size * 1.0),
         minHeight: parseInt(size),
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
@@ -33,7 +33,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:3000');
 
     // Open the DevTools.
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     mainWindow.removeMenu();
 

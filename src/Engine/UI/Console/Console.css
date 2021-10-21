@@ -1,0 +1,23 @@
+.Log
+{
+    width: 55vw;
+    height: 15vh;
+    position: fixed;
+    margin-left: 30px;
+    text-overflow: clip;
+    opacity: 0.5;
+}
+.Li
+{
+    background-color: transparent;
+    padding: 0;
+    color: #282c34;
+    font-family: Consolas,monaco,monospace;
+}
+li {  display: inline;  }
+ul { list-style: none outside none; text-align: left; padding-bottom: 4vh; overflow-y: scroll; width: 100%; height: 100%;}
+
+.disable-scrollbars::-webkit-scrollbar {
+    background: transparent; /* Chrome/Safari/Webkit */
+    width: 0px;
+}

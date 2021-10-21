@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path'
-import { reducer } from "../Redux/Errors";
+import {Log} from "../Globals";
 
 type Workspace = {
     sizeX: number;
@@ -38,10 +38,7 @@ export class Printer {
             return obj;
         }
         catch (e) {
-            reducer.dispatch({
-                type:"ReadConfig/Error",
-                text:e
-            });
+            Log("Error read config: " + e);
         }
 
         return false;
