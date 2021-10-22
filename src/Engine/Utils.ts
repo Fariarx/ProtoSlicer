@@ -6,4 +6,4 @@ export const LinearGenerator = (()=>{
 
         return linearGenerator;
     }
-})();
+})(); 

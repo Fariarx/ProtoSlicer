@@ -3,8 +3,10 @@ import ReactDOM from "react-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-import {Printer} from "./Configs/Printer";
+import {Printer} from "../Configs/Printer";
+import * as SceneHelper from "./Engine/SceneHelper";
 
 export default this;
 
@@ -17,17 +19,28 @@ export class Scene extends Component {
         // https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(
-            75,
+            50,
             window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        camera.position.z = 5;
+        camera.position.set(20,20,20); // Set position like this
+        camera.lookAt(new THREE.Vector3(0,0,0)); // Set look at coordinate like this
 
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({
+            antialias:true
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
 
+        let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
+        let grid: SceneHelper.Grid = SceneHelper.CreateGrid(new THREE.Vector3(10,7, 15), scene);
+
+
+        const controls = new OrbitControls( camera, renderer.domElement );
+        //controls.addEventListener( 'change', renderer );
+        //controls.update();
+        //SceneHelper.FitCameraToObject(camera, grid.obj, 2, controls);
 
         // MOUNT INSIDE OF REACT
         this.mount.appendChild(renderer.domElement); // mount a scene inside of React using a ref
@@ -45,7 +58,7 @@ export class Scene extends Component {
             flatShading: true
         } );
         var cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+        //scene.add(cube);
 
         var lights: THREE.PointLight[] = [];
         lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
@@ -97,6 +110,10 @@ export class Scene extends Component {
 
             cube.rotation.x += 0.01;
             cube.rotation.y += 0.01;
+
+            grid.mat.resolution.set( window.innerWidth, window.innerHeight );
+
+            renderer.clearDepth(); // important!
 
             renderer.render(scene, camera);
         };

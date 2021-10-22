@@ -36,9 +36,7 @@ export class Console extends Component {
 export const LogSendText = action((text ) => {
     logList.push({
         text:text,
-        time:new Date().toISOString().
-        replace(/T/, ' ').
-        replace(/\..+/, '')
+        time:new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
     } as LogMessage);
 
     if(logList.length > 10)

@@ -20,9 +20,9 @@ function createWindow() {
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: parseInt( size * 1.0),
+        width: parseInt( size * 1.5),
         height: parseInt(size),
-        minWidth: parseInt(size * 1.0),
+        minWidth: parseInt(size * 1.5),
         minHeight: parseInt(size),
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,

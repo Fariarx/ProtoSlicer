@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path'
 import {Log} from "../Globals";
+import {Resin} from "./Resin";
 
 type Workspace = {
     sizeX: number;
