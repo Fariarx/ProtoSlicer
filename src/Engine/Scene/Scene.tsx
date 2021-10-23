@@ -43,12 +43,13 @@ export class Scene extends Component<any, any> {
 
             holder.ondragover = function() {
                 thisObj.props.dragAndDropSetState(true);
+                //Log("Drag and drop over" )
                 return false;
             };
 
             holder.ondragleave = function() {
                 thisObj.props.dragAndDropSetState(false);
-                Log("Drag and drop leave" )
+                //Log("Drag and drop leave" )
                 return false;
             };
 

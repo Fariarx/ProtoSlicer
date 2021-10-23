@@ -1,6 +1,5 @@
 import React from 'react'
 import { Button, Header, Icon, Modal } from 'semantic-ui-react'
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 function DragAndDropModal() {
     return (
