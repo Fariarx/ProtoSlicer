@@ -1,20 +1,27 @@
-import React, { Component } from "react";
+import React, {Component } from "react";
 import ReactDOM from "react-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'semantic-ui-css/semantic.min.css'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer} from "../Configs/Printer";
-import * as SceneHelper from "./Engine/SceneHelper";
-import {Log} from "../Globals";
+import * as SceneHelper from "./SceneHelper";
+import {Log } from "../Globals";
+import DragAndDropModal from "./SceneDragAndDropModal";
 
 export default this;
 
-export class Scene extends Component {
+export class Scene extends Component<any, any> {
     mount: any;
 
+    constructor(props) {
+        super(props);
+    }
+
     componentDidMount() {
+        var thisObj = this;
+
         // BASIC THREE.JS THINGS: SCENE, CAMERA, RENDERER
         // Three.js Creating a scene tutorial
         // https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
@@ -31,9 +38,34 @@ export class Scene extends Component {
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-        //controls.addEventListener( 'change', renderer );
-        //
+        function setupDragDrop() {
+            var holder = renderer.domElement;
 
+            holder.ondragover = function() {
+                thisObj.props.dragAndDropSetState(true);
+                return false;
+            };
+
+            holder.ondragleave = function() {
+                thisObj.props.dragAndDropSetState(false);
+                Log("Drag and drop leave" )
+                return false;
+            };
+
+            holder.ondrop = function(e) {
+                thisObj.props.dragAndDropSetState(false);
+
+                if(e.dataTransfer)
+                {
+                    Log("Drop files event" )
+                    Log(e.dataTransfer.files[0].path)
+                }
+                else {
+                    Log("DataTransfer is null, skip drag and drop" );
+                }
+            }
+        }
+        setupDragDrop();
 
         const controls = new OrbitControls( camera, renderer.domElement );
 
@@ -132,6 +164,7 @@ export class Scene extends Component {
     render() {
         return <div ref={ref => (this.mount = ref)} style={{
             position:"fixed"
-        }}/>;
+        }}>
+        </div>;
     }
 }

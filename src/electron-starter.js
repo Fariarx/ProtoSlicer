@@ -45,10 +45,12 @@ function createWindow() {
         mainWindow = null
     });
 
-    mainWindow.webContents.on('crashed', (e) => {
+
+
+    /*mainWindow.webContents.on('crashed', (e) => {
         app.relaunch();
         app.quit()
-    });
+    });*/
 }
 
 // This method will be called when Electron has finished
