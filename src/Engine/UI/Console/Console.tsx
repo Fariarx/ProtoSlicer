@@ -43,6 +43,4 @@ export const LogSendText = action((text ) => {
     {
         logList.splice(0, 1);
     }
-});setInterval(()=>{
-    LogSendText("123")
-}, 5000)
+});

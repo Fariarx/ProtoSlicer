@@ -7,6 +7,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer} from "../Configs/Printer";
 import * as SceneHelper from "./Engine/SceneHelper";
+import {Log} from "../Globals";
 
 export default this;
 
@@ -24,23 +25,28 @@ export class Scene extends Component {
             0.1,
             1000
         );
-        camera.position.set(20,20,20); // Set position like this
-        camera.lookAt(new THREE.Vector3(0,0,0)); // Set look at coordinate like this
 
         var renderer = new THREE.WebGLRenderer({
             antialias:true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-
-        let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
-        let grid: SceneHelper.Grid = SceneHelper.CreateGrid(new THREE.Vector3(10,7, 15), scene);
+        //controls.addEventListener( 'change', renderer );
+        //
 
 
         const controls = new OrbitControls( camera, renderer.domElement );
-        //controls.addEventListener( 'change', renderer );
-        //controls.update();
-        //SceneHelper.FitCameraToObject(camera, grid.obj, 2, controls);
+
+        /*    orb.target.set( size.x / 2,size.z / 2, size.y * 2);
+            orb.update();*/
+
+        let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
+
+        let gridVec = new THREE.Vector3(10,7, 15);
+        let grid: SceneHelper.Grid = SceneHelper.CreateGrid(gridVec, scene );
+        camera.position.set(gridVec.x / 2,gridVec.z / 2, gridVec.y * 2); // Set position like this
+        controls.target = new THREE.Vector3(gridVec.x/ 2, 0 ,gridVec.y/2);
+        controls.update();
 
         // MOUNT INSIDE OF REACT
         this.mount.appendChild(renderer.domElement); // mount a scene inside of React using a ref
@@ -116,9 +122,12 @@ export class Scene extends Component {
             renderer.clearDepth(); // important!
 
             renderer.render(scene, camera);
+            //Log(camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
         };
 
         animate();
+
+        Log("Scene loaded!");
     }
     render() {
         return <div ref={ref => (this.mount = ref)} style={{

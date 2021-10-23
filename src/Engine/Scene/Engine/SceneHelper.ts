@@ -5,12 +5,12 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 export type Grid = {
-    obj: THREE.Object3D;
+    obj: any;
     mat: LineMaterial;
 }
 
-export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene):THREE.Object3D {
-    var positions: THREE.Vector3[] = [];
+export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): any {
+    var positions: any[] = [];
 
     let gridSizeX = size.x;
     let gridSizeY = size.y;
@@ -45,8 +45,8 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene):THREE.Object
     geometry.setPositions(positions);
 
     var matLine = new LineMaterial({
-        color: "#424242",
-        linewidth: 0.5
+        color: +"0x424242",
+        linewidth: 0.6
     });
 
     var line = new Line2(geometry, matLine);
