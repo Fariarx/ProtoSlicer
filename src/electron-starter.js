@@ -17,7 +17,9 @@ const Store = require('./store');
 
 const DefaultConfig = {
     configName: 'windowsSize',
-    defaults: { }
+    defaults: {
+        version: 0
+    }
 };
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -35,7 +37,7 @@ function createWindow() {
     DefaultConfig.defaults.windowBoundsMain.height = size;
 
     const store = new Store(DefaultConfig, electron.app.getPath('userData'));
-    
+
     console.log(electron.app.getPath('userData'))
 
     // Create the browser window.

@@ -3,7 +3,7 @@ import * as THREE from 'three'
 export const DefaultConfig = {
     configName: 'app',
     defaults: {
-        windowBounds: { width: 800, height: 600 }
+        version: 0
     }
 };
 
