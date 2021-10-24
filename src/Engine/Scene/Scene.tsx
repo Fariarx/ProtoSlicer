@@ -8,6 +8,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import {Printer} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
 import {Log, Materials} from "../Globals";
+import {store} from "../Bridge";
 import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
@@ -29,6 +30,8 @@ export class Scene extends Component<any, any> {
 
     componentDidMount() {
         var thisObj = this;
+
+        console.log(store.data)
 
         // BASIC THREE.JS THINGS: SCENE, CAMERA, RENDERER
         // Three.js Creating a scene tutorial

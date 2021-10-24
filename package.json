@@ -9,6 +9,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "bootstrap": "^5.1.1",
+    "electron-json-storage": "^4.5.0",
     "fs": "^0.0.1-security",
     "mobx": "^6.3.5",
     "mobx-react": "^7.2.1",

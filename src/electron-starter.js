@@ -7,6 +7,8 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 
+const { ipcMain } = require('electron')
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -18,6 +20,8 @@ function createWindow() {
 
     const size = 0.5*(dimensions.height + dimensions.width)/2;
 
+    console.log(electron.app.getPath('userData'))
+
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: parseInt( size * 1.5),
@@ -28,14 +32,18 @@ function createWindow() {
         maxHeight: dimensions.height,
         autoHideMenuBar: true,
         "webPreferences": {
-            "nodeIntegration": true,
+            preload: path.join(__dirname, "preload.js"), // use a preload script
+            nodeIntegration: true,
             webSecurity: false,
-            enableRemoteModule: true,
             contextIsolation: false,
             nodeIntegrationInWorker: true,
             nodeIntegrationInSubFrames: true
         }
     });
+
+    ipcMain.on('electron.userData', (event, arg) => {
+        event.returnValue = electron.app.getPath('userData');
+    })
 
     // and load the index.html of the app.
     mainWindow.loadURL('http://localhost:3000');
@@ -52,8 +60,6 @@ function createWindow() {
         // when you should delete the corresponding element.
         mainWindow = null
     });
-
-
 
     /*mainWindow.webContents.on('crashed', (e) => {
         app.relaunch();

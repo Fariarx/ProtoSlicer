@@ -1,5 +1,6 @@
 import * as path from 'path'
-import Globals, {Log, fs} from "../Globals";
+import Globals, {Log } from "../Globals";
+import {fs} from "../Bridge";
 import {Resin} from "./Resin";
 
 type Workspace = {
@@ -28,6 +29,7 @@ export class Printer {
 
     static LoadConfigFromFile = function (filePath) {
         try {
+
             let config : Config = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             let obj = new Printer();
 
