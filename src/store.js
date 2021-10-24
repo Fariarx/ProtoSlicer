@@ -3,8 +3,8 @@ const fs = require('fs');
 const { ipcRenderer } = require('electron')
 
 class Store {
-    constructor(opts) {
-        const userDataPath = ipcRenderer.sendSync('electron.userData', 'ping');
+    constructor(opts, userData = null) {
+        const userDataPath = userData ? userData : ipcRenderer.sendSync('electron.userData', 'ping');
 
         // We'll use the `configName` property to set the file name and path.join to bring it all together as a string
         this.path = path.join(userDataPath, opts.configName + '.json');

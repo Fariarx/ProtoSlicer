@@ -9,6 +9,17 @@ const url = require('url');
 
 const { ipcMain } = require('electron')
 
+ipcMain.on('electron.userData', (event, arg) => {
+    event.returnValue = electron.app.getPath('userData');
+})
+
+const Store = require('./store');
+
+const DefaultConfig = {
+    configName: 'windowsSize',
+    defaults: { }
+};
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -17,17 +28,22 @@ function createWindow() {
     const screenElectron = electron.screen;
     const display = screenElectron.getPrimaryDisplay();
     const dimensions = display.workAreaSize;
-
     const size = 0.5*(dimensions.height + dimensions.width)/2;
 
+    DefaultConfig.defaults.windowBoundsMain = {};
+    DefaultConfig.defaults.windowBoundsMain.width = size*1.5;
+    DefaultConfig.defaults.windowBoundsMain.height = size;
+
+    const store = new Store(DefaultConfig, electron.app.getPath('userData'));
+    
     console.log(electron.app.getPath('userData'))
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: parseInt( size * 1.5),
-        height: parseInt(size),
-        minWidth: parseInt(size * 1.5),
-        minHeight: parseInt(size),
+        width: store.get('windowBoundsMain').width,
+        height: store.get('windowBoundsMain').height,
+        minWidth: store.get('windowBoundsMain').width,
+        minHeight: store.get('windowBoundsMain').height,
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
         autoHideMenuBar: true,
@@ -41,10 +57,6 @@ function createWindow() {
         }
     });
 
-    ipcMain.on('electron.userData', (event, arg) => {
-        event.returnValue = electron.app.getPath('userData');
-    })
-
     // and load the index.html of the app.
     mainWindow.loadURL('http://localhost:3000');
 
@@ -53,6 +65,14 @@ function createWindow() {
 
     mainWindow.removeMenu();
 
+    mainWindow.on('resize', function () {
+        var size   = mainWindow.getSize();
+
+        store.set('windowBoundsMain', {
+            width: size[0],
+            height: size[1]
+        })
+    });
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
         // Dereference the window object, usually you would store windows
