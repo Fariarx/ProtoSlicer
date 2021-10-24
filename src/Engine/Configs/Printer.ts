@@ -1,6 +1,5 @@
-import * as fs from 'fs';
 import * as path from 'path'
-import {Log} from "../Globals";
+import Globals, {Log, fs} from "../Globals";
 import {Resin} from "./Resin";
 
 type Workspace = {

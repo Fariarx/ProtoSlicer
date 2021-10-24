@@ -29,7 +29,11 @@ function createWindow() {
         autoHideMenuBar: true,
         "webPreferences": {
             "nodeIntegration": true,
-            webSecurity: false
+            webSecurity: false,
+            enableRemoteModule: true,
+            contextIsolation: false,
+            nodeIntegrationInWorker: true,
+            nodeIntegrationInSubFrames: true
         }
     });
 

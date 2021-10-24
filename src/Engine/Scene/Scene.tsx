@@ -46,6 +46,8 @@ export class Scene extends Component<any, any> {
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
+        let printer = Printer.LoadConfigFromFile('./src/Engine/Configs/Default/Voxelab Proxima 6.0.json');
+        console.log(printer)
 
         let gridVec = new THREE.Vector3(10,15, 7);
 
