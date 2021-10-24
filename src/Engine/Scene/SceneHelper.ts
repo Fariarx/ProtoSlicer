@@ -1,8 +1,35 @@
 import * as THREE from 'three'
+
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
+import {Log} from "../Globals";
+
+
+export function File3DLoad(file: File, handler: Function): boolean {
+    let extension: string = (()=>{
+        let array = file.name.split('.');
+        return (array[array.length - 1] as string).toLocaleLowerCase();
+    })();
+
+    var loader;
+
+    Log(extension)
+
+    switch (extension) {
+        case "stl":
+            loader = new STLLoader();
+            loader.load( file.path, function ( geometry ) {
+                handler(geometry);
+            });
+            return true;
+        default:
+            return false;
+    }
+}
 
 export type Grid = {
     obj: any;

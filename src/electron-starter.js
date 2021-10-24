@@ -27,6 +27,10 @@ function createWindow() {
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
         autoHideMenuBar: true,
+        "webPreferences": {
+            "nodeIntegration": true,
+            webSecurity: false
+        }
     });
 
     // and load the index.html of the app.

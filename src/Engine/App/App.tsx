@@ -18,6 +18,7 @@ export class App extends Component<any, any> {
             <div className="App">
                 <Scene dragAndDropSetState={this.showDragAndDropModal}/>
                 <Console/>
+
                 {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
             </div>
         );

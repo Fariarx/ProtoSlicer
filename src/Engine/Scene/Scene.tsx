@@ -7,13 +7,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
-import {Log } from "../Globals";
+import {Log, Materials} from "../Globals";
 import DragAndDropModal from "./SceneDragAndDropModal";
+import {File3DLoad} from "./SceneHelper";
+import {BufferGeometry} from "three";
 
 export default this;
 
 export class Scene extends Component<any, any> {
     mount: any;
+    material: any;
 
     constructor(props) {
         super(props);
@@ -21,6 +24,8 @@ export class Scene extends Component<any, any> {
 
     componentDidMount() {
         var thisObj = this;
+
+        this.material = Materials.def;
 
         // BASIC THREE.JS THINGS: SCENE, CAMERA, RENDERER
         // Three.js Creating a scene tutorial
@@ -58,8 +63,28 @@ export class Scene extends Component<any, any> {
 
                 if(e.dataTransfer)
                 {
-                    Log("Drop files event" )
-                    Log(e.dataTransfer.files[0].path)
+                    Log('Drop ' + e.dataTransfer.files.length + ' file(s) event');
+
+                    for(let file of e.dataTransfer.files)
+                    {
+                        let result = File3DLoad(file, function (geometry: BufferGeometry) {
+                            let mesh = new THREE.Mesh( geometry, thisObj.material );
+                            mesh.castShadow = true;
+                            mesh.receiveShadow = true;
+                            mesh.scale.set(0.1, 0.1, 0.1);
+ 
+
+                            scene.add( mesh );
+                        });
+
+                        if(result)
+                        {
+                            Log("File load " + file.name);
+                        }
+                        else {
+                            Log("Error file format " + file.name);
+                        }
+                    }
                 }
                 else {
                     Log("DataTransfer is null, skip drag and drop" );
@@ -77,7 +102,7 @@ export class Scene extends Component<any, any> {
 
         let gridVec = new THREE.Vector3(10,7, 15);
         let grid: SceneHelper.Grid = SceneHelper.CreateGrid(gridVec, scene );
-        camera.position.set(gridVec.x / 2,gridVec.z / 2, gridVec.y * 2); // Set position like this
+        camera.position.set(gridVec.x / 2, gridVec.z, gridVec.y * 2); // Set position like this
         controls.target = new THREE.Vector3(gridVec.x/ 2, 0 ,gridVec.y/2);
         controls.update();
 
@@ -89,28 +114,19 @@ export class Scene extends Component<any, any> {
         // ADD CUBE AND LIGHTS
         // https://threejs.org/docs/index.html#api/en/geometries/BoxGeometry
         // https://threejs.org/docs/scenes/geometry-browser.html#BoxGeometry
-        var geometry = new THREE.BoxGeometry(2, 2, 2);
+        /*var geometry = new THREE.BoxGeometry(2, 2, 2);
         var material = new THREE.MeshPhongMaterial( {
             color: 0x156289,
             emissive: 0x072534,
             side: THREE.DoubleSide,
             flatShading: true
         } );
-        var cube = new THREE.Mesh(geometry, material);
+        var cube = new THREE.Mesh(geometry, material);*/
         //scene.add(cube);
 
-        var lights: THREE.PointLight[] = [];
-        lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-        lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-        lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-
-        lights[ 0 ].position.set( 0, 200, 0 );
-        lights[ 1 ].position.set( 100, 200, 100 );
-        lights[ 2 ].position.set( - 100, - 200, - 100 );
-
-        scene.add( lights[ 0 ] );
-        scene.add( lights[ 1 ] );
-        scene.add( lights[ 2 ] );
+        const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.7 );
+        directionalLight.castShadow = true;
+        scene.add( directionalLight );
 
         scene.background = new THREE.Color( "#eceaea" );
 
@@ -147,8 +163,8 @@ export class Scene extends Component<any, any> {
         var animate = function() {
             requestAnimationFrame(animate);
 
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+            //cube.rotation.x += 0.01;
+           // cube.rotation.y += 0.01;
 
             grid.mat.resolution.set( window.innerWidth, window.innerHeight );
 
