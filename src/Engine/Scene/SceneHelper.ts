@@ -40,8 +40,8 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): any {
     var positions: any[] = [];
 
     let gridSizeX = size.x;
-    let gridSizeY = size.y;
-    let gridSizeZ = size.z;
+    let gridSizeY = size.z;
+    let gridSizeZ = size.y;
 
     positions.push(0, 0, 0);
 
@@ -87,10 +87,10 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): any {
 }
 
 export function CreateAxesHelper(scene: THREE.Scene):THREE.Object3D {
-    var origin = new THREE.Vector3();
-    var size = 3;
+    const origin = new THREE.Vector3();
+    const size = 1;
 
-    var axesHelper = new THREE.Object3D();
+    const axesHelper = new THREE.Object3D();
     axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), origin, size, "#b80808"));
     axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, size, "#09b111"));
     axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), origin, size, "#091ab1"));

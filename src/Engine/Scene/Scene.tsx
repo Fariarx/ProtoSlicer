@@ -10,22 +10,25 @@ import * as SceneHelper from "./SceneHelper";
 import {Log, Materials} from "../Globals";
 import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
-import {BufferGeometry} from "three";
+import {Box3, BufferGeometry, Vector3} from "three";
+import {SceneObject} from "./SceneObject";
 
 export default this;
 
 export class Scene extends Component<any, any> {
     mount: any;
     material: any;
+    objects: SceneObject[];
 
     constructor(props) {
         super(props);
+
+        this.objects = [];
+        this.material = Materials.def;
     }
 
     componentDidMount() {
         var thisObj = this;
-
-        this.material = Materials.def;
 
         // BASIC THREE.JS THINGS: SCENE, CAMERA, RENDERER
         // Three.js Creating a scene tutorial
@@ -42,6 +45,9 @@ export class Scene extends Component<any, any> {
             antialias:true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+        let gridVec = new THREE.Vector3(10,15, 7);
 
         function setupDragDrop() {
             var holder = renderer.domElement;
@@ -72,9 +78,11 @@ export class Scene extends Component<any, any> {
                             mesh.castShadow = true;
                             mesh.receiveShadow = true;
                             mesh.scale.set(0.1, 0.1, 0.1);
- 
 
-                            scene.add( mesh );
+                            let obj = new SceneObject(mesh);
+                            obj.AlignToPlaneXZ(gridVec);
+                            obj.AlignToPlaneY();
+                            obj.AddToScene(scene);
                         });
 
                         if(result)
@@ -100,10 +108,9 @@ export class Scene extends Component<any, any> {
 
         let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
 
-        let gridVec = new THREE.Vector3(10,7, 15);
         let grid: SceneHelper.Grid = SceneHelper.CreateGrid(gridVec, scene );
-        camera.position.set(gridVec.x / 2, gridVec.z, gridVec.y * 2); // Set position like this
-        controls.target = new THREE.Vector3(gridVec.x/ 2, 0 ,gridVec.y/2);
+        camera.position.set(gridVec.x / 2, gridVec.z, gridVec.z / 2 + gridVec.z * 1.6); // Set position like this
+        controls.target = new THREE.Vector3(gridVec.x/ 2, 0 ,gridVec.z/2);
         controls.update();
 
         // MOUNT INSIDE OF REACT
@@ -157,6 +164,7 @@ export class Scene extends Component<any, any> {
             renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.render( scene, camera );
 
+            controls.update();
         }
 
         // ANIMATE THE SCENE
@@ -172,6 +180,8 @@ export class Scene extends Component<any, any> {
 
             renderer.render(scene, camera);
             //Log(camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
+
+            directionalLight.position.set(camera.position.x, camera.position.y, camera.position.z);
         };
 
         animate();
