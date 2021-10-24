@@ -1,20 +1,20 @@
 import * as path from 'path'
-import Globals, {Log } from "../Globals";
+import Globals, {DefaultConfig, Log } from "../Globals";
 import {fs} from "../Bridge";
 import {Resin} from "./Resin";
 
-type Workspace = {
+export type Workspace = {
     sizeX: number;
     sizeY: number;
-    sizeZ: number;
+    height: number;
 }
 
-type Resolution = {
+export type Resolution = {
     X: number;
     Y: number;
 }
 
-interface Config {
+export interface Config {
     Resolution: Resolution;
     Workspace: Workspace;
 }
@@ -27,15 +27,22 @@ export class Printer {
 
     resins!: Array<Resin>;
 
-    static LoadConfigFromFile = function (filePath) {
+    static LoadConfigFromFile = function (modelName) {
         try {
 
-            let config : Config = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            let config: Config;
+
+            try {
+                config = JSON.parse(fs.readFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs + "/" + modelName + '.json', 'utf8'));
+            } catch (e) {
+                config  = JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/' + modelName + '.json', 'utf8'));
+            }
+
             let obj = new Printer();
 
             obj.workspace = config.Workspace;
             obj.resolution = config.Resolution;
-            obj.name = path.basename(filePath);
+            obj.name = path.basename(modelName);
 
             return obj;
         }
@@ -43,6 +50,6 @@ export class Printer {
             Log("Error read config: " + e);
         }
 
-        return false;
+        return null;
     }
 }

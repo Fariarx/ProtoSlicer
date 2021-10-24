@@ -18,7 +18,7 @@ const Store = require('./store');
 const DefaultConfig = {
     configName: 'windowsSize',
     defaults: {
-        version: 0
+        version: 1
     }
 };
 

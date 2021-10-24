@@ -1,6 +1,7 @@
 const Store = require('./store');
 const fs = require('fs');
 
+
 window.bridge = {};
 window.bridge.fs = fs;
 window.bridge.store = (data) => {
@@ -8,4 +9,6 @@ window.bridge.store = (data) => {
 };
 
 
+const { ipcRenderer } = require('electron')
 
+window.bridge.userData = ipcRenderer.sendSync('electron.userData', '');
