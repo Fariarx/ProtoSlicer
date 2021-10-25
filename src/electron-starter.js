@@ -3,6 +3,7 @@ const electron = require('electron');
 const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
+const isDev = require("electron-is-dev");
 
 const path = require('path');
 const url = require('url');
@@ -59,8 +60,11 @@ function createWindow() {
         }
     });
 
-    // and load the index.html of the app.
-    mainWindow.loadURL('http://localhost:3000');
+    mainWindow.loadURL(
+        isDev
+            ? "http://localhost:3000"
+            : `file://${path.join(__dirname, "../build/index.html")}`
+    );
 
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
