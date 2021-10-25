@@ -3,7 +3,19 @@ const electron = require('electron');
 const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
-const isDev = require("electron-is-dev");
+
+const isDev = (() => {
+    let isDev = false;
+
+    process.argv.forEach(function (val, index, array) {
+        if(val === "--dev")
+        {
+            isDev = true;
+        }
+    });
+
+    return isDev;
+})();
 
 const path = require('path');
 const url = require('url');
@@ -31,10 +43,10 @@ function createWindow() {
     const screenElectron = electron.screen;
     const display = screenElectron.getPrimaryDisplay();
     const dimensions = display.workAreaSize;
-    const size = 0.5*(dimensions.height + dimensions.width)/2;
+    const size = 0.5 * (dimensions.height + dimensions.width) / 2;
 
     DefaultConfig.defaults.windowBoundsMain = {};
-    DefaultConfig.defaults.windowBoundsMain.width = size*1.5;
+    DefaultConfig.defaults.windowBoundsMain.width = size * 1.5;
     DefaultConfig.defaults.windowBoundsMain.height = size;
 
     const store = new Store(DefaultConfig, electron.app.getPath('userData'));
@@ -45,8 +57,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: store.get('windowBoundsMain').width,
         height: store.get('windowBoundsMain').height,
-        minWidth: store.get('windowBoundsMain').width,
-        minHeight: store.get('windowBoundsMain').height,
+        minWidth: size * 1.5,
+        minHeight: size,
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
         autoHideMenuBar: true,
@@ -63,16 +75,22 @@ function createWindow() {
     mainWindow.loadURL(
         isDev
             ? "http://localhost:3000"
-            : `file://${path.join(__dirname, "../build/index.html")}`
+            : url.format({
+                pathname: path.join(__dirname, '../build/index.html'),
+                protocol: 'file:',
+                slashes: true,
+            })
     );
 
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    if (isDev) {
+        // Open the DevTools.
+        mainWindow.webContents.openDevTools();
+    }
 
     mainWindow.removeMenu();
 
     mainWindow.on('resize', function () {
-        var size   = mainWindow.getSize();
+        var size = mainWindow.getSize();
 
         store.set('windowBoundsMain', {
             width: size[0],
