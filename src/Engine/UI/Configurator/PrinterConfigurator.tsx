@@ -1,7 +1,6 @@
 import React from "react";
 import PrinterCustomConfiguration from "./PrinterCustomConfiguration";
 import PrinterSelectConfiguration from "./PrinterSelectConfiguration";
-import {PopupLabelSendText} from "./Notifications/PopupLabel";
 
 export enum PrinterConfiguratorState {
     SelectConfig,
@@ -10,8 +9,6 @@ export enum PrinterConfiguratorState {
 
 export default function PrinterConfigurator(props:any) {
     let [state, setState] = React.useState(PrinterConfiguratorState.SelectConfig);
-
-    PopupLabelSendText("1000 - 7");
 
     switch (state) {
         case PrinterConfiguratorState.SelectConfig:

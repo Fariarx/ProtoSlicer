@@ -13,8 +13,8 @@ import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
-import PrinterSelectConfiguration from "../UI/PrinterSelectConfiguration";
-import PrinterConfigurator from "../UI/PrinterConfigurator";
+import PrinterSelectConfiguration from "../UI/Configurator/PrinterSelectConfiguration";
+import PrinterConfigurator from "../UI/Configurator/PrinterConfigurator";
 import LabelPopup from "../UI/Notifications/PopupLabel";
 
 export default this;

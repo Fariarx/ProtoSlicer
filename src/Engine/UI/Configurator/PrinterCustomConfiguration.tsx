@@ -13,9 +13,9 @@ import {
     Search,
     Segment
 } from "semantic-ui-react";
-import {LinearGenerator} from "../Utils";
+import {LinearGenerator} from "../../Utils";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Printer} from "../Configs/Printer";
+import {Printer} from "../../Configs/Printer";
 import {PrinterConfiguratorState} from "./PrinterConfigurator";
 
 
@@ -32,31 +32,31 @@ function ListElement(props: any) {
 
     let list = props.list?.map((obj) =>
         <Menu.Item active={props.activeNameModel === (props.manufacturer + obj.title)}
-            name={obj.title}
-            manufacturer={props.manufacturer}
-            onClick={props.selectModel}
-        />
-    );
+    name={obj.title}
+    manufacturer={props.manufacturer}
+    onClick={props.selectModel}
+    />
+);
 
     return (
         <div>
             <Accordion.Title
                 index={props.index}
-                onClick={props.onClickManufacturer}
-                active={props.activeIndexManufacturer === props.index}
-            >
-                <Icon name='dropdown' className='float-end'/>
-                <p style={{textAlign:'start'}}>
-                    {props.manufacturer}
-                </p>
-            </Accordion.Title>
-            <Accordion.Content active={props.activeIndexManufacturer === props.index}>
-                <Menu  vertical>
-                    {list}
-                </Menu>
-            </Accordion.Content>
+    onClick={props.onClickManufacturer}
+    active={props.activeIndexManufacturer === props.index}
+    >
+    <Icon name='dropdown' className='float-end'/>
+    <p style={{textAlign:'start'}}>
+    {props.manufacturer}
+    </p>
+    </Accordion.Title>
+    <Accordion.Content active={props.activeIndexManufacturer === props.index}>
+        <Menu  vertical>
+        {list}
+        </Menu>
+        </Accordion.Content>
         </div>
-    );
+);
 }
 
 class AccordionList extends Component<any> {
@@ -92,28 +92,28 @@ class AccordionList extends Component<any> {
             list.push(
                 <ListElement
                     activeNameModel={this.state.activeNameModel}
-                    activeIndexManufacturer={this.state.activeIndexManufacturer}
-                    index={count} manufacturer={manufacturer}
-                    list={printerWithManufacturerNames[manufacturer]}
-                    onClickManufacturer={this.handleClickManufacturer}
-                    selectModel={this.handleClickModel}
-                />);
+            activeIndexManufacturer={this.state.activeIndexManufacturer}
+            index={count} manufacturer={manufacturer}
+            list={printerWithManufacturerNames[manufacturer]}
+            onClickManufacturer={this.handleClickManufacturer}
+            selectModel={this.handleClickModel}
+            />);
 
             count++;
         }
 
         return (
             <Accordion fluid styled>
-                {list}
-            </Accordion>
-        )
+        {list}
+        </Accordion>
+    )
     }
 }
 
 let printerWithManufacturerNames;
 let printerNames;
 
-function PrinterSelectConfiguration(props: any) {
+function PrinterCustomConfiguration(props: any) {
     const initialState = {
         loading: false,
         results: [],
@@ -162,8 +162,7 @@ function PrinterSelectConfiguration(props: any) {
         let isNormal = false;
 
         printerNames.some((t) => {
-            if(t.title === name)
-            {
+            if (t.title === name) {
                 isNormal = true;
                 return true;
             }
@@ -223,52 +222,20 @@ function PrinterSelectConfiguration(props: any) {
                 <Segment clearing>
                     <Header
                         as='h2'
-                        content='Printer selector'
-                        subheader='Select a printer configuration or create a new one'
+                        content='Printer custom configurator'
+                        subheader='Setup printer configuration'
                     />
                 </Segment>
-                <Container style={{marginTop: '5vh'}}>
-                    <Search
-                        aligned={"right"}
-                        input={{fluid: true}}
-                        loading={loading}
-                        onResultSelect={(e, data) =>
-                            dispatch({type: 'UPDATE_SELECTION', selection: data.result.title})
-                        }
-                        onSearchChange={handleSearchChange}
-                        resultRenderer={resultRenderer}
-                        results={results}
-                        value={value}
-                        style={{
-                            width: "100%",
-                            opacity: '0.9',
-                            zIndex: 2
-                        }}
-                    />
-                </Container>
-                <Divider/>
-                <div style={{
-                    overflowY: "auto",
-                    paddingLeft: '2vmin',
-                    paddingRight: '2vmin',
-                    paddingTop: '3px',
-                    paddingBottom: '3px',
-                }}>
-                    <AccordionList
-                        changePrinter={(printerName) => {
-                            dispatch({type: 'UPDATE_SELECTION', selection: printerName})
-                        }}
-                    />
-                </div>
+
                 <div style={{
                     marginTop: 'auto',
                     marginLeft: 'auto'
                 }}>
-                    <Button content='Custom configuration' icon='list' labelPosition='left' onClick={() => props.switchState(PrinterConfiguratorState.CustomConfig)}/>
+                    <Button content='Back to select configuration' icon='sign-in alternate' labelPosition='left' onClick={() => props.switchState(PrinterConfiguratorState.SelectConfig)}/>
                     <Button
-                        content='Next'
+                        content='Save and next'
                         icon='right arrow'
-                        color={ isValidConfiguration(state.value) ? 'green' : undefined }
+                        color={isValidConfiguration(state.value) ? 'green' : undefined}
                         labelPosition='right'
                     />
                 </div>
@@ -277,4 +244,4 @@ function PrinterSelectConfiguration(props: any) {
     );
 }
 
-export default PrinterSelectConfiguration
+export default PrinterCustomConfiguration
