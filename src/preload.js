@@ -12,3 +12,4 @@ window.bridge.store = (data) => {
 const { ipcRenderer } = require('electron')
 
 window.bridge.userData = ipcRenderer.sendSync('electron.userData', '');
+window.bridge.checkFocus = ipcRenderer.sendSync('electron.checkFocus', '');

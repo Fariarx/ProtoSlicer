@@ -14,7 +14,6 @@ function DragAndDropModal() {
                 color:"white",
                 position: 'relative',
                 top: '50%',
-                webkitTransform: 'translateY(-50%)',
                 transform: 'translateY(-50%)'
             }} icon >
                 <Icon name='archive' />

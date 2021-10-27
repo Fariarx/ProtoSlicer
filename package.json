@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": false,
   "dependencies": {
+    "faker": "^5.5.3",
     "fs": "^0.0.1-security"
   },
   "scripts": {
@@ -12,8 +13,8 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron --dev .",
-    "package": "electron-builder build --win --publish never" 
-   },
+    "package": "electron-builder build --win --publish never"
+  },
   "build": {
     "productName": "ProtoSlicer",
     "appId": "chall2.ProtoSlicer",
@@ -21,7 +22,7 @@
       "buildResources": "build"
     },
     "extraMetadata": {
-      "main":  "src/electron-starter.js"
+      "main": "src/electron-starter.js"
     },
     "files": [
       "./build/*",
@@ -56,14 +57,20 @@
     ]
   },
   "devDependencies": {
-    "electron": "^15.1.0",
     "@babel/plugin-proposal-decorators": "^7.15.8",
+    "@react-three/drei": "^7.17.1",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
     "@types/electron": "^1.6.10",
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.9",
+    "bootstrap": "^5.1.1",
+    "cross-env": "^7.0.3",
+    "electron": "^15.1.0",
     "electron-builder": "^22.13.1",
+    "electron-json-storage": "^4.5.0",
     "electron-packager": "^15.4.0",
-    "typescript": "^4.4.4",
     "mobx": "^6.3.5",
     "mobx-react": "^7.2.1",
     "react": "^17.0.2",
@@ -74,14 +81,8 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.4",
     "three": "^0.133.1",
-    "web-vitals": "^1.0.1",
-    "@react-three/drei": "^7.17.1",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "bootstrap": "^5.1.1",
-    "cross-env": "^7.0.3",
-    "electron-json-storage": "^4.5.0"
+    "typescript": "^4.4.4",
+    "web-vitals": "^1.0.1"
   },
   "homepage": "./",
   "description": "slicer",

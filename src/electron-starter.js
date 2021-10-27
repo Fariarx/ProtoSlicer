@@ -22,8 +22,13 @@ const url = require('url');
 
 const { ipcMain } = require('electron')
 
+var mainWindowFocus = false;
+
 ipcMain.on('electron.userData', (event, arg) => {
     event.returnValue = electron.app.getPath('userData');
+})
+ipcMain.on('electron.checkFocus', (event, arg) => {
+    event.returnValue = mainWindowFocus;
 })
 
 const Store = require('./store');
@@ -51,7 +56,7 @@ function createWindow() {
 
     const store = new Store(DefaultConfig, electron.app.getPath('userData'));
 
-    console.log(electron.app.getPath('userData'))
+    //console.log(electron.app.getPath('userData'))
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -61,6 +66,7 @@ function createWindow() {
         minHeight: size,
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
+        show:false,
         autoHideMenuBar: true,
         "webPreferences": {
             preload: path.join(__dirname, "preload.js"), // use a preload script
@@ -72,6 +78,10 @@ function createWindow() {
         }
     });
 
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show()
+    })
+
     mainWindow.loadURL(
         isDev
             ? "http://localhost:3000"
@@ -82,9 +92,28 @@ function createWindow() {
             })
     );
 
+    app.on('browser-window-focus', () => {
+        if (mainWindow) {
+            //console.log('browser-window-focus');
+            mainWindowFocus = true;
+        }
+    });
+
+    app.on('browser-window-blur', () => {
+        if (mainWindow) {
+            //console.log('browser-window-blur');
+            mainWindowFocus = false;
+        }
+
+    });
+
     if (isDev) {
         // Open the DevTools.
         mainWindow.webContents.openDevTools();
+        mainWindow.webContents.setFrameRate(30)
+    }
+    else {
+        mainWindow.webContents.setFrameRate(60)
     }
 
     mainWindow.removeMenu();

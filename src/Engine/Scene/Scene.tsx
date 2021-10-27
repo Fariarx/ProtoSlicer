@@ -13,6 +13,7 @@ import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
+import SetupPrinter from "../UI/SetupPrinter";
 
 export default this;
 
@@ -37,7 +38,7 @@ export class Scene extends Component<any, any> {
             antialias: true
         });
     }
-    
+
     sceneCreate = () => {
         var thisObj = this;
 
@@ -157,7 +158,7 @@ export class Scene extends Component<any, any> {
             }
 
             var animate = function () {
-                requestAnimationFrame(animate);
+                //requestAnimationFrame(animate);
 
                 //cube.rotation.x += 0.01;
                 // cube.rotation.y += 0.01;
@@ -171,6 +172,8 @@ export class Scene extends Component<any, any> {
 
                 directionalLight.position.set(camera.position.x, camera.position.y, camera.position.z);
             };
+
+            controls.addEventListener( 'change', animate );
 
             animate();
         }
@@ -192,8 +195,6 @@ export class Scene extends Component<any, any> {
         else
         {
             Log("Configuration empty!");
-
-            //call setup
         }
 
         this.sceneCreate();
@@ -204,9 +205,15 @@ export class Scene extends Component<any, any> {
     }
 
     render() {
-        return <div ref={ref => (this.mount = ref)} style={{
-            position:"fixed"
-        }}>
-        </div>;
+        return (
+            <div>
+                <div ref={ref => (this.mount = ref)} style={{
+                    position: "fixed"
+                }}>
+                </div>
+
+                <SetupPrinter/>
+            </div>
+        );
     }
 }
