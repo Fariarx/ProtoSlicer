@@ -13,7 +13,7 @@ import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
-import SetupPrinter from "../UI/SetupPrinter";
+import PrinterConfigurator from "../UI/PrinterConfigurator";
 
 export default this;
 
@@ -212,7 +212,7 @@ export class Scene extends Component<any, any> {
                 }}>
                 </div>
 
-                <SetupPrinter/>
+                <PrinterConfigurator/>
             </div>
         );
     }

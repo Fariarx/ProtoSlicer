@@ -52,4 +52,26 @@ export class Printer {
 
         return null;
     }
+    static ParseConfigNames = function () {
+        let files: string[] = [];
+
+        try {
+            if (fs.existsSync(window.bridge.userData + "/ChangedConfigsV")) {
+                files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV")];
+            }
+            if (fs.existsSync('./src/Engine/Configs/Default')) {
+                files = [...fs.readdirSync('./src/Engine/Configs/Default'), ...files];
+            }
+
+            files = files.filter(function(item, pos) {
+                return files.indexOf(item) === pos;
+            })
+
+            return files;
+        } catch (e) {
+            Log("Error read config files: " + e);
+        }
+
+        return files;
+    }
 }
