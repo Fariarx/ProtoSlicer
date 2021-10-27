@@ -48,7 +48,7 @@ export class Scene extends Component<any, any> {
 
         if(this.printerConfig)
         {
-            gridVec.set(Math.ceil(this.printerConfig.workspace.sizeX * 0.1), this.printerConfig.workspace.height * 0.1, Math.ceil(this.printerConfig.workspace.sizeY * 0.1));
+            gridVec.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
         }
 
         function setupDragDrop() {

@@ -14,7 +14,7 @@ const LabelPopup = observer(() => {
             <Label className='start-50 top-0 position-absolute translate-middle' style={{
                 marginTop:'4vmin'
             }}>
-                <Icon name='mail'/> {text.value}
+                <Icon name='terminal' color='red'  /> {text.value}
             </Label>
         )
     }

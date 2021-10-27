@@ -8,16 +8,30 @@ export enum PrinterConfiguratorState {
 }
 
 export default function PrinterConfigurator(props:any) {
-    let [state, setState] = React.useState(PrinterConfiguratorState.SelectConfig);
+    let [state, setState] = React.useState({
+        value:PrinterConfiguratorState.SelectConfig as PrinterConfiguratorState,
+        propsChildren:{} as any
+    });
 
-    switch (state) {
+    switch (state.value) {
         case PrinterConfiguratorState.SelectConfig:
             return (
-                <PrinterSelectConfiguration switchState={(_state:PrinterConfiguratorState)=>{setState(_state)}}/>
+                <PrinterSelectConfiguration switchState={(_state: PrinterConfiguratorState, props1: any) => {
+                    setState({
+                        value:_state,
+                        propsChildren:props1
+                    })
+                }}/>
             );
         case PrinterConfiguratorState.CustomConfig:
             return (
-                <PrinterCustomConfiguration switchState={(_state:PrinterConfiguratorState)=>{setState(_state)}}/>
+                <PrinterCustomConfiguration propsChildren={state.propsChildren}
+                                            switchState={(_state: PrinterConfiguratorState, props1: any) => {
+                                                setState({
+                                                    value:_state,
+                                                    propsChildren:props1
+                                                })
+                                            }}/>
             );
         default:
             return <div/>;

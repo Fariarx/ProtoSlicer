@@ -1,247 +1,191 @@
-import React, {Component} from "react";
-import _ from 'lodash'
+import React, {Component, useState} from "react";
 import {
-    Accordion,
     Button,
-    Card,
     Container,
-    Divider,
     Form,
     Header,
-    Icon,
-    Menu,
-    Search,
     Segment
 } from "semantic-ui-react";
-import {LinearGenerator} from "../../Utils";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Printer} from "../../Configs/Printer";
 import {PrinterConfiguratorState} from "./PrinterConfigurator";
+import {observer} from "mobx-react";
+import {Printer} from "../../Configs/Printer";
+import LabelPopup, {PopupLabelSendText} from "../Notifications/PopupLabel";
+import {isFloat, isInteger, isNumeric} from "../../Utils";
 
-
-function ListElement(props: any) {
-    /*let [activeIndex, setActiveIndex] = React.useState({activeIndex: -1});
-
-    let handleClick = (e, titleProps) => {
-        const {index} = titleProps
-        const {activeIndex} = this.state
-        const newIndex = activeIndex === index ? -1 : index
-
-        setActiveIndex(newIndex)
-    }*/
-
-    let list = props.list?.map((obj) =>
-        <Menu.Item active={props.activeNameModel === (props.manufacturer + obj.title)}
-    name={obj.title}
-    manufacturer={props.manufacturer}
-    onClick={props.selectModel}
-    />
-);
-
-    return (
-        <div>
-            <Accordion.Title
-                index={props.index}
-    onClick={props.onClickManufacturer}
-    active={props.activeIndexManufacturer === props.index}
-    >
-    <Icon name='dropdown' className='float-end'/>
-    <p style={{textAlign:'start'}}>
-    {props.manufacturer}
-    </p>
-    </Accordion.Title>
-    <Accordion.Content active={props.activeIndexManufacturer === props.index}>
-        <Menu  vertical>
-        {list}
-        </Menu>
-        </Accordion.Content>
-        </div>
-);
-}
-
-class AccordionList extends Component<any> {
-    state = {activeIndexManufacturer: -1, activeNameModel: ""}
-
+export class PrinterCustomConfiguration extends Component<any, any> {
     constructor(props) {
         super(props);
-    }
 
-    handleClickModel = (e, titleProps) => {
-        this.props.changePrinter(titleProps.name);
-
-        this.setState({
-            activeNameModel: titleProps.manufacturer + titleProps.name
-        })
-    }
-
-    handleClickManufacturer = (e, titleProps) => {
-        const {index} = titleProps
-        const {activeIndexManufacturer} = this.state
-        const newIndex = activeIndexManufacturer === index ? -1 : index
-
-        this.setState({
-            activeIndexManufacturer: newIndex
-        })
-    }
-
-    render() {
-        let list = [] as any;
-        let count = 0;
-
-        for (let manufacturer in printerWithManufacturerNames) {
-            list.push(
-                <ListElement
-                    activeNameModel={this.state.activeNameModel}
-            activeIndexManufacturer={this.state.activeIndexManufacturer}
-            index={count} manufacturer={manufacturer}
-            list={printerWithManufacturerNames[manufacturer]}
-            onClickManufacturer={this.handleClickManufacturer}
-            selectModel={this.handleClickModel}
-            />);
-
-            count++;
+        this.state = {
+            printer: props.propsChildren && props.propsChildren.config ? props.propsChildren.config : new Printer(),
         }
+    }
+
+    isInputsValid = (log = false) => {
+        if(!this.state.printer.name)
+        {
+            log && PopupLabelSendText("Configuration name not valid!");
+            return false;
+        }
+
+        for(let value1 in this.state.printer)
+        {
+            for (let value2 in this.state.printer[value1])
+            {
+                if(!this.state.printer[value1][value2])
+                {
+                    log && PopupLabelSendText("Value '" + value1 + '.' + value2 + "' not valid!");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    onChange = (e, data) => {
+        if(data.name === "name")
+        {
+            this.state.printer.name = data.value;
+        }
+        else
+        {
+            let type = data.name.split('.');
+
+            data.value = data.value.replace(',','.');
+
+            switch (type[2]) {
+                case 'number':
+                    if(isNumeric(data.value) && isInteger(parseInt(data.value)) && !isFloat(parseFloat(data.value))) {
+                        this.state.printer[type[0]][type[1]] = parseInt(data.value);
+                        break;
+                    }
+                    else {
+                        if(data.value.length === 0)
+                        {
+                            this.state.printer[type[0]][type[1]] = 0;
+                            break;
+                        }
+
+                        e.target.value = this.state.printer[type[0]][type[1]];
+
+                        PopupLabelSendText('Need to write integer numbers!');
+                    }
+                    break;
+                case 'float':
+                    if(isNumeric(data.value)) {
+                        this.state.printer[type[0]][type[1]] = parseFloat(data.value);
+                    }
+                    else {
+                        if(data.value.length === 0)
+                        {
+                            this.state.printer[type[0]][type[1]] = 0;
+                            break;
+                        }
+
+                        e.target.value = this.state.printer[type[0]][type[1]];
+
+                        PopupLabelSendText('Need to write float numbers!');
+                    }
+                    break;
+            }
+
+            this.setState(this.state);
+
+            return;
+        }
+    }
+
+    render(): React.ReactNode {
+
+        console.log(this.state.printer)
 
         return (
-            <Accordion fluid styled>
-        {list}
-        </Accordion>
-    )
-    }
-}
-
-let printerWithManufacturerNames;
-let printerNames;
-
-function PrinterCustomConfiguration(props: any) {
-    const initialState = {
-        loading: false,
-        results: [],
-        value: '',
-    }
-
-    const [state, dispatch] = React.useReducer(reducer, initialState);
-    const {loading, results, value} = state;
-
-    function reducer(state, action) {
-        switch (action.type) {
-            case 'CLEAN_QUERY':
-                return initialState
-            case 'START_SEARCH':
-                return {...state, loading: true, value: action.query}
-            case 'FINISH_SEARCH':
-                return {...state, loading: false, results: action.results}
-            case 'UPDATE_SELECTION':
-                return {...state, value: action.selection}
-
-            default:
-                throw new Error()
-        }
-    }
-
-    printerWithManufacturerNames = {};
-    printerNames = Printer.ParseConfigNames();
-    printerNames = printerNames.map((t) => {
-        let splited = t.split(' ');
-        let objName = (splited.length <= 1 ? 'Unnamed' : splited[0]);
-
-        if (!printerWithManufacturerNames[objName]) {
-            printerWithManufacturerNames[objName] = [] as any;
-        }
-
-        let obj = {
-            title: t
-        };
-
-        printerWithManufacturerNames[objName].push(obj);
-
-        return obj;
-    })
-
-    let isValidConfiguration = function (name) {
-        let isNormal = false;
-
-        printerNames.some((t) => {
-            if (t.title === name) {
-                isNormal = true;
-                return true;
-            }
-        })
-
-        return isNormal;
-    }
-
-    let timeout;
-
-    const handleSearchChange = React.useCallback((e, data) => {
-        clearTimeout(timeout)
-
-        dispatch({type: 'START_SEARCH', query: data.value})
-
-        timeout = setTimeout(() => {
-            if (data.value.length === 0) {
-                dispatch({type: 'CLEAN_QUERY'})
-                return
-            }
-
-            const re = new RegExp(_.escapeRegExp(data.value), 'i')
-            const isMatch = (result) => re.test(result.title)
-
-            dispatch({
-                type: 'FINISH_SEARCH',
-                results: _.filter(printerNames, isMatch),
-            })
-        }, 300)
-    }, [])
-
-    React.useEffect(() => {
-        return () => {
-            clearTimeout(timeout)
-        }
-    }, [])
-
-    const resultRenderer = ({title}) => <Header as='h4'>{title}</Header>
-
-    return (
-        <div style={{
-            height: "100vh",
-            width: "100vw",
-            backgroundColor: "rgba(0,0,0,0.45)",
-            position: "absolute"
-        }}>
-            <Container className='position-absolute top-50 start-50 translate-middle' style={{
-                width: "70vw",
-                height: "70vh",
-                backgroundColor: "#ffffff",
-                zIndex: 1,
-                borderRadius: "5px",
-                padding: "2vmin",
-                display: "flex",
-                flexDirection: "column",
+            <div style={{
+                height: "100vh",
+                width: "100vw",
+                backgroundColor: "rgba(0,0,0,0.45)",
+                position: "absolute"
             }}>
-                <Segment clearing>
-                    <Header
-                        as='h2'
-                        content='Printer custom configurator'
-                        subheader='Setup printer configuration'
-                    />
-                </Segment>
-
-                <div style={{
-                    marginTop: 'auto',
-                    marginLeft: 'auto'
+                <Container className='position-absolute top-50 start-50 translate-middle' style={{
+                    width: "70vw",
+                    height: "70vh",
+                    backgroundColor: "#ffffff",
+                    zIndex: 1,
+                    borderRadius: "5px",
+                    padding: "2vmin",
+                    display: "flex",
+                    flexDirection: "column",
                 }}>
-                    <Button content='Back to select configuration' icon='sign-in alternate' labelPosition='left' onClick={() => props.switchState(PrinterConfiguratorState.SelectConfig)}/>
-                    <Button
-                        content='Save and next'
-                        icon='right arrow'
-                        color={isValidConfiguration(state.value) ? 'green' : undefined}
-                        labelPosition='right'
-                    />
-                </div>
-            </Container>
-        </div>
-    );
+                    <Segment clearing>
+                        <Header
+                            as='h2'
+                            content='Printer custom configurator'
+                            subheader='Setup printer configuration'
+                        />
+                    </Segment>
+
+                    <Container style={{
+                        padding: '3vmin',
+                        overflowX: "auto",
+                        marginBottom: '2vmin'
+                    }}>
+                        <Form style={{
+                            width: "100%"
+                        }}>
+                            <Form.Input name='name' onChange={this.onChange} label='Printer configuration name' placeholder='text' width={9} defaultValue={this.state.printer.name !== '' ? this.state.printer.name : undefined}/>
+                            <Segment style={{padding: '3vmin', paddingBottom: '1vmin', paddingTop: '2vmin'}}>
+                                <Form.Group widths='equal'>
+                                    <Form.Input name='Workspace.sizeX.float' onChange={this.onChange} label='Workspace size X' placeholder='mm'  width={3} defaultValue={this.state.printer.Workspace.sizeX !== 0 ? this.state.printer.Workspace.sizeX : undefined} />
+                                    <Form.Input name='Workspace.sizeY.float' onChange={this.onChange} label='Workspace size Y' placeholder='mm'  width={3} defaultValue={this.state.printer.Workspace.sizeY !== 0 ? this.state.printer.Workspace.sizeY : undefined} />
+                                    <Form.Input name='Workspace.height.float' onChange={this.onChange} label='Workspace height' placeholder='mm'  width={3} defaultValue={this.state.printer.Workspace.height !== 0 ? this.state.printer.Workspace.height : undefined}  />
+                                </Form.Group>
+                                <Form.Group widths='equal'>
+                                    <Form.Input name='Resolution.X.number' onChange={this.onChange} label='Screen resolution X' placeholder='mm' width={3} defaultValue={this.state.printer.Resolution.X !== 0 ? this.state.printer.Resolution.X : undefined} />
+                                    <Form.Input name='Resolution.Y.number' onChange={this.onChange} label='Screen resolution Y' placeholder='mm' width={3} defaultValue={this.state.printer.Resolution.Y !== 0 ? this.state.printer.Resolution.Y : undefined} />
+                                </Form.Group>
+                            </Segment>
+                            <Segment style={{padding: '3vmin', paddingBottom: '1vmin', paddingTop: '2vmin'}}>
+                                <Form.Group widths='equal'>
+                                    <Form.Input name='PrintSettings.LayerHeight.float' onChange={this.onChange} label='Layer height' placeholder='mm' width={3} defaultValue={this.state.printer.PrintSettings.LayerHeight !== 0 ? this.state.printer.PrintSettings.LayerHeight : undefined} />
+                                    <Form.Input name='PrintSettings.BottomLayers.number' onChange={this.onChange} label='Bottom layers' placeholder='mm' width={3} defaultValue={this.state.printer.PrintSettings.BottomLayers !== 0 ? this.state.printer.PrintSettings.BottomLayers : undefined} />
+                                    <Form.Input name='PrintSettings.ExposureTime.float'onChange={this.onChange} label='Exposure time' placeholder='mm' width={3} defaultValue={this.state.printer.PrintSettings.ExposureTime !== 0 ? this.state.printer.PrintSettings.ExposureTime : undefined} />
+                                </Form.Group>
+                                <Form.Group widths='equal'>
+                                    <Form.Input name='PrintSettings.BottomExposureTime.float' onChange={this.onChange} label='Bottom exposure time' placeholder='mm' width={3} defaultValue={this.state.printer.PrintSettings.BottomExposureTime!== 0 ? this.state.printer.PrintSettings.BottomExposureTime : undefined} />
+                                    <Form.Input name='PrintSettings.LiftingHeight.float' onChange={this.onChange} label='Lifting height' placeholder='mm' width={3} defaultValue={this.state.printer.PrintSettings.LiftingHeight !== 0 ? this.state.printer.PrintSettings.LiftingHeight : undefined} />
+                                    <Form.Input name='PrintSettings.LiftingSpeed.float' onChange={this.onChange} label='Lifting speed' placeholder='mm' width={3} defaultValue={this.state.printer.PrintSettings.LiftingSpeed !== 0 ? this.state.printer.PrintSettings.LiftingSpeed : undefined} />
+                                </Form.Group>
+                            </Segment>
+                        </Form>
+                    </Container>
+
+                    <div style={{
+                        marginTop: 'auto',
+                        marginLeft: 'auto'
+                    }}>
+                        <Button content='Back' icon='sign-in alternate' labelPosition='left'
+                                onClick={() => this.props.switchState(PrinterConfiguratorState.SelectConfig)}/>
+                        <Button
+                            content='Save and continue'
+                            icon='right arrow'
+                            color={this.isInputsValid() ? 'green' : undefined}
+                            labelPosition='right'
+                            onClick={() => {
+                                if(!this.isInputsValid(true))
+                                {
+                                    return;
+                                }
+
+                                PopupLabelSendText("Config with name '" + this.state.printer.name + "' created!");
+                            }}
+                        />
+                    </div>
+                </Container>
+            </div>
+        );
+    }
 }
 
-export default PrinterCustomConfiguration
+export default PrinterCustomConfiguration;

@@ -141,7 +141,7 @@ function PrinterSelectConfiguration(props: any) {
     }
 
     printerWithManufacturerNames = {};
-    printerNames = Printer.ParseConfigNames();
+    printerNames = Printer.ParseConfigFileNames();
     printerNames = printerNames.map((t) => {
         let splited = t.split(' ');
         let objName = (splited.length <= 1 ? 'Unnamed' : splited[0]);
@@ -242,9 +242,9 @@ function PrinterSelectConfiguration(props: any) {
                         value={value}
                         style={{
                             width: "100%",
-                            opacity: '0.9',
                             zIndex: 2
                         }}
+                        placeholder='Search model configuration...'
                     />
                 </Container>
                 <Divider/>
@@ -265,7 +265,14 @@ function PrinterSelectConfiguration(props: any) {
                     marginTop: 'auto',
                     marginLeft: 'auto'
                 }}>
-                    <Button content='Custom configuration' icon='list' labelPosition='left' onClick={() => props.switchState(PrinterConfiguratorState.CustomConfig)}/>
+                    <Button
+                        content='Custom for new or selected'
+                        icon='list'
+                        labelPosition='left'
+                        onClick={() => {
+                            console.log(state.value)
+                            props.switchState(PrinterConfiguratorState.CustomConfig, { config: isValidConfiguration(state.value) ? Printer.LoadConfigFromFile(state.value) : null })
+                        }}/>
                     <Button
                         content='Next'
                         icon='right arrow'

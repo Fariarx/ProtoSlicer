@@ -56,7 +56,6 @@ function createWindow() {
 
     const store = new Store(DefaultConfig, electron.app.getPath('userData'));
 
-    //console.log(electron.app.getPath('userData'))
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -111,6 +110,7 @@ function createWindow() {
         // Open the DevTools.
         mainWindow.webContents.openDevTools();
         mainWindow.webContents.setFrameRate(30)
+        console.log(electron.app.getPath('userData'))
     }
     else {
         mainWindow.webContents.setFrameRate(60)
