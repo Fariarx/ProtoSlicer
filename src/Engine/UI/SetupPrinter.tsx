@@ -105,7 +105,7 @@ function SetupPrinter(props: any) {
                 backgroundColor: "#ffffff",
                 zIndex: 1,
                 borderRadius: "5px",
-                padding: "2%"
+                padding: "2vmin"
             }}>
                 <Segment clearing>
                     <Header
