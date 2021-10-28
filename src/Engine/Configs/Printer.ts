@@ -75,13 +75,27 @@ export class Printer {
 
     static LoadDefaultConfigFromFile = function () {
         try {
-            return new Printer(path.basename("Voxelab Proxima_6_0.json"), JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/'+Printer.defaultConfigName+'.json', 'utf8')));
+            return new Printer(path.basename("Voxelab Proxima 6.json"), JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/'+Printer.defaultConfigName+'.json', 'utf8')));
         }
         catch (e) {
             LogSendText("Error read config: " + e);
         }
 
         return null;
+    }
+    static SaveToFile = function (config: Printer) {
+        try {
+            if (!fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs)) {
+                fs.mkdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs);
+            }
+
+            fs.writeFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs + "/" + config.name + '.json', JSON.stringify(config),{encoding:'utf8',flag:'w'});
+            return true;
+        }
+        catch (e) {
+            LogSendText("Error save config to file: " + e);
+            return false;
+        }
     }
     static LoadConfigFromFile = function (modelName) {
         try {
@@ -94,7 +108,11 @@ export class Printer {
                 config  = JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/' + modelName + '.json', 'utf8'));
             }
 
-            return new Printer(path.basename(modelName), config);
+            let obj = new Printer(path.basename(modelName), config);
+
+            Log("Printer '" + modelName + "' loaded.");
+
+            return obj;
         }
         catch (e) {
             LogSendText("Error read config: " + e);
@@ -106,8 +124,8 @@ export class Printer {
         let files: string[] = [];
 
         try {
-            if (fs.existsSync(window.bridge.userData + "/ChangedConfigsV")) {
-                files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV")];
+            if (fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs)) {
+                files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs)];
             }
             if (fs.existsSync('./src/Engine/Configs/Default')) {
                 files = [...fs.readdirSync('./src/Engine/Configs/Default'), ...files];

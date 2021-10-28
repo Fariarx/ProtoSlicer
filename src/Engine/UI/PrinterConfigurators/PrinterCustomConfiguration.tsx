@@ -176,7 +176,15 @@ export class PrinterCustomConfiguration extends Component<any, any> {
                                     return;
                                 }
 
-                                LogSendText("Config with name '" + this.state.printer.name + "' created!", true);
+                                if(Printer.SaveToFile(this.state.printer)) {
+                                    LogSendText("Custom config with name '" + this.state.printer.name + "' has been created!", true);
+                                }
+                                else {
+                                    LogSendText("Configuration save error", true);
+                                    return;
+                                }
+
+                                this.props.switchState(PrinterConfiguratorState.ConfigReady, this.state.printer);
                             }}
                         />
                     </div>

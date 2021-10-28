@@ -39,6 +39,17 @@ export class Scene extends Component<any, any> {
         this.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
+
+        let printer = Printer.LoadConfigFromFile(this.printerName);
+
+        if(printer)
+        {
+            this.printerConfig = printer;
+        }
+        else
+        {
+            Log("Configuration empty!");
+        }
     }
 
     sceneCreate = () => {
@@ -184,21 +195,6 @@ export class Scene extends Component<any, any> {
     }
 
     componentDidMount() {
-        let printer = Printer.LoadConfigFromFile(this.printerName);
-
-        if(printer)
-        {
-            this.printerConfig = printer;
-
-            Log("Printer '" + this.printerName + "' loaded.");
-
-            console.log(this.printerConfig)
-        }
-        else
-        {
-            Log("Configuration empty!");
-        }
-
         this.sceneCreate();
     }
 
@@ -214,7 +210,16 @@ export class Scene extends Component<any, any> {
                 }}>
                 </div>
 
-                {!this.printerConfig && <PrinterConfigurator/>}
+                {!this.printerConfig && <PrinterConfigurator setupConfiguration={(config: Printer)=>{
+                    store.set('printer', config.name);
+
+                    this.printerName = config.name;
+                    this.printerConfig = config;
+
+                    Log("Configuration loaded!");
+
+                    this.setState({});
+                }}/>}
 
                 {this.props.children}
             </div>

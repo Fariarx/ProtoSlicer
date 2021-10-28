@@ -4,7 +4,8 @@ import PrinterSelectConfiguration from "./PrinterSelectConfiguration";
 
 export enum PrinterConfiguratorState {
     SelectConfig,
-    CustomConfig
+    CustomConfig,
+    ConfigReady
 }
 
 export default function PrinterConfigurator(props:any) {
@@ -13,25 +14,27 @@ export default function PrinterConfigurator(props:any) {
         propsChildren:{} as any
     });
 
+    let switchState = (_state: PrinterConfiguratorState, props1: any) => {
+        if(_state === PrinterConfiguratorState.ConfigReady)
+        {
+            props.setupConfiguration(props1);
+            return;
+        }
+
+        setState({
+            value:_state,
+            propsChildren:props1
+        })
+    }
+
     switch (state.value) {
         case PrinterConfiguratorState.SelectConfig:
             return (
-                <PrinterSelectConfiguration switchState={(_state: PrinterConfiguratorState, props1: any) => {
-                    setState({
-                        value:_state,
-                        propsChildren:props1
-                    })
-                }}/>
+                <PrinterSelectConfiguration switchState={switchState}/>
             );
         case PrinterConfiguratorState.CustomConfig:
             return (
-                <PrinterCustomConfiguration propsChildren={state.propsChildren}
-                                            switchState={(_state: PrinterConfiguratorState, props1: any) => {
-                                                setState({
-                                                    value:_state,
-                                                    propsChildren:props1
-                                                })
-                                            }}/>
+                <PrinterCustomConfiguration propsChildren={state.propsChildren} switchState={switchState}/>
             );
         default:
             return <div/>;

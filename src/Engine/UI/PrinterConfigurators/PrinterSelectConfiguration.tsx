@@ -284,6 +284,16 @@ function PrinterSelectConfiguration(props: any) {
                                 LogSendText("You need to choose a configuration", true);
                                 return;
                             }
+
+                            let config = Printer.LoadConfigFromFile(state.value);
+
+                            if (!config)
+                            {
+                                LogSendText("Error of loading file", true);
+                                return;
+                            }
+
+                            props.switchState(PrinterConfiguratorState.ConfigReady, config);
                         }}
                     />
                 </div>
