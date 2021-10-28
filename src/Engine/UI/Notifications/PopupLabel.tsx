@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Console.css';
 import {action, observable} from "mobx";
 import {observer} from "mobx-react";
+import {LogSendText} from "./Console";
 
 const text = observable({ value:'' });
 
@@ -12,7 +13,8 @@ const LabelPopup = observer(() => {
     {
         return (
             <Label className='start-50 top-0 position-absolute translate-middle' style={{
-                marginTop:'4vmin'
+                marginTop:'4vmin',
+                zIndex:500
             }}>
                 <Icon name='terminal' color='red'  /> {text.value}
             </Label>

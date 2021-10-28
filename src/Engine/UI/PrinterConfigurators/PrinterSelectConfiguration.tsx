@@ -18,6 +18,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Printer} from "../../Configs/Printer";
 import {PrinterConfiguratorState} from "./PrinterConfigurator";
 import {PopupLabelSendText} from "../Notifications/PopupLabel";
+import {LogSendText} from "../Notifications/Console";
 
 
 function ListElement(props: any) {
@@ -208,7 +209,7 @@ function PrinterSelectConfiguration(props: any) {
         <div style={{
             height: "100vh",
             width: "100vw",
-            backgroundColor: "rgba(0,0,0,0.45)",
+            backgroundColor: "rgba(0,0,0,0.35)",
             position: "absolute"
         }}>
             <Container className='position-absolute top-50 start-50 translate-middle' style={{
@@ -270,7 +271,6 @@ function PrinterSelectConfiguration(props: any) {
                         icon='list'
                         labelPosition='left'
                         onClick={() => {
-                            console.log(state.value)
                             props.switchState(PrinterConfiguratorState.CustomConfig, { config: isValidConfiguration(state.value) ? Printer.LoadConfigFromFile(state.value) : null })
                         }}/>
                     <Button
@@ -281,7 +281,7 @@ function PrinterSelectConfiguration(props: any) {
                         onClick={()=>{
                             if(!isValidConfiguration(state.value))
                             {
-                                PopupLabelSendText("You need to choose a configuration");
+                                LogSendText("You need to choose a configuration", true);
                                 return;
                             }
                         }}

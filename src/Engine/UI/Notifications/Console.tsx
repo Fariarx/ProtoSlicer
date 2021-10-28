@@ -6,6 +6,7 @@ import {LinearGenerator} from '../../Utils'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Console.css';
+import {PopupLabelSendText} from "./PopupLabel";
 
 export default this;
 
@@ -33,7 +34,12 @@ export class Console extends Component {
     }
 }
 
-export const LogSendText = action((text ) => {
+export const LogSendText = action((text: string, isPopup: boolean = false, timeout: number | undefined = undefined) => {
+    if(isPopup)
+    {
+        PopupLabelSendText(text, timeout);
+    }
+
     logList.push({
         text:text,
         time:new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')

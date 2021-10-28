@@ -1,11 +1,12 @@
 .Log
 {
     width: 55vw;
-    height: 15vh;
+    height: 13vh;
     position: fixed;
-    margin-left: 30px;
+    margin-left: 3vmin;
     text-overflow: clip;
     opacity: 0.5;
+    z-index: 500;
 }
 .Li
 {

@@ -213,7 +213,10 @@ export class Scene extends Component<any, any> {
                     position: "fixed"
                 }}>
                 </div>
+
                 {!this.printerConfig && <PrinterConfigurator/>}
+
+                {this.props.children}
             </div>
         );
     }

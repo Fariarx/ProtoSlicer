@@ -2,6 +2,7 @@ import * as path from 'path'
 import Globals, {DefaultConfig, Log } from "../Globals";
 import {fs} from "../Bridge";
 import {Resin} from "./Resin";
+import {LogSendText} from "../UI/Notifications/Console";
 
 export type Workspace = {
     sizeX: number;
@@ -77,7 +78,7 @@ export class Printer {
             return new Printer(path.basename("Voxelab Proxima_6_0.json"), JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/'+Printer.defaultConfigName+'.json', 'utf8')));
         }
         catch (e) {
-            Log("Error read config: " + e);
+            LogSendText("Error read config: " + e);
         }
 
         return null;
@@ -96,7 +97,7 @@ export class Printer {
             return new Printer(path.basename(modelName), config);
         }
         catch (e) {
-            Log("Error read config: " + e);
+            LogSendText("Error read config: " + e);
         }
 
         return null;
@@ -129,7 +130,7 @@ export class Printer {
 
             return files;
         } catch (e) {
-            Log("Error read config files: " + e);
+            LogSendText("Error read config files: " + e);
         }
 
         return files;

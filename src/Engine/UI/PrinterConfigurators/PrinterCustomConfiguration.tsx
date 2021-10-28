@@ -10,8 +10,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {PrinterConfiguratorState} from "./PrinterConfigurator";
 import {observer} from "mobx-react";
 import {Printer} from "../../Configs/Printer";
-import LabelPopup, {PopupLabelSendText} from "../Notifications/PopupLabel";
+import {PopupLabelSendText} from "../Notifications/PopupLabel";
 import {isFloat, isInteger, isNumeric} from "../../Utils";
+import {LogSendText} from "../Notifications/Console";
 
 export class PrinterCustomConfiguration extends Component<any, any> {
     constructor(props) {
@@ -70,7 +71,7 @@ export class PrinterCustomConfiguration extends Component<any, any> {
 
                         e.target.value = this.state.printer[type[0]][type[1]];
 
-                        PopupLabelSendText('Need to write integer numbers!');
+                        LogSendText('Need to write integer numbers!', true);
                     }
                     break;
                 case 'float':
@@ -86,7 +87,7 @@ export class PrinterCustomConfiguration extends Component<any, any> {
 
                         e.target.value = this.state.printer[type[0]][type[1]];
 
-                        PopupLabelSendText('Need to write float numbers!');
+                        LogSendText('Need to write float numbers!', true);
                     }
                     break;
             }
@@ -98,14 +99,11 @@ export class PrinterCustomConfiguration extends Component<any, any> {
     }
 
     render(): React.ReactNode {
-
-        console.log(this.state.printer)
-
         return (
             <div style={{
                 height: "100vh",
                 width: "100vw",
-                backgroundColor: "rgba(0,0,0,0.45)",
+                backgroundColor: "rgba(0,0,0,0.35)",
                 position: "absolute"
             }}>
                 <Container className='position-absolute top-50 start-50 translate-middle' style={{
@@ -178,7 +176,7 @@ export class PrinterCustomConfiguration extends Component<any, any> {
                                     return;
                                 }
 
-                                PopupLabelSendText("Config with name '" + this.state.printer.name + "' created!");
+                                LogSendText("Config with name '" + this.state.printer.name + "' created!", true);
                             }}
                         />
                     </div>

@@ -17,12 +17,12 @@ export class App extends Component<any, any> {
     render(): React.ReactNode {
         return (
             <div className="App">
-                <Scene dragAndDropSetState={this.showDragAndDropModal}/>
+                <Scene dragAndDropSetState={this.showDragAndDropModal}>
+                    {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
+                    <Console/>
+                    <LabelPopup/>
+                </Scene>
 
-                {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
-
-                <Console/>
-                <LabelPopup/>
             </div>
         );
     }
