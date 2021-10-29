@@ -34,9 +34,10 @@ export function File3DLoad(file: File, handler: Function): boolean {
 export type Grid = {
     obj: any;
     mat: LineMaterial;
+    dispose: Function;
 }
 
-export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): any {
+export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): Grid {
     var positions: any[] = [];
 
     let gridSizeX = size.x;
@@ -82,7 +83,12 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): any {
 
     return {
         obj: line,
-        mat: matLine
+        mat: matLine,
+        dispose: ()=> {
+            geometry.dispose();
+            matLine.dispose();
+            scene.remove(line);
+        }
     } as Grid;
 }
 

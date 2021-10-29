@@ -1,8 +1,9 @@
 import * as path from 'path'
-import Globals, {DefaultConfig, Log } from "../../Globals";
+import Globals, {  Log } from "../../Globals";
 import {fs} from "../../Bridge";
 import {Resin} from "./Resin";
 import {LogSendText} from "../Notifications/Console";
+import { DefaultConfig } from '../../DefaultConfig';
 
 export type Workspace = {
     sizeX: number;
@@ -85,11 +86,11 @@ export class Printer {
     }
     static SaveToFile = function (config: Printer) {
         try {
-            if (!fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs)) {
-                fs.mkdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs);
+            if (!fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs)) {
+                fs.mkdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs);
             }
 
-            fs.writeFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs + "/" + config.name + '.json', JSON.stringify(config),{encoding:'utf8',flag:'w'});
+            fs.writeFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs + "/" + config.name + '.json', JSON.stringify(config),{encoding:'utf8',flag:'w'});
             return true;
         }
         catch (e) {
@@ -103,7 +104,7 @@ export class Printer {
             let config: Config;
 
             try {
-                config = JSON.parse(fs.readFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs + "/" + modelName + '.json', 'utf8'));
+                config = JSON.parse(fs.readFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs + "/" + modelName + '.json', 'utf8'));
             } catch (e) {
                 config  = JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/' + modelName + '.json', 'utf8'));
             }
@@ -124,8 +125,8 @@ export class Printer {
         let files: string[] = [];
 
         try {
-            if (fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs)) {
-                files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.defaults.versionPrinterConfigs)];
+            if (fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs)) {
+                files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs)];
             }
             if (fs.existsSync('./src/Engine/Configs/Default')) {
                 files = [...fs.readdirSync('./src/Engine/Configs/Default'), ...files];

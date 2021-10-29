@@ -7,8 +7,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer, Config} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
-import {Log, Materials} from "../../Globals";
-import {store} from "../../Bridge";
+import {storeMain} from "../../Bridge";
+import {ISceneMaterial, Log, SceneMaterials} from "../../Globals";
 import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
@@ -22,26 +22,32 @@ export default this;
 
 export class Scene extends Component<any, any> {
     mount: any;
-    material: THREE.Material;
-    renderer: THREE.WebGLRenderer;
 
-    objects: SceneObject[];
-
-    printerName: string;
+    printerName: string = storeMain.get('printer');
     printerConfig?: Printer;
+
+    scene: THREE.Scene = new THREE.Scene();
+    renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+    grid?: SceneHelper.Grid;
+    gridSize: THREE.Vector3 = new Vector3(1,1,1);
+    updateCameraPositionRelativelyToGrid: Function = ()=>{};
+    animate: Function = ()=>{};
+
+    objects: SceneObject[] = [];
+    materials: ISceneMaterial = SceneMaterials.default;
 
     constructor(props) {
         super(props);
 
-        this.objects = [];
-        this.material = Materials.def;
-        this.printerName = store.get('printer');
+        let printer;
 
-        this.renderer = new THREE.WebGLRenderer({
-            antialias: true
-        });
-
-        let printer = Printer.LoadConfigFromFile(this.printerName);
+        if(this.printerName)
+        {
+            printer = Printer.LoadConfigFromFile(this.printerName);
+        }
 
         if(printer)
         {
@@ -53,150 +59,159 @@ export class Scene extends Component<any, any> {
         }
     }
 
-    sceneCreate = () => {
-        var thisObj = this;
-
-        let gridVec = new THREE.Vector3(2, 2, 2);
+    updatePrinter = () => {
+        if(this.grid)
+        {
+            this.grid.dispose();
+        }
 
         if(this.printerConfig)
         {
-            gridVec.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
+            this.gridSize.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
         }
 
-        function setupDragDrop() {
-            var holder = thisObj.renderer.domElement;
+        this.grid = SceneHelper.CreateGrid(this.gridSize, this.scene);
+    }
 
-            holder.ondragover = function() {
-                thisObj.props.dragAndDropSetState(true);
-                //Log("Drag and drop over" )
-                return false;
-            };
+    setupDragNDrop = () => {
+        let thisObj = this;
 
-            holder.ondragleave = function() {
-                thisObj.props.dragAndDropSetState(false);
-                //Log("Drag and drop leave" )
-                return false;
-            };
+        let holder = this.renderer.domElement;
 
-            holder.ondrop = function(e) {
-                thisObj.props.dragAndDropSetState(false);
+        holder.ondragover = function() {
+            thisObj.props.dragAndDropSetState(true);
+            //Log("Drag and drop over" )
+            return false;
+        };
 
-                if(e.dataTransfer)
+        holder.ondragleave = function() {
+            thisObj.props.dragAndDropSetState(false);
+            //Log("Drag and drop leave" )
+            return false;
+        };
+
+        holder.ondrop = function(e) {
+            thisObj.props.dragAndDropSetState(false);
+
+            if(e.dataTransfer)
+            {
+                Log('Drop ' + e.dataTransfer.files.length + ' file(s) event');
+
+                for(let file of e.dataTransfer.files)
                 {
-                    Log('Drop ' + e.dataTransfer.files.length + ' file(s) event');
+                    let result = File3DLoad(file, function (geometry: BufferGeometry) {
+                        let mesh = new THREE.Mesh( geometry, thisObj.materials.normal );
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
+                        mesh.scale.set(0.1, 0.1, 0.1);
 
-                    for(let file of e.dataTransfer.files)
+                        let obj = new SceneObject(mesh);
+                        obj.AlignToPlaneXZ(thisObj.gridSize);
+                        obj.AlignToPlaneY();
+                        obj.AddToScene(thisObj.scene);
+                    });
+
+                    if(result)
                     {
-                        let result = File3DLoad(file, function (geometry: BufferGeometry) {
-                            let mesh = new THREE.Mesh( geometry, thisObj.material );
-                            mesh.castShadow = true;
-                            mesh.receiveShadow = true;
-                            mesh.scale.set(0.1, 0.1, 0.1);
-
-                            let obj = new SceneObject(mesh);
-                            obj.AlignToPlaneXZ(gridVec);
-                            obj.AlignToPlaneY();
-                            obj.AddToScene(scene);
-                        });
-
-                        if(result)
-                        {
-                            Log("File load " + file.name);
-                        }
-                        else {
-                            Log("Error file format " + file.name);
-                        }
+                        Log("File load " + file.name);
+                    }
+                    else {
+                        Log("Error file format " + file.name);
                     }
                 }
-                else {
-                    Log("DataTransfer is null, skip drag and drop" );
-                }
-            }
-        }
-        setupDragDrop();
-
-        //scene
-        {
-            var scene = new THREE.Scene();
-            var camera = new THREE.PerspectiveCamera(
-                50,
-                window.innerWidth / window.innerHeight,
-                0.1,
-                1000
-            );
-
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-
-            const controls = new OrbitControls(camera, this.renderer.domElement);
-
-            let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
-
-            let grid: SceneHelper.Grid = SceneHelper.CreateGrid(gridVec, scene);
-
-            if(gridVec.x >= gridVec.z) {
-                camera.position.set(gridVec.x / 2, gridVec.z, gridVec.z / 2 + gridVec.z * 1.6);
             }
             else {
-                camera.position.set(gridVec.x / 2 + gridVec.x * 1.6, gridVec.x, gridVec.z / 2);
+                Log("DataTransfer is null, skip drag and drop" );
             }
-            controls.target = new THREE.Vector3(gridVec.x / 2, 0, gridVec.z / 2);
-            controls.update();
-
-            this.mount.appendChild(this.renderer.domElement);
-
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-            directionalLight.castShadow = true;
-            scene.add(directionalLight);
-
-            scene.background = new THREE.Color("#eceaea");
-
-            var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
-            var windowHeight = window.innerHeight;
-
-            window.addEventListener('resize', onWindowResize, false);
-
-            function onWindowResize(event) {
-
-                camera.aspect = window.innerWidth / window.innerHeight;
-
-                // adjust the FOV
-                camera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
-
-                camera.updateProjectionMatrix();
-                camera.lookAt(scene.position);
-
-                thisObj.renderer.setSize(window.innerWidth, window.innerHeight);
-                thisObj.renderer.render(scene, camera);
-
-                controls.update();
-            }
-
-            var animate = function () {
-                //requestAnimationFrame(animate);
-
-                //cube.rotation.x += 0.01;
-                // cube.rotation.y += 0.01;
-
-                grid.mat.resolution.set(window.innerWidth, window.innerHeight);
-
-                thisObj.renderer.clearDepth(); // important!
-
-                thisObj.renderer.render(scene, camera);
-                //Log(camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
-
-                directionalLight.position.set(camera.position.x, camera.position.y, camera.position.z);
-            };
-
-            controls.addEventListener( 'change', animate );
-
-            animate();
         }
+    }
+
+    iniScene = () => {
+        let thisObj = this;
+
+        let gridSize = this.gridSize;
+
+        var scene = this.scene;
+        var camera = new THREE.PerspectiveCamera(
+            40,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const controls = new OrbitControls(camera, this.renderer.domElement);
+
+        let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
+
+        this.updateCameraPositionRelativelyToGrid = () => {
+            if (gridSize.x >= gridSize.z) {
+                camera.position.set(gridSize.x / 2, gridSize.z, gridSize.z / 2 + gridSize.z * 1.6);
+            } else {
+                camera.position.set(gridSize.x / 2 + gridSize.x * 1.6, gridSize.x, gridSize.z / 2);
+            }
+            controls.target = new THREE.Vector3(gridSize.x / 2, 0, gridSize.z / 2);
+            controls.update();
+        }
+
+        this.mount.appendChild(this.renderer.domElement);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        scene.background = new THREE.Color("#eceaea");
+
+        var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
+        var windowHeight = window.innerHeight;
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize(event) {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+
+            // adjust the FOV
+            camera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
+
+            camera.updateProjectionMatrix();
+            camera.lookAt(scene.position);
+
+            thisObj.renderer.setSize(window.innerWidth, window.innerHeight);
+            thisObj.renderer.render(scene, camera);
+
+            controls.update();
+        }
+
+        this.animate = function () {
+            //requestAnimationFrame(animate);
+
+            //cube.rotation.x += 0.01;
+            // cube.rotation.y += 0.01;
+
+            thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
+
+            thisObj.renderer.clearDepth(); // important!
+
+            thisObj.renderer.render(scene, camera);
+            //Log(camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
+
+            directionalLight.position.set(camera.position.x, camera.position.y, camera.position.z);
+        };
+
+        controls.addEventListener('change', this.animate);
+
+        this.animate();
 
         Log("Scene loaded!");
     }
 
     componentDidMount() {
-        this.sceneCreate();
+        this.updatePrinter();
+        this.iniScene();
+        this.updateCameraPositionRelativelyToGrid();
+        this.setupDragNDrop();
     }
 
     componentWillUnmount() {
@@ -214,12 +229,16 @@ export class Scene extends Component<any, any> {
                 <SceneGUI/>
 
                 {!this.printerConfig && <PrinterConfigurator setupConfiguration={(config: Printer)=>{
-                    store.set('printer', config.name);
+                    storeMain.set('printer', config.name);
 
                     this.printerName = config.name;
                     this.printerConfig = config;
 
                     Log("Configuration loaded!");
+
+                    this.updatePrinter();
+                    this.updateCameraPositionRelativelyToGrid();
+                    this.animate();
 
                     this.setState({});
                 }}/>}
