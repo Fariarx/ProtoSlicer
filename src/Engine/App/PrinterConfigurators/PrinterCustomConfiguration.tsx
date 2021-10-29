@@ -9,7 +9,7 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {PrinterConfiguratorState} from "./PrinterConfigurator";
 import {observer} from "mobx-react";
-import {Printer} from "../../Configs/Printer";
+import {Printer} from "../Configs/Printer";
 import {PopupLabelSendText} from "../Notifications/PopupLabel";
 import {isFloat, isInteger, isNumeric} from "../../Utils";
 import {LogSendText} from "../Notifications/Console";

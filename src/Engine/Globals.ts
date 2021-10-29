@@ -10,7 +10,7 @@ export const DefaultConfig = {
 
 export default this;
 
-export {LogSendText as Log}  from "./UI/Notifications/Console";
+export {LogSendText as Log}  from "./App/Notifications/Console";
 
 export const Materials = {
     wireframe: new THREE.MeshBasicMaterial( { color: 0xff5533, wireframe: true } ),

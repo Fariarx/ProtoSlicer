@@ -15,7 +15,7 @@ import {
 } from "semantic-ui-react";
 import {LinearGenerator} from "../../Utils";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Printer} from "../../Configs/Printer";
+import {Printer} from "../Configs/Printer";
 import {PrinterConfiguratorState} from "./PrinterConfigurator";
 import {PopupLabelSendText} from "../Notifications/PopupLabel";
 import {LogSendText} from "../Notifications/Console";

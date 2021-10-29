@@ -1,8 +1,8 @@
 import * as path from 'path'
-import Globals, {DefaultConfig, Log } from "../Globals";
-import {fs} from "../Bridge";
+import Globals, {DefaultConfig, Log } from "../../Globals";
+import {fs} from "../../Bridge";
 import {Resin} from "./Resin";
-import {LogSendText} from "../UI/Notifications/Console";
+import {LogSendText} from "../Notifications/Console";
 
 export type Workspace = {
     sizeX: number;

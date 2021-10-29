@@ -7,15 +7,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer, Config} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
-import {Log, Materials} from "../Globals";
-import {store} from "../Bridge";
+import {Log, Materials} from "../../Globals";
+import {store} from "../../Bridge";
 import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
-import PrinterSelectConfiguration from "../UI/PrinterConfigurators/PrinterSelectConfiguration";
-import PrinterConfigurator from "../UI/PrinterConfigurators/PrinterConfigurator";
-import LabelPopup from "../UI/Notifications/PopupLabel";
+import PrinterSelectConfiguration from "../PrinterConfigurators/PrinterSelectConfiguration";
+import PrinterConfigurator from "../PrinterConfigurators/PrinterConfigurator";
+import LabelPopup from "../Notifications/PopupLabel";
+import SceneGUI from "./SceneGUI";
 
 export default this;
 
@@ -209,6 +210,8 @@ export class Scene extends Component<any, any> {
                     position: "fixed"
                 }}>
                 </div>
+
+                <SceneGUI/>
 
                 {!this.printerConfig && <PrinterConfigurator setupConfiguration={(config: Printer)=>{
                     store.set('printer', config.name);

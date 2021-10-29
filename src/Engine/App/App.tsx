@@ -1,9 +1,9 @@
 import './App.css';
-import { Scene } from '../Scene/Scene';
-import { Console } from "../UI/Notifications/Console";
+import { Scene } from './Scene/Scene';
+import { Console } from "./Notifications/Console";
 import React, {Component} from "react";
-import DragAndDropModal from "../Scene/SceneDragAndDropModal";
-import LabelPopup from "../UI/Notifications/PopupLabel";
+import DragAndDropModal from "./Scene/SceneDragAndDropModal";
+import LabelPopup from "./Notifications/PopupLabel";
 
 export class App extends Component<any, any> {
     state: any = {

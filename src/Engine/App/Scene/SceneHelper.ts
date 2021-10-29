@@ -6,7 +6,7 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
-import {Log} from "../Globals";
+import {Log} from "../../Globals";
 
 
 export function File3DLoad(file: File, handler: Function): boolean {
