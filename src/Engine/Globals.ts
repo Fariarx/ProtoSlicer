@@ -10,17 +10,22 @@ export let Settings = () => {
     return storeMain.get('settings') as typeof DefaultConfig.settings;
 }
 
-export interface ISceneMaterial {
-    normal: THREE.MeshBasicMaterial,
-    select: THREE.MeshBasicMaterial,
+export type ISceneMaterial = {
+    normal: THREE.Material | THREE.Material[];
+    select: THREE.Material | THREE.Material[];
 }
 
 export const SceneMaterials = {
+    transparent: {
+        normal: new THREE.MeshPhongMaterial({ color: '#ff7f7f', opacity: 0.7, transparent: true }) ,
+        select: new THREE.MeshPhongMaterial({ color: '#858dff', opacity: 0.7, transparent: true }),
+    } as ISceneMaterial,
     default: {
-        normal: new THREE.MeshStandardMaterial( { color: '#ff5533' , emissive:'#998686', emissiveIntensity:0.4 , flatShading: true, side: THREE.DoubleSide } ),
-        select: new THREE.MeshStandardMaterial( { color: '#4962de' , emissive:'#998686', emissiveIntensity:0.4 , flatShading: true, side: THREE.DoubleSide } ),
-    } as ISceneMaterial
+        normal: new THREE.MeshPhongMaterial( { color: '#ff7f7f' , emissive:'#998686', emissiveIntensity:0.3 , flatShading: true, side: THREE.DoubleSide, shininess: 30 } ),
+        select: new THREE.MeshPhongMaterial( { color: '#858dff' , emissive:'#998686', emissiveIntensity:0.3 , flatShading: true, side: THREE.DoubleSide, shininess: 30 } ),
+    } as ISceneMaterial,
 }
+
 
 declare global {
     interface Window {

@@ -4,6 +4,9 @@ export let DefaultConfig = {
     settings: {
         ui: {
             opacity: 0.8
+        },
+        scene:{
+            workingPlaneColor:"#898989"
         }
     }
 };

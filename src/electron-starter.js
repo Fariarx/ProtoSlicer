@@ -48,14 +48,13 @@ function createWindow() {
     const screenElectron = electron.screen;
     const display = screenElectron.getPrimaryDisplay();
     const dimensions = display.workAreaSize;
-    const size = 0.5 * (dimensions.height + dimensions.width) / 2;
+    const size = 0.5 * (dimensions.height + dimensions.width) / 1.75;
 
     DefaultConfig.defaults.windowBoundsMain = {};
     DefaultConfig.defaults.windowBoundsMain.width = size * 1.5;
     DefaultConfig.defaults.windowBoundsMain.height = size;
 
     const store = new Store(DefaultConfig, electron.app.getPath('userData'));
-
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -109,8 +108,8 @@ function createWindow() {
     if (isDev) {
         // Open the DevTools.
         mainWindow.webContents.openDevTools();
-        mainWindow.webContents.setFrameRate(30)
-        console.log(electron.app.getPath('userData'))
+        mainWindow.webContents.setFrameRate(30);
+        console.log(electron.app.getPath('userData'));
     }
     else {
         mainWindow.webContents.setFrameRate(60)

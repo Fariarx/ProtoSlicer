@@ -7,8 +7,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer, Config} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
-import {storeMain} from "../../Bridge";
-import {ISceneMaterial, Log, SceneMaterials} from "../../Globals";
+import {dirname, isTheWindowWithFocus, path, storeMain, url} from "../../Bridge";
+import {ISceneMaterial, Log, SceneMaterials, Settings} from "../../Globals";
 import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector3} from "three";
@@ -17,6 +17,10 @@ import PrinterSelectConfiguration from "../PrinterConfigurators/PrinterSelectCon
 import PrinterConfigurator from "../PrinterConfigurators/PrinterConfigurator";
 import LabelPopup from "../Notifications/PopupLabel";
 import SceneGUI from "./SceneGUI";
+import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
+import {Font} from "three/examples/jsm/loaders/FontLoader";
+import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
+import * as png10mm from '../Pictures/10mm.png';
 
 export default this;
 
@@ -36,8 +40,10 @@ export class Scene extends Component<any, any> {
     updateCameraPositionRelativelyToGrid: Function = ()=>{};
     animate: Function = ()=>{};
 
-    objects: SceneObject[] = [];
-    materials: ISceneMaterial = SceneMaterials.default;
+    outlineEffect?: OutlineEffect;
+    sceneObjects: SceneObject[] = [];
+    materialForObjects: ISceneMaterial = SceneMaterials.default;
+    materialForPlane: THREE.Material = new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} );
 
     constructor(props) {
         super(props);
@@ -60,6 +66,8 @@ export class Scene extends Component<any, any> {
     }
 
     updatePrinter = () => {
+        let thisObj = this;
+
         if(this.grid)
         {
             this.grid.dispose();
@@ -68,6 +76,55 @@ export class Scene extends Component<any, any> {
         if(this.printerConfig)
         {
             this.gridSize.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
+
+            var loader = new THREE.TextureLoader();
+            var materialForText;
+
+            //1cm
+            loader.load(
+                // resource URL
+                url.format({
+                    pathname: path.join(dirname, './Engine/App/Pictures/10mm.png'),
+                    protocol: 'file:',
+                    slashes: true,
+                }),
+
+                // onLoad callback
+                function ( texture ) {
+
+                    materialForText = new THREE.MeshStandardMaterial( { map:texture, transparent: true, opacity: 0.6, color: 0xFF0000, alphaTest: 0.1 });
+
+                    const geometry = new THREE.PlaneGeometry(1, 1);
+
+                    let plane;
+
+                    /*plane = new THREE.Mesh( geometry, materialForText );
+                    plane.rotateX(- Math.PI/2);
+                    plane.position.set(0.5,-0.001,-0.25);
+                    thisObj.scene.add( plane );*/
+
+                    plane = new THREE.Mesh( geometry, materialForText );
+                    plane.rotateX(  - Math.PI/2);
+                    plane.rotateZ(    Math.PI/2);
+                    plane.position.set(0.5,-0.002,0.5);
+                    thisObj.scene.add( plane );
+                },
+
+                // onProgress callback currently not supported
+                undefined,
+
+                // onError callback
+                function ( err ) {
+                    console.error( err );
+                }
+            );
+
+
+            const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1 );
+            const plane = new THREE.Mesh( geometry, this.materialForPlane );
+            plane.rotateX(- Math.PI/2);
+            plane.position.set(this.gridSize.x/2, -0.01,this.gridSize.z/2);
+            this.scene.add( plane );
         }
 
         this.grid = SceneHelper.CreateGrid(this.gridSize, this.scene);
@@ -100,7 +157,7 @@ export class Scene extends Component<any, any> {
                 for(let file of e.dataTransfer.files)
                 {
                     let result = File3DLoad(file, function (geometry: BufferGeometry) {
-                        let mesh = new THREE.Mesh( geometry, thisObj.materials.normal );
+                        let mesh = new THREE.Mesh( geometry, thisObj.materialForObjects.normal );
                         mesh.castShadow = true;
                         mesh.receiveShadow = true;
                         mesh.scale.set(0.1, 0.1, 0.1);
@@ -109,6 +166,7 @@ export class Scene extends Component<any, any> {
                         obj.AlignToPlaneXZ(thisObj.gridSize);
                         obj.AlignToPlaneY();
                         obj.AddToScene(thisObj.scene);
+                        thisObj.sceneObjects.push(obj);
                     });
 
                     if(result)
@@ -141,6 +199,8 @@ export class Scene extends Component<any, any> {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
+        this.outlineEffect = new OutlineEffect( this.renderer,  );
+
         const controls = new OrbitControls(camera, this.renderer.domElement);
 
         let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
@@ -165,11 +225,11 @@ export class Scene extends Component<any, any> {
 
         var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
         var windowHeight = window.innerHeight;
+        var raycaster = new THREE.Raycaster();
 
         window.addEventListener('resize', onWindowResize, false);
 
         function onWindowResize(event) {
-
             camera.aspect = window.innerWidth / window.innerHeight;
 
             // adjust the FOV
@@ -184,25 +244,60 @@ export class Scene extends Component<any, any> {
             controls.update();
         }
 
-        this.animate = function () {
-            //requestAnimationFrame(animate);
-
-            //cube.rotation.x += 0.01;
-            // cube.rotation.y += 0.01;
-
+        let animate = function () {
             thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
 
             thisObj.renderer.clearDepth(); // important!
 
-            thisObj.renderer.render(scene, camera);
-            //Log(camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
+            //thisObj.renderer.render(scene, camera);
+/*
+            for ( let i = 0; i < scene.children.length; i ++ ) {
+                let obj = scene.children[ i ] as THREE.Mesh;
+
+                if (obj instanceof THREE.Mesh && SceneObject.SearchObject(thisObj.sceneObjects, obj) !== -1){
+                    obj.material = thisObj.materialForObjects.normal;
+                }
+            }*/
+
+           /* raycaster.setFromCamera( mouse, camera );
+
+            // calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObjects( scene.children );
+
+            for ( let i = 0; i < intersects.length; i ++ ) {
+                let obj = intersects[ i ].object as THREE.Mesh;
+
+                if (obj instanceof THREE.Mesh && SceneObject.SearchObject(thisObj.sceneObjects, obj) !== -1){
+                    obj.material = thisObj.materialForObjects.select;
+                }
+            }*/
 
             directionalLight.position.set(camera.position.x, camera.position.y, camera.position.z);
+
+            thisObj.outlineEffect?.render(scene, camera);
         };
 
-        controls.addEventListener('change', this.animate);
+        const update = () => {
+            if(isTheWindowWithFocus()) {
+                animate();
+            }
 
-        this.animate();
+            requestAnimationFrame(update);
+        }
+
+        requestAnimationFrame(update);
+
+        thisObj.renderer.domElement.addEventListener('mousemove', ()=>{
+
+        });
+        thisObj.renderer.domElement.addEventListener('mouseout', ()=>{
+
+        });
+        thisObj.renderer.domElement.addEventListener('mouseleave', ()=>{
+
+        });
+
+        this.animate = animate;
 
         Log("Scene loaded!");
     }

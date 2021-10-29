@@ -7,6 +7,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import {Log} from "../../Globals";
+import {Mesh, Raycaster, Vector2} from "three";
 
 
 export function File3DLoad(file: File, handler: Function): boolean {
@@ -74,7 +75,7 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): Grid {
 
     var matLine = new LineMaterial({
         color: +"0x424242",
-        linewidth: 0.6
+        linewidth: 0.8
     });
 
     var line = new Line2(geometry, matLine);
@@ -174,4 +175,4 @@ export function FitCameraToObject( camera: THREE.PerspectiveCamera, object: THRE
         // prevent camera from zooming out far enough to create far plane cutoff
         controls.maxDistance = cameraToFarEdge * 2;
     }
-}
+} 

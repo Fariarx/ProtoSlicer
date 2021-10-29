@@ -76,7 +76,7 @@ export class Printer {
 
     static LoadDefaultConfigFromFile = function () {
         try {
-            return new Printer(path.basename("Voxelab Proxima 6.json"), JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/'+Printer.defaultConfigName+'.json', 'utf8')));
+            return new Printer(path.basename("Voxelab Proxima 6.json"), JSON.parse(fs.readFileSync('./src/Engine/App/Configs/Default/'+Printer.defaultConfigName+'.json', 'utf8')));
         }
         catch (e) {
             LogSendText("Error read config: " + e);
@@ -106,7 +106,7 @@ export class Printer {
             try {
                 config = JSON.parse(fs.readFileSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs + "/" + modelName + '.json', 'utf8'));
             } catch (e) {
-                config  = JSON.parse(fs.readFileSync('./src/Engine/Configs/Default/' + modelName + '.json', 'utf8'));
+                config  = JSON.parse(fs.readFileSync('./src/Engine/App/Configs/Default/' + modelName + '.json', 'utf8'));
             }
 
             let obj = new Printer(path.basename(modelName), config);
@@ -128,8 +128,8 @@ export class Printer {
             if (fs.existsSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs)) {
                 files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs)];
             }
-            if (fs.existsSync('./src/Engine/Configs/Default')) {
-                files = [...fs.readdirSync('./src/Engine/Configs/Default'), ...files];
+            if (fs.existsSync('./src/Engine/App/Configs/Default')) {
+                files = [...fs.readdirSync('./src/App/Engine/Configs/Default'), ...files];
             }
 
             files = files.filter(function(item, pos) {

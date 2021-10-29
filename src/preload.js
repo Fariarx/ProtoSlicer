@@ -1,9 +1,13 @@
 const Store = require('./store');
 const fs = require('fs');
-
+const path = require('path');
+const url = require('url');
 
 window.bridge = {};
 window.bridge.fs = fs;
+window.bridge.url = url;
+window.bridge.path = path;
+window.bridge.__dirname = __dirname;
 window.bridge.store = (data) => {
     return new Store(JSON.parse(data));
 };
@@ -12,4 +16,6 @@ window.bridge.store = (data) => {
 const { ipcRenderer } = require('electron')
 
 window.bridge.userData = ipcRenderer.sendSync('electron.userData', '');
-window.bridge.checkFocus = ipcRenderer.sendSync('electron.checkFocus', '');
+window.bridge.checkFocus = () => {
+    return ipcRenderer.sendSync('electron.checkFocus', '')
+};

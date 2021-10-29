@@ -1,3 +1,6 @@
+import {BufferGeometry} from "three";
+import * as THREE from "three";
+
 export const LinearGenerator = (()=>{
     let linearGenerator: number = 0;
 

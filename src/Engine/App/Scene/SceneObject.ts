@@ -55,4 +55,25 @@ export class SceneObject {
         this.mesh.position.x = gridVec.x / 2;
         this.mesh.position.z = gridVec.z / 2;
     }
+
+    IsEqual3dObject(_mesh: THREE.Mesh) {
+        return _mesh == this.mesh;
+    }
+
+    static SearchObject(objs: SceneObject[], _mesh: THREE.Mesh)
+    {
+        let _index = -1;
+
+        objs.every(function(element, index) {
+            if(element.mesh === _mesh)
+            {
+                _index = index;
+                return false;
+            }
+
+            return true;
+        })
+
+        return _index;
+    }
 }
