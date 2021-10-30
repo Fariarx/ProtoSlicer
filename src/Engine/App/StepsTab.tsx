@@ -1,13 +1,13 @@
 import {Icon, Segment, Step} from "semantic-ui-react";
-import {storeMain} from "../../Bridge";
-import {Settings} from "../../Globals";
+import {storeMain} from "../Bridge";
+import {Settings} from "../Globals";
 
-function SceneGUI() {
+function StepsTab() {
     return (
         <div style={{
             width: "auto",
             height: "auto",
-            padding: "1vmin",
+            padding: "0.5vmin",
             opacity: Settings().ui.opacity
         }} className="position-fixed bottom-0 end-0">
             <Segment size={"mini"}>
@@ -38,4 +38,4 @@ function SceneGUI() {
     );
 }
 
-export default SceneGUI;
+export default StepsTab;

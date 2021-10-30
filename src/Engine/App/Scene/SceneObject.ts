@@ -2,6 +2,7 @@ import * as THREE from "three";
 import {Box3, Vector3} from "three";
 
 export class SceneObject {
+    name: string;
     mesh: THREE.Mesh;
     bbox: THREE.BoxHelper;
 
@@ -9,7 +10,8 @@ export class SceneObject {
     max: Vector3;
     center: Vector3;
 
-    constructor(_mesh: THREE.Mesh) {
+    constructor(_mesh: THREE.Mesh, _name: string) {
+        this.name = _name;
         this.mesh = _mesh;
         this.bbox = new THREE.BoxHelper( _mesh, 0xffff00 );
 
@@ -24,6 +26,7 @@ export class SceneObject {
     }
 
     Update() {
+        this.mesh.updateMatrixWorld();
         this.bbox.update(this.mesh);
 
         this.mesh.geometry.computeBoundingBox();
@@ -57,7 +60,7 @@ export class SceneObject {
     }
 
     IsEqual3dObject(_mesh: THREE.Mesh) {
-        return _mesh == this.mesh;
+        return _mesh === this.mesh;
     }
 
     static SearchObject(objs: SceneObject[], _mesh: THREE.Mesh)
@@ -75,5 +78,17 @@ export class SceneObject {
         })
 
         return _index;
+    }
+    static UpdateObjs(objs: SceneObject[]) {
+        objs.every(function(element, index) {
+            element.Update();
+        });
+    }
+    static GetMeshesFromObjs(objs: SceneObject[]) {
+        let arr: THREE.Mesh[] = objs.map(function(element, index) {
+            return element.mesh;
+        });
+
+        return arr;
     }
 }

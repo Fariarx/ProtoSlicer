@@ -10,20 +10,32 @@ import {Log} from "../../Globals";
 import {Mesh, Raycaster, Vector2} from "three";
 
 
-export function File3DLoad(file: File, handler: Function): boolean {
+export function File3DLoad(file: File | string, handler: Function): boolean {
     let extension: string = (()=>{
-        let array = file.name.split('.');
+        let array;
+
+        if(typeof file === 'string')
+        {
+            array = file;
+        }
+        else
+        {
+            array = file.name;
+        }
+
+        array = array.split('.');
+
         return (array[array.length - 1] as string).toLocaleLowerCase();
     })();
 
     var loader;
 
-    Log(extension)
+    //Log(extension)
 
     switch (extension) {
         case "stl":
             loader = new STLLoader();
-            loader.load( file.path, function ( geometry ) {
+            loader.load((typeof file === 'string' ? file : file.path), function ( geometry ) {
                 handler(geometry);
             });
             return true;
@@ -175,4 +187,25 @@ export function FitCameraToObject( camera: THREE.PerspectiveCamera, object: THRE
         // prevent camera from zooming out far enough to create far plane cutoff
         controls.maxDistance = cameraToFarEdge * 2;
     }
-} 
+}
+export function ToScreenPosition(obj, camera, renderer)
+{
+    var vector = new THREE.Vector3();
+
+    var widthHalf = 0.5*renderer.context.canvas.width;
+    var heightHalf = 0.5*renderer.context.canvas.height;
+
+    obj.updateMatrixWorld();
+    vector.setFromMatrixPosition(obj.matrixWorld);
+    vector.project(camera);
+
+    vector.x = ( vector.x * widthHalf ) + widthHalf;
+    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return {
+        x: vector.x,
+        y: vector.y
+    };
+
+}
+

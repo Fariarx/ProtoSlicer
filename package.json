@@ -5,7 +5,8 @@
   "private": false,
   "dependencies": {
     "faker": "^5.5.3",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "ts-keycode-enum": "^1.0.6"
   },
   "scripts": {
     "start": "react-scripts start",
