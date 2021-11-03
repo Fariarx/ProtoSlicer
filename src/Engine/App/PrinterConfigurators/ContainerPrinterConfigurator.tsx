@@ -1,6 +1,6 @@
 import React from "react";
-import PrinterCustomConfiguration from "./PrinterCustomConfiguration";
-import PrinterSelectConfiguration from "./PrinterSelectConfiguration";
+import ElementPrinterCustomConfiguration from "./ElementPrinterCustomConfiguration";
+import ElementPrinterSelectConfiguration from "./ElementPrinterSelectConfiguration";
 
 export enum PrinterConfiguratorState {
     SelectConfig,
@@ -8,7 +8,7 @@ export enum PrinterConfiguratorState {
     ConfigReady
 }
 
-export default function PrinterConfigurator(props:any) {
+export default function ContainerPrinterConfigurator(props:any) {
     let [state, setState] = React.useState({
         value:PrinterConfiguratorState.SelectConfig as PrinterConfiguratorState,
         propsChildren:{} as any
@@ -30,11 +30,11 @@ export default function PrinterConfigurator(props:any) {
     switch (state.value) {
         case PrinterConfiguratorState.SelectConfig:
             return (
-                <PrinterSelectConfiguration switchState={switchState}/>
+                <ElementPrinterSelectConfiguration switchState={switchState}/>
             );
         case PrinterConfiguratorState.CustomConfig:
             return (
-                <PrinterCustomConfiguration propsChildren={state.propsChildren} switchState={switchState}/>
+                <ElementPrinterCustomConfiguration propsChildren={state.propsChildren} switchState={switchState}/>
             );
         default:
             return <div/>;

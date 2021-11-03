@@ -1,10 +1,10 @@
 import React from 'react'
 import { Icon, Label } from 'semantic-ui-react'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Console.css';
+import './ElementConsole.css';
 import {action, observable} from "mobx";
 import {observer} from "mobx-react";
-import {LogSendText} from "./Console";
+import {LogSendText} from "./ElementConsole";
 
 const text = observable({ value:'' });
 

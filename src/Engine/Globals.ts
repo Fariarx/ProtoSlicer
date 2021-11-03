@@ -4,7 +4,7 @@ import {DefaultConfig} from './DefaultConfig'
 
 export default this;
 
-export {LogSendText as Log}  from "./App/Notifications/Console";
+export {LogSendText as Log}  from "./App/Notifications/ElementConsole";
 
 export let Settings = () => {
     return storeMain.get('settings') as typeof DefaultConfig.settings;

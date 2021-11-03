@@ -16,9 +16,9 @@ import {
 import {LinearGenerator} from "../../Utils";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Printer} from "../Configs/Printer";
-import {PrinterConfiguratorState} from "./PrinterConfigurator";
-import {PopupLabelSendText} from "../Notifications/PopupLabel";
-import {LogSendText} from "../Notifications/Console";
+import {PrinterConfiguratorState} from "./ContainerPrinterConfigurator";
+import {PopupLabelSendText} from "../Notifications/ElementPopupLabel";
+import {LogSendText} from "../Notifications/ElementConsole";
 
 
 function ListElement(props: any) {
@@ -115,7 +115,7 @@ class AccordionList extends Component<any> {
 let printerWithManufacturerNames;
 let printerNames;
 
-function PrinterSelectConfiguration(props: any) {
+function ElementPrinterSelectConfiguration(props: any) {
     const initialState = {
         loading: false,
         results: [],
@@ -302,4 +302,4 @@ function PrinterSelectConfiguration(props: any) {
     );
 }
 
-export default PrinterSelectConfiguration
+export default ElementPrinterSelectConfiguration

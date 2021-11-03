@@ -5,8 +5,8 @@ import { observer } from "mobx-react";
 import {LinearGenerator} from '../../Utils'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Console.css';
-import {PopupLabelSendText} from "./PopupLabel";
+import './ElementConsole.css';
+import {PopupLabelSendText} from "./ElementPopupLabel";
 
 export default this;
 
@@ -18,7 +18,7 @@ type LogMessage = {
 const logList = observable([] as LogMessage[]);
 
 @observer
-export class Console extends Component {
+export class ElementConsole extends Component {
     render() {
         const listItems = logList.map((obj) =>
             <li key={LinearGenerator()} className=" "> {obj.time + " | " + obj.text} </li>

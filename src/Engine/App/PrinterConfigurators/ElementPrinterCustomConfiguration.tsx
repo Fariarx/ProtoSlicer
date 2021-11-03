@@ -7,14 +7,14 @@ import {
     Segment
 } from "semantic-ui-react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {PrinterConfiguratorState} from "./PrinterConfigurator";
+import {PrinterConfiguratorState} from "./ContainerPrinterConfigurator";
 import {observer} from "mobx-react";
 import {Printer} from "../Configs/Printer";
-import {PopupLabelSendText} from "../Notifications/PopupLabel";
+import {PopupLabelSendText} from "../Notifications/ElementPopupLabel";
 import {isFloat, isInteger, isNumeric} from "../../Utils";
-import {LogSendText} from "../Notifications/Console";
+import {LogSendText} from "../Notifications/ElementConsole";
 
-export class PrinterCustomConfiguration extends Component<any, any> {
+export class ElementPrinterCustomConfiguration extends Component<any, any> {
     constructor(props) {
         super(props);
 
@@ -194,4 +194,4 @@ export class PrinterCustomConfiguration extends Component<any, any> {
     }
 }
 
-export default PrinterCustomConfiguration;
+export default ElementPrinterCustomConfiguration;

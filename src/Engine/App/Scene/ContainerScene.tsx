@@ -13,10 +13,10 @@ import DragAndDropModal from "./SceneDragAndDropModal";
 import {File3DLoad, ToScreenPosition} from "./SceneHelper";
 import {Box3, BufferGeometry, Vector2, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
-import PrinterSelectConfiguration from "../PrinterConfigurators/PrinterSelectConfiguration";
-import PrinterConfigurator from "../PrinterConfigurators/PrinterConfigurator";
-import LabelPopup from "../Notifications/PopupLabel";
-import StepsTab from "../StepsTab";
+import ElementPrinterSelectConfiguration from "../PrinterConfigurators/ElementPrinterSelectConfiguration";
+import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrinterConfigurator";
+import LabelPopup from "../Notifications/ElementPopupLabel";
+import ContainerBottomRight from "../ContainerBottomRight";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Font} from "three/examples/jsm/loaders/FontLoader";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
@@ -25,11 +25,11 @@ import {SelectionBox} from "three/examples/jsm/interactive/SelectionBox";
 import {SelectionHelper} from "three/examples/jsm/interactive/SelectionHelper";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import SceneTransform from "./SceneTransform";
+import ElementSceneTransform from "./ElementSceneTransform";
 
 export default this;
 
-export class Scene extends Component<any, any> {
+export class ContainerScene extends Component<any, any> {
     mount: any;
     keysPressed: Array<Key> = [];
     isKeyPressed = (key: Key) => {
@@ -237,7 +237,7 @@ export class Scene extends Component<any, any> {
         scene.add( light1 );
 
 
-        scene.background = new THREE.Color("#eceaea");
+        scene.background = new THREE.Color("#717171");
 
         var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
         var windowHeight = window.innerHeight;
@@ -301,6 +301,9 @@ export class Scene extends Component<any, any> {
 
         transform.setMode('rotate')
 
+        transform.setTranslationSnap( 0.5 );
+        transform.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
+        transform.setScaleSnap( 0.1 );
 
         window.addEventListener( 'keydown', (e)=>{
             if(thisObj.keysPressed.indexOf(e.keyCode as Key) === -1)
@@ -322,7 +325,7 @@ export class Scene extends Component<any, any> {
 
         this.animate = animate;
 
-        Log("Scene loaded!");
+        Log("ContainerScene loaded!");
     }
 
     componentDidMount() {
@@ -344,9 +347,10 @@ export class Scene extends Component<any, any> {
                 }}>
                 </div>
 
-                <SceneTransform/>
+                <ElementSceneTransform/>
 
-                {!this.printerConfig && <PrinterConfigurator setupConfiguration={(config: Printer)=>{
+
+                {!this.printerConfig && <ContainerPrinterConfigurator setupConfiguration={(config: Printer)=>{
                     storeMain.set('printer', config.name);
 
                     this.printerName = config.name;
