@@ -25,8 +25,7 @@ import {SelectionBox} from "three/examples/jsm/interactive/SelectionBox";
 import {SelectionHelper} from "three/examples/jsm/interactive/SelectionHelper";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import SceneTransform from "./SceneTransform";
-import {ViewHelper} from "../External/ViewHelper";
+import SceneTransform from "./SceneTransform"; 
 
 export default this;
 
