@@ -1,41 +1,43 @@
-import {Header, Icon, Menu, Segment, Step} from "semantic-ui-react";
-import {storeMain} from "../../Bridge";
-import {Log, Settings} from "../../Globals";
+import {Icon, Menu} from "semantic-ui-react";
+import {Settings} from "../../Globals";
 import {Component} from "react";
+import {observer} from "mobx-react";
+import {autorun, observable} from "mobx";
+import {Dispatch, EventEnum} from "../EventManager";
 
-class ElementSceneTransform extends Component<any, any> {
-    state: any;
+export enum TransformInstrumentEnum {
+    None,
+    Move,
+    Rotate,
+    Scale
+}
 
+export let ElementSceneTransformSelect = observable({ name: TransformInstrumentEnum.None });
+
+@observer
+class SceneTransform extends Component<any, any> {
     constructor(props) {
         super(props);
-
-        this.state = { active:'' };
     }
 
     handleItemClick = (e, obj) => {
-        let value = obj.name;
-
-        if(value === this.state.active)
-        {
-            value = '';
-        }
-
-        this.setState({ active: value })
+        Dispatch(EventEnum.SELECT_TRANSFORM_MODE, { value: TransformInstrumentEnum[obj.name] });
     }
 
     render() {
+        let select = ElementSceneTransformSelect.name;
+
         return (
             <div style={{
                 width: "auto",
                 height: "auto",
                 padding: "1vmin",
-                marginTop: '-20vh',
                 opacity: Settings().ui.opacity
-            }} className="position-fixed top-50 start-0">
+            }} className="position-fixed top-50 start-0 translate-middle-y">
                     <Menu vertical pointing fluid style={{ marginRight:'-0.4vw' }}>
                         <Menu.Item
-                            name='move'
-                            active={this.state.active === 'move'}
+                            name='Move'
+                            active={select === TransformInstrumentEnum.Move}
                             onClick={this.handleItemClick}
                         >
                             <p>
@@ -44,8 +46,8 @@ class ElementSceneTransform extends Component<any, any> {
                         </Menu.Item>
 
                         <Menu.Item
-                            name='rotate'
-                            active={this.state.active === 'rotate'}
+                            name='Rotate'
+                            active={select === TransformInstrumentEnum.Rotate}
                             onClick={this.handleItemClick}
                         >
                             <p>
@@ -54,8 +56,8 @@ class ElementSceneTransform extends Component<any, any> {
                         </Menu.Item>
 
                         <Menu.Item
-                            name='scale'
-                            active={this.state.active === 'scale'}
+                            name='Scale'
+                            active={select === TransformInstrumentEnum.Scale}
                             onClick={this.handleItemClick}
                         >
 
@@ -69,4 +71,4 @@ class ElementSceneTransform extends Component<any, any> {
     }
 }
 
-export default ElementSceneTransform;
+export default SceneTransform;

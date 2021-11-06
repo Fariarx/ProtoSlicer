@@ -16,7 +16,7 @@ import {SceneObject} from "./SceneObject";
 import ElementPrinterSelectConfiguration from "../PrinterConfigurators/ElementPrinterSelectConfiguration";
 import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrinterConfigurator";
 import LabelPopup from "../Notifications/ElementPopupLabel";
-import ContainerBottomRight from "../ContainerBottomRight";
+import ContainerRight from "../ContainerRight";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Font} from "three/examples/jsm/loaders/FontLoader";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
@@ -25,11 +25,12 @@ import {SelectionBox} from "three/examples/jsm/interactive/SelectionBox";
 import {SelectionHelper} from "three/examples/jsm/interactive/SelectionHelper";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import ElementSceneTransform from "./ElementSceneTransform";
+import SceneTransform from "./SceneTransform";
+import {ViewHelper} from "../External/ViewHelper";
 
 export default this;
 
-export class ContainerScene extends Component<any, any> {
+export class Scene extends Component<any, any> {
     mount: any;
     keysPressed: Array<Key> = [];
     isKeyPressed = (key: Key) => {
@@ -47,6 +48,7 @@ export class ContainerScene extends Component<any, any> {
 
     grid?: SceneHelper.Grid;
     gridSize: THREE.Vector3 = new Vector3(1,1,1);
+    plane?: THREE.Mesh;
     updateCameraPositionRelativelyToGrid: Function = ()=>{};
     animate: Function = ()=>{};
 
@@ -75,7 +77,7 @@ export class ContainerScene extends Component<any, any> {
         }
     }
 
-    updatePrinter = () => {
+    updatePrinter = (isStart: boolean = false) => {
         let thisObj = this;
 
         if(this.grid)
@@ -83,59 +85,72 @@ export class ContainerScene extends Component<any, any> {
             this.grid.dispose();
         }
 
+        if(this.plane)
+        {
+            this.scene.remove(this.plane);
+            this.plane.clear();
+        }
+
         if(this.printerConfig)
         {
             this.gridSize.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
 
-            /*
-            var loader = new THREE.TextureLoader();
-            var materialForText;
+            if(isStart) {
+                var loader = new THREE.TextureLoader();
+                var materialForText;
 
-            //1cm
-            loader.load(
-                // resource URL
-                url.format({
-                    pathname: path.join(dirname, './Engine/App/Pictures/10mm.png'),
-                    protocol: 'file:',
-                    slashes: true,
-                }),
+                //1cm
+                loader.load(
+                    // resource URL
+                    url.format({
+                        pathname: path.join(dirname, './Engine/App/Pictures/10mm.png'),
+                        protocol: 'file:',
+                        slashes: true,
+                    }),
 
-                // onLoad callback
-                function ( texture ) {
+                    // onLoad callback
+                    function (texture) {
 
-                    materialForText = new THREE.MeshStandardMaterial( { map:texture, transparent: true, opacity: 0.6, color: 0xFF0000, alphaTest: 0.1 });
+                        materialForText = new THREE.MeshStandardMaterial({
+                            map: texture,
+                            transparent: true,
+                            opacity: 0.6,
+                            color: 0xFF0000,
+                            alphaTest: 0.1
+                        });
 
-                    const geometry = new THREE.PlaneGeometry(1, 1);
+                        const geometry = new THREE.PlaneGeometry(1, 1);
 
-                    let plane;
+                        let plane;
 
-                    /!*plane = new THREE.Mesh( geometry, materialForText );
-                    plane.rotateX(- Math.PI/2);
-                    plane.position.set(0.5,-0.001,-0.25);
-                    thisObj.scene.add( plane );*!/
+                        /*plane = new THREE.Mesh( geometry, materialForText );
+                        plane.rotateX(- Math.PI/2);
+                        plane.position.set(0.5,-0.001,-0.25);
+                        thisObj.scene.add( plane ); */
 
-                    plane = new THREE.Mesh( geometry, materialForText );
-                    plane.rotateX(  - Math.PI/2);
-                    plane.rotateZ(    Math.PI/2);
-                    plane.position.set(0.5,-0.002,0.5);
-                    thisObj.scene.add( plane );
-                },
+                        plane = new THREE.Mesh(geometry, materialForText);
+                        plane.rotateX(-Math.PI / 2);
+                        plane.rotateZ(Math.PI / 2);
+                        plane.position.set(1.5, 0, 1.5);
+                        thisObj.scene.add(plane);
+                    },
 
-                // onProgress callback currently not supported
-                undefined,
+                    // onProgress callback currently not supported
+                    undefined,
 
-                // onError callback
-                function ( err ) {
-                    console.error( err );
-                }
-            );*/
+                    // onError callback
+                    function (err) {
+                        console.error(err);
+                    }
+                );
 
 
-            const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1 );
-            const plane = new THREE.Mesh( geometry, this.materialForPlane );
-            plane.rotateX(- Math.PI/2);
-            plane.position.set(this.gridSize.x/2, -0.01,this.gridSize.z/2);
-            this.scene.add( plane );
+                const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1);
+                const plane = new THREE.Mesh(geometry, this.materialForPlane);
+                plane.rotateX(-Math.PI / 2);
+                plane.position.set(this.gridSize.x / 2, 0, this.gridSize.z / 2);
+                this.scene.add(plane);
+            }
         }
 
         this.grid = SceneHelper.CreateGrid(this.gridSize, this.scene);
@@ -236,8 +251,20 @@ export class ContainerScene extends Component<any, any> {
         const light1 = new THREE.AmbientLight( 0xffffff , 0.4); // soft white light
         scene.add( light1 );
 
+        /*var materialArray = [];
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xpos.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xneg.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/ypos.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/yneg.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zpos.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zneg.png' ) }));
+	var MovingCubeMat = new THREE.MeshFaceMaterial(materialArray);
+	var MovingCubeGeom = new THREE.CubeGeometry( 50, 50, 50, 1, 1, 1, materialArray );
+	MovingCube = new THREE.Mesh( MovingCubeGeom, MovingCubeMat );
+	MovingCube.position.set(0, 25.1, 0);
+	scene.add( MovingCube );*/
 
-        scene.background = new THREE.Color("#717171");
+        scene.background = new THREE.Color("#606060");
 
         var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
         var windowHeight = window.innerHeight;
@@ -325,11 +352,11 @@ export class ContainerScene extends Component<any, any> {
 
         this.animate = animate;
 
-        Log("ContainerScene loaded!");
+        Log("Scene loaded!");
     }
 
     componentDidMount() {
-        this.updatePrinter();
+        this.updatePrinter(true);
         this.iniScene();
         this.updateCameraPositionRelativelyToGrid();
         this.setupDragNDrop();
@@ -347,7 +374,7 @@ export class ContainerScene extends Component<any, any> {
                 }}>
                 </div>
 
-                <ElementSceneTransform/>
+                <SceneTransform/>
 
 
                 {!this.printerConfig && <ContainerPrinterConfigurator setupConfiguration={(config: Printer)=>{

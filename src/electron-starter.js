@@ -60,11 +60,9 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: store.get('windowBoundsMain').width,
         height: store.get('windowBoundsMain').height,
-        minWidth: size * 1.5,
-        minHeight: size,
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
-        show:false,
+        show: false,
         autoHideMenuBar: true,
         "webPreferences": {
             preload: path.join(__dirname, "preload.js"), // use a preload script
@@ -76,9 +74,11 @@ function createWindow() {
         }
     });
 
+    mainWindow.setMinimumSize(1100, 700);
+
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
-    })
+    });
 
     mainWindow.loadURL(
         isDev

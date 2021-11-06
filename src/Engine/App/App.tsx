@@ -1,9 +1,9 @@
-import { ContainerScene } from './Scene/ContainerScene';
+import { Scene } from './Scene/Scene';
 import { ElementConsole } from "./Notifications/ElementConsole";
 import React, {Component} from "react";
 import DragAndDropModal from "./Scene/SceneDragAndDropModal";
 import LabelPopup from "./Notifications/ElementPopupLabel";
-import ContainerBottomRight from "./ContainerBottomRight";
+import ContainerRight from "./ContainerRight";
 import {Button, Card, Feed} from "semantic-ui-react";
 
 export class App extends Component<any, any> {
@@ -21,13 +21,13 @@ export class App extends Component<any, any> {
     render(): React.ReactNode {
         return (
             <div className="App">
-                <ContainerScene dragAndDropSetState={this.showDragAndDropModal}>
+                <Scene dragAndDropSetState={this.showDragAndDropModal}>
                     {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
                     <ElementConsole/>
                     <LabelPopup/>
-                </ContainerScene>
+                </Scene>
 
-                <ContainerBottomRight/>
+                <ContainerRight/>
             </div>
         );
     }
