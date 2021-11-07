@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {Box3, Vector3} from "three";
+import {sceneStore} from "./Scene";
 
 export class SceneObject {
     name: string;
@@ -10,10 +11,33 @@ export class SceneObject {
     max: Vector3;
     center: Vector3;
 
-    constructor(_mesh: THREE.Mesh, _name: string) {
-        this.name = _name;
-        this.mesh = _mesh;
-        this.bbox = new THREE.BoxHelper( _mesh, 0xffff00 );
+    isSelected: boolean;
+    private wasSelected: boolean;
+
+    constructor(geometry: THREE.BufferGeometry, _name: string, objs: SceneObject[], selected: boolean = false) {
+        if(SceneObject.GetByName(objs, _name) === null)
+        {
+            this.name = _name;
+        }
+        else {
+            let index = 0;
+            let newName = index + '-' + _name;
+
+            while (SceneObject.GetByName(objs, newName) !== null)
+            {
+                index++;
+                newName = index + '-' + _name;
+            }
+
+            this.name = newName;
+        }
+
+        this.mesh = new THREE.Mesh( geometry, sceneStore.materialForObjects.normal );
+        this.bbox = new THREE.BoxHelper( this.mesh, 0xffff00 );
+
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
+        this.mesh.scale.set(0.1, 0.1, 0.1);
 
         let nullVector = new Vector3();
 
@@ -23,9 +47,29 @@ export class SceneObject {
 
         this.Update();
         this.UpdateGeometryCenter();
+
+        this.isSelected = selected;
+        this.wasSelected = selected;
+        this.SetSelection();
     }
 
+    private SetSelection() {
+        if(this.isSelected)
+        {
+            this.mesh.material = sceneStore.materialForObjects.select
+        }
+        else
+        {
+            this.mesh.material = sceneStore.materialForObjects.normal
+        }
+    }
     Update() {
+        if(this.wasSelected !== this.isSelected)
+        {
+            this.SetSelection();
+            this.wasSelected = this.isSelected;
+        }
+
         this.mesh.updateMatrixWorld();
         this.bbox.update(this.mesh);
 
@@ -90,5 +134,21 @@ export class SceneObject {
         });
 
         return arr;
+    }
+    static GetByName(objs: SceneObject[], name:string) : SceneObject | null
+    {
+        let _element: SceneObject | null = null;
+
+        objs.every(function(element, index) {
+            if(element.name === name)
+            {
+                _element = element;
+                return false;
+            }
+
+            return true;
+        })
+
+        return _element;
     }
 }

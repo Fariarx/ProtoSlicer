@@ -1,10 +1,15 @@
-import { Scene } from './Scene/Scene';
+import {Scene, sceneStore} from './Scene/Scene';
 import { ElementConsole } from "./Notifications/ElementConsole";
 import React, {Component} from "react";
 import DragAndDropModal from "./Scene/SceneDragAndDropModal";
 import LabelPopup from "./Notifications/ElementPopupLabel";
 import ContainerRight from "./ContainerRight";
 import {Button, Card, Feed} from "semantic-ui-react";
+import {Provider} from "mobx-react";
+
+let stores = {
+    sceneStore
+}
 
 export class App extends Component<any, any> {
     state: any = {
@@ -20,15 +25,17 @@ export class App extends Component<any, any> {
     }
     render(): React.ReactNode {
         return (
-            <div className="App">
-                <Scene dragAndDropSetState={this.showDragAndDropModal}>
-                    {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
-                    <ElementConsole/>
-                    <LabelPopup/>
-                </Scene>
+            <Provider {...stores}>
+                <div className="App">
+                    <Scene dragAndDropSetState={this.showDragAndDropModal}>
+                        {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
+                        <ElementConsole/>
+                        <LabelPopup/>
+                    </Scene>
 
-                <ContainerRight/>
-            </div>
+                    <ContainerRight/>
+                </div>
+            </Provider>
         );
     }
 }

@@ -25,10 +25,44 @@ import {SelectionBox} from "three/examples/jsm/interactive/SelectionBox";
 import {SelectionHelper} from "three/examples/jsm/interactive/SelectionHelper";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import SceneTransform from "./SceneTransform"; 
+import SceneTransform from "./SceneTransform";
+import {action, autorun, makeAutoObservable, observable, runInAction} from "mobx";
+import {observer} from "mobx-react";
 
 export default this;
 
+export interface ISceneStore {
+    needUpdateFrame:boolean,
+
+    objects:SceneObject[];
+    objectGroupTransform: THREE.Group | null,
+
+    materialForPlane: THREE.Material;
+    materialForObjects: ISceneMaterial;
+}
+
+export const sceneStore: ISceneStore = makeAutoObservable({
+    needUpdateFrame: false,
+    objects:[],
+    objectGroupTransform: null,
+    materialForPlane: new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} ),
+    materialForObjects: SceneMaterials.default
+} as ISceneStore);
+
+export const sceneStoreSelectionChanged = action(()=>{
+    for(let object of sceneStore.objects)
+    {
+        object.Update();
+    }
+
+    sceneStore.needUpdateFrame = true;
+});
+
+autorun(() => {
+
+});
+
+@observer
 export class Scene extends Component<any, any> {
     mount: any;
     keysPressed: Array<Key> = [];
@@ -50,11 +84,6 @@ export class Scene extends Component<any, any> {
     plane?: THREE.Mesh;
     updateCameraPositionRelativelyToGrid: Function = ()=>{};
     animate: Function = ()=>{};
-
-    sceneObjects: SceneObject[] = [];
-    sceneSelected: SceneObject[] = [];
-    materialForObjects: ISceneMaterial = SceneMaterials.default;
-    materialForPlane: THREE.Material = new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} );
 
     constructor(props) {
         super(props);
@@ -113,9 +142,8 @@ export class Scene extends Component<any, any> {
                         materialForText = new THREE.MeshStandardMaterial({
                             map: texture,
                             transparent: true,
-                            opacity: 0.6,
-                            color: 0xFF0000,
-                            alphaTest: 0.1
+                            opacity: 0.7,
+                            color: 0xFFFFFF
                         });
 
                         const geometry = new THREE.PlaneGeometry(1, 1);
@@ -130,7 +158,7 @@ export class Scene extends Component<any, any> {
                         plane = new THREE.Mesh(geometry, materialForText);
                         plane.rotateX(-Math.PI / 2);
                         plane.rotateZ(Math.PI / 2);
-                        plane.position.set(1.5, 0, 1.5);
+                        plane.position.set(1.5, 0.05, 1.5);
                         thisObj.scene.add(plane);
                     },
 
@@ -145,7 +173,7 @@ export class Scene extends Component<any, any> {
 
 
                 const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1);
-                const plane = new THREE.Mesh(geometry, this.materialForPlane);
+                const plane = new THREE.Mesh(geometry, sceneStore.materialForPlane);
                 plane.rotateX(-Math.PI / 2);
                 plane.position.set(this.gridSize.x / 2, 0, this.gridSize.z / 2);
                 this.scene.add(plane);
@@ -182,16 +210,12 @@ export class Scene extends Component<any, any> {
                 for(let file of e.dataTransfer.files)
                 {
                     let result = File3DLoad(file, function (geometry: BufferGeometry) {
-                        let mesh = new THREE.Mesh( geometry, thisObj.materialForObjects.normal );
-                        mesh.castShadow = true;
-                        mesh.receiveShadow = true;
-                        mesh.scale.set(0.1, 0.1, 0.1);
-
-                        let obj = new SceneObject(mesh, file.name);
+                        let obj = new SceneObject(geometry, file.name, sceneStore.objects, true);
                         obj.AlignToPlaneXZ(thisObj.gridSize);
                         obj.AlignToPlaneY();
                         obj.AddToScene(thisObj.scene);
-                        thisObj.sceneObjects.push(obj);
+                        sceneStore.objects.push(obj);
+                        thisObj.animate();
                     });
 
                     if(result)
@@ -214,8 +238,8 @@ export class Scene extends Component<any, any> {
 
         let gridSize = this.gridSize;
 
-        var scene = this.scene;
-        var camera = new THREE.PerspectiveCamera(
+        let scene = this.scene;
+        let camera = new THREE.PerspectiveCamera(
             40,
             window.innerWidth / window.innerHeight,
             0.1,
@@ -263,14 +287,24 @@ export class Scene extends Component<any, any> {
 	MovingCube.position.set(0, 25.1, 0);
 	scene.add( MovingCube );*/
 
-        scene.background = new THREE.Color("#606060");
+        scene.background = new THREE.Color("#d2d2d2");
 
-        var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
-        var windowHeight = window.innerHeight;
+        let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
+        let windowHeight = window.innerHeight;
 
-        window.addEventListener('resize', onWindowResize, false);
 
-        function onWindowResize(event) {
+
+        let animate = function () {
+            thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
+
+            thisObj.renderer.clearDepth(); // important!
+
+            light0.position.set(camera.position.x, camera.position.y, camera.position.z);
+
+            thisObj.outlineEffect?.render(scene, camera);
+        };
+
+        let onWindowResize = (event) => {
             camera.aspect = window.innerWidth / window.innerHeight;
 
             // adjust the FOV
@@ -283,19 +317,14 @@ export class Scene extends Component<any, any> {
             thisObj.renderer.render(scene, camera);
 
             orbitControls.update();
+            animate();
         }
-
-        let animate = function () {
-            thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
-
-            thisObj.renderer.clearDepth(); // important!
-
-            light0.position.set(camera.position.x, camera.position.y, camera.position.z);
-
-            thisObj.outlineEffect?.render(scene, camera);
-        };
+        window.addEventListener('resize', onWindowResize, false);
 
         orbitControls.addEventListener( 'change', animate);
+
+
+
 
         const transform = new TransformControls(camera, this.renderer.domElement);
         transform.addEventListener( 'change', event => {
@@ -310,18 +339,11 @@ export class Scene extends Component<any, any> {
             protocol: 'file:',
             slashes: true,
         }), function (geometry: BufferGeometry) {
-            let mesh = new THREE.Mesh( geometry, thisObj.materialForObjects.normal );
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            mesh.scale.set(0.1, 0.1, 0.1);
-
-            let obj = new SceneObject(mesh, "test");
+            let obj = new SceneObject(geometry, 'test.stl', sceneStore.objects, true);
             obj.AlignToPlaneXZ(thisObj.gridSize);
             obj.AlignToPlaneY();
             obj.AddToScene(thisObj.scene);
-            thisObj.sceneObjects.push(obj);
-            transform.attach( mesh );
-            scene.add( transform );
+            sceneStore.objects.push(obj);
             animate();
         });
 
@@ -346,7 +368,6 @@ export class Scene extends Component<any, any> {
             }
         }, false );
 
-
         animate();
 
         this.animate = animate;
@@ -366,6 +387,14 @@ export class Scene extends Component<any, any> {
     }
 
     render() {
+        if(sceneStore.needUpdateFrame)
+        {
+            runInAction(()=>{
+                sceneStore.needUpdateFrame = false;
+            })
+            this.animate();
+        }
+
         return (
             <div>
                 <div ref={ref => (this.mount = ref)} style={{

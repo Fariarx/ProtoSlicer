@@ -88,7 +88,9 @@ function createWindow() {
                 protocol: 'file:',
                 slashes: true,
             })
-    );
+    , {
+
+        });
 
     app.on('browser-window-focus', () => {
         if (mainWindow) {

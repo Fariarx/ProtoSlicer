@@ -34,7 +34,7 @@ export class ElementConsole extends Component {
     }
 }
 
-export const LogSendText = action((text: string, isPopup: boolean = false, timeout: number | undefined = undefined) => {
+export const LogSendText = (text: string, isPopup: boolean = false, timeout: number | undefined = undefined) => {
     if(isPopup)
     {
         PopupLabelSendText(text, timeout);
@@ -49,4 +49,4 @@ export const LogSendText = action((text: string, isPopup: boolean = false, timeo
     {
         logList.splice(0, 1);
     }
-});
+};
