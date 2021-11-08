@@ -1,66 +1,26 @@
-import React, {Component } from "react";
-import ReactDOM from "react-dom";
+import React, {Component} from "react";
 import 'semantic-ui-css/semantic.min.css'
 
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {BufferGeometry, Vector3} from 'three'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
-import {Printer, Config} from "../Configs/Printer";
+import {Printer} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
-import {dirname, isTheWindowWithFocus, path, storeMain, url} from "../../Bridge";
+import {File3DLoad} from "./SceneHelper";
+import {dirname, path, storeMain, url} from "../../Bridge";
 import {ISceneMaterial, Log, SceneMaterials, Settings} from "../../Globals";
-import DragAndDropModal from "./SceneDragAndDropModal";
-import {File3DLoad, ToScreenPosition} from "./SceneHelper";
-import {Box3, BufferGeometry, Vector2, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
-import ElementPrinterSelectConfiguration from "../PrinterConfigurators/ElementPrinterSelectConfiguration";
 import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrinterConfigurator";
-import LabelPopup from "../Notifications/ElementPopupLabel";
-import ContainerRight from "../ContainerRight";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
-import {Font} from "three/examples/jsm/loaders/FontLoader";
-import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
-import * as png10mm from '../Pictures/10mm.png';
-import {SelectionBox} from "three/examples/jsm/interactive/SelectionBox";
-import {SelectionHelper} from "three/examples/jsm/interactive/SelectionHelper";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import SceneTransform from "./SceneTransform";
-import {action, autorun, makeAutoObservable, observable, runInAction} from "mobx";
+import SceneTransform, {TransformInstrumentEnum} from "./SceneTransform";
+import {action, autorun, makeAutoObservable, runInAction} from "mobx";
 import {observer} from "mobx-react";
+import {Dispatch, EventEnum} from "../EventManager";
+import {sceneStore} from "./SceneStore";
 
-export default this;
-
-export interface ISceneStore {
-    needUpdateFrame:boolean,
-
-    objects:SceneObject[];
-    objectGroupTransform: THREE.Group | null,
-
-    materialForPlane: THREE.Material;
-    materialForObjects: ISceneMaterial;
-}
-
-export const sceneStore: ISceneStore = makeAutoObservable({
-    needUpdateFrame: false,
-    objects:[],
-    objectGroupTransform: null,
-    materialForPlane: new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} ),
-    materialForObjects: SceneMaterials.default
-} as ISceneStore);
-
-export const sceneStoreSelectionChanged = action(()=>{
-    for(let object of sceneStore.objects)
-    {
-        object.Update();
-    }
-
-    sceneStore.needUpdateFrame = true;
-});
-
-autorun(() => {
-
-});
 
 @observer
 export class Scene extends Component<any, any> {
@@ -70,7 +30,6 @@ export class Scene extends Component<any, any> {
         return this.keysPressed.indexOf(key) !== -1;
     }
 
-    scene: THREE.Scene = new THREE.Scene();
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: true
     });
@@ -115,7 +74,7 @@ export class Scene extends Component<any, any> {
 
         if(this.plane)
         {
-            this.scene.remove(this.plane);
+            sceneStore.scene.remove(this.plane);
             this.plane.clear();
         }
 
@@ -153,13 +112,13 @@ export class Scene extends Component<any, any> {
                         /*plane = new THREE.Mesh( geometry, materialForText );
                         plane.rotateX(- Math.PI/2);
                         plane.position.set(0.5,-0.001,-0.25);
-                        thisObj.scene.add( plane ); */
+                        sceneStore.scene.add( plane ); */
 
                         plane = new THREE.Mesh(geometry, materialForText);
                         plane.rotateX(-Math.PI / 2);
                         plane.rotateZ(Math.PI / 2);
                         plane.position.set(1.5, 0.05, 1.5);
-                        thisObj.scene.add(plane);
+                        sceneStore.scene.add(plane);
                     },
 
                     // onProgress callback currently not supported
@@ -176,11 +135,11 @@ export class Scene extends Component<any, any> {
                 const plane = new THREE.Mesh(geometry, sceneStore.materialForPlane);
                 plane.rotateX(-Math.PI / 2);
                 plane.position.set(this.gridSize.x / 2, 0, this.gridSize.z / 2);
-                this.scene.add(plane);
+                sceneStore.scene.add(plane);
             }
         }
 
-        this.grid = SceneHelper.CreateGrid(this.gridSize, this.scene);
+        this.grid = SceneHelper.CreateGrid(this.gridSize, sceneStore.scene);
     }
 
     setupDragNDrop = () => {
@@ -213,8 +172,8 @@ export class Scene extends Component<any, any> {
                         let obj = new SceneObject(geometry, file.name, sceneStore.objects, true);
                         obj.AlignToPlaneXZ(thisObj.gridSize);
                         obj.AlignToPlaneY();
-                        obj.AddToScene(thisObj.scene);
-                        sceneStore.objects.push(obj);
+                        obj.AddToScene(sceneStore.scene);
+                        Dispatch(EventEnum.ADD_OBJECT, obj);
                         thisObj.animate();
                     });
 
@@ -238,7 +197,7 @@ export class Scene extends Component<any, any> {
 
         let gridSize = this.gridSize;
 
-        let scene = this.scene;
+        let scene = sceneStore.scene;
         let camera = new THREE.PerspectiveCamera(
             40,
             window.innerWidth / window.innerHeight,
@@ -342,16 +301,18 @@ export class Scene extends Component<any, any> {
             let obj = new SceneObject(geometry, 'test.stl', sceneStore.objects, true);
             obj.AlignToPlaneXZ(thisObj.gridSize);
             obj.AlignToPlaneY();
-            obj.AddToScene(thisObj.scene);
-            sceneStore.objects.push(obj);
+            obj.AddToScene(sceneStore.scene);
+            Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
         });
-
-        transform.setMode('rotate')
 
         transform.setTranslationSnap( 0.5 );
         transform.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
         transform.setScaleSnap( 0.1 );
+
+        scene.add(transform);
+
+        sceneStore.transformInstrument = transform;
 
         window.addEventListener( 'keydown', (e)=>{
             if(thisObj.keysPressed.indexOf(e.keyCode as Key) === -1)

@@ -18,7 +18,7 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {SceneObject} from "./Scene/SceneObject";
 import {action, observable} from "mobx";
-import {sceneStoreSelectionChanged} from "./Scene/Scene";
+import {sceneStoreSelectionChanged} from "./Scene/SceneStore";
 
 @inject("sceneStore")
 @observer
@@ -35,7 +35,7 @@ class SelectObjectsView extends Component<any, any> {
             }
 
             return (
-                <List.Item name={t.name} onClick={(e, p)=>{
+                <List.Item key={t.name} name={t.name} onClick={(e, p)=>{
                     for(let object of sceneStore.objects)
                     {
                         if(p.name === object.name)

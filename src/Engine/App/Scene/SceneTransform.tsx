@@ -1,18 +1,17 @@
 import {Icon, Menu} from "semantic-ui-react";
 import {Settings} from "../../Globals";
 import {Component} from "react";
-import {observer} from "mobx-react";
+import {inject, observer} from "mobx-react";
 import {autorun, observable} from "mobx";
 import {Dispatch, EventEnum} from "../EventManager";
+import {sceneStore} from "./SceneStore";
 
 export enum TransformInstrumentEnum {
-    None,
-    Move,
-    Rotate,
-    Scale
+    None = 0,
+    Move = "translate",
+    Rotate = 'rotate',
+    Scale = 'scale'
 }
-
-export let ElementSceneTransformSelect = observable({ name: TransformInstrumentEnum.None });
 
 @observer
 class SceneTransform extends Component<any, any> {
@@ -25,14 +24,14 @@ class SceneTransform extends Component<any, any> {
     }
 
     render() {
-        let select = ElementSceneTransformSelect.name;
+        let select = sceneStore.transformInstrumentState;
 
         return (
             <div style={{
                 width: "auto",
                 height: "auto",
                 padding: "1vmin",
-                opacity: Settings().ui.opacity
+                opacity: Settings().ui.opacity,
             }} className="position-fixed top-50 start-0 translate-middle-y">
                     <Menu vertical pointing fluid style={{ marginRight:'-0.4vw' }}>
                         <Menu.Item

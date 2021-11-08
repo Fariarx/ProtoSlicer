@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {Box3, Vector3} from "three";
-import {sceneStore} from "./Scene";
+import {sceneStore} from "./SceneStore";
 
 export class SceneObject {
     name: string;
@@ -71,7 +71,7 @@ export class SceneObject {
         }
 
         this.mesh.updateMatrixWorld();
-        this.bbox.update(this.mesh);
+        this.bbox.update();
 
         this.mesh.geometry.computeBoundingBox();
         this.mesh.geometry.computeBoundingSphere();
