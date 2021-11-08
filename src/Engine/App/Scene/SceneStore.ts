@@ -80,7 +80,7 @@ export const sceneStoreInstrumentStateChanged = action((state: TransformInstrume
     if(state !== TransformInstrumentEnum.None)
     {
         sceneStore.transformInstrument?.setMode(state);
-        
+
         sceneStoreUpdateTransformControls();
     }
     else {

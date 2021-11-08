@@ -105,7 +105,7 @@ class SelectObjectsView extends Component<any, any> {
                             sceneStoreSelectionChanged();
                             this.setState({});
                         }}/>
-                        <Button icon='plus square outline' onClick={()=>{
+                        <Button icon='minus square outline' onClick={()=>{
                             for(let object of sceneStore.objects)
                             {
                                 object.isSelected = false;
