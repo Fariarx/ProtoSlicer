@@ -9,17 +9,17 @@ import {Printer} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
 import {File3DLoad} from "./SceneHelper";
 import {dirname, path, storeMain, url} from "../../Bridge";
-import {ISceneMaterial, Log, SceneMaterials, Settings} from "../../Globals";
+import {Log} from "../../Globals";
 import {SceneObject} from "./SceneObject";
 import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrinterConfigurator";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import SceneTransform, {TransformInstrumentEnum} from "./SceneTransform";
-import {action, autorun, makeAutoObservable, runInAction} from "mobx";
+import {runInAction} from "mobx";
 import {observer} from "mobx-react";
-import {Dispatch, EventEnum} from "../EventManager";
-import {sceneStore} from "./SceneStore";
+import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {sceneStore, sceneStoreGetTransformObj} from "./SceneStore";
 
 
 @observer
@@ -286,7 +286,66 @@ export class Scene extends Component<any, any> {
 
 
         const transform = new TransformControls(camera, this.renderer.domElement);
-        transform.addEventListener( 'change', event => {
+        transform.addEventListener( 'change', (event) => {
+            let transformObj = sceneStoreGetTransformObj();
+
+            if (transformObj !== null && sceneStore.groupSelected.length > 0) {
+                switch (sceneStore.transformInstrumentState) {
+                    case TransformInstrumentEnum.Move:
+                        if(sceneStore.groupSelected.length === 1)
+                        {
+                            let now = sceneStore.groupSelected[0].mesh.position;
+                            let old = sceneStore.transformObjectGroupOld.position;
+
+                            if(!now.equals(old)) {
+                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                    difference: differenceVector3,
+                                    from: old,
+                                    to: now,
+                                    sceneObject: sceneStore.groupSelected[0],
+                                    doNotMoveInDispatch:true
+                                } as MoveObject)
+
+                                sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
+                            }
+                        }
+                        else {
+                            let now = sceneStore.transformObjectGroup.position;
+                            let old = sceneStore.transformObjectGroupOld.position;
+
+                            if(!now.equals(old)) {
+                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
+
+                                for(let sceneObject of sceneStore.objects)
+                                {
+                                    let oldPosition = sceneObject.mesh.position;
+                                    let newPosition = sceneObject.mesh.position;
+
+                                    newPosition.x -= differenceVector3.x;
+                                    newPosition.y -= differenceVector3.y;
+                                    newPosition.z -= differenceVector3.z;
+
+                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                        difference: differenceVector3,
+                                        from: oldPosition,
+                                        to: newPosition,
+                                        sceneObject: sceneObject
+                                    } as MoveObject)
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                Log('Error of \'change\': transformObj is null or sceneStore.groupSelected.length = 0');
+            }
+
             animate();
         });
         transform.addEventListener( 'dragging-changed', function ( event ) {

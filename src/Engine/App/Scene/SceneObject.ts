@@ -128,7 +128,7 @@ export class SceneObject {
             element.Update();
         });
     }
-    static GetMeshesFromObjs(objs: SceneObject[]) {
+    static GetMeshesFromObjs(objs: SceneObject[]) : THREE.Mesh[] {
         let arr: THREE.Mesh[] = objs.map(function(element, index) {
             return element.mesh;
         });

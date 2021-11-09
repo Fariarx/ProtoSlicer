@@ -4,7 +4,7 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {autorun, observable} from "mobx";
 import {Dispatch, EventEnum} from "../EventManager";
-import {sceneStore, sceneStoreSelectionChanged} from "./SceneStore";
+import {sceneStore, sceneStoreGetTransformObj, sceneStoreSelectionChanged} from "./SceneStore";
 
 export enum TransformInstrumentEnum {
     None = 0,
@@ -13,6 +13,9 @@ export enum TransformInstrumentEnum {
     Scale = 'scale'
 }
 
+const MenuItemStyleCenter = {marginLeft: 'auto', marginRight: 'auto', display: 'block'};
+
+@inject('sceneStore')
 @observer
 class SceneTransform extends Component<any, any> {
     constructor(props) {
@@ -29,63 +32,62 @@ class SceneTransform extends Component<any, any> {
 
         switch (select) {
             case TransformInstrumentEnum.Move:
+                let selectObj = sceneStoreGetTransformObj();
+
                 instrumentMenu =
                     <Card style={{
+                        width:'100%',
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
                         <Card.Content extra>
                             <Card.Header
-                                style={{float: 'left'}}>{select[0].toUpperCase() + select.slice(1)}</Card.Header>
+                                style={{float: 'left'}}>{ select[0].toUpperCase() + select.slice(1) }</Card.Header>
                         </Card.Content>
                         <Card.Content extra >
                             <div style={{
+                                width:'100%',
                                 height: 'auto',
-                                overflow: "auto"
+                                overflow: "auto",
+                                //backgroundColor:'red'
                             }}>
+                                <div style={{
+                                    width:'auto',
+                                    height: 'auto',
+                                    //backgroundColor:'blue'
+                                }}>
                                 <List>
                                     <List.Item>
-                                        <Input labelPosition='right' type='text' placeholder='value' size='small'
-                                               style={{
-                                                   width: "80px",
-                                               }}>
-                                            <Label color='green'>X</Label>
-                                            <input/>
+                                        <Input labelPosition='right' type='text' placeholder='No selected' size='small' style={{ width:'45%' }} disabled={!selectObj}>
+                                            <Label color='green' pointing={"right"} >X</Label>
+                                            <input defaultValue={selectObj ? Number(selectObj.position.x).toFixed(2) : undefined}/>
                                             <Label color='green'>mm</Label>
                                         </Input>
                                     </List.Item>
                                     <List.Item>
-                                        <Input labelPosition='right' type='text' placeholder='value' size='small'
-                                               style={{
-                                                   width: "80px",
-                                               }}>
-                                            <Label color='red'>Y</Label>
-                                            <input/>
+                                        <Input labelPosition='right' type='text' placeholder='No selected' size='small'  style={{ width:'45%' }} disabled={!selectObj}>
+                                            <Label color='red' pointing={"right"}>Y</Label>
+                                            <input defaultValue={selectObj ? Number(selectObj.position.y).toFixed(2) : undefined}/>
                                             <Label color='red'>mm</Label>
                                         </Input>
                                     </List.Item>
                                     <List.Item>
-                                        <Input labelPosition='right' type='text' placeholder='value' size='small'
-                                               style={{
-                                                   width: "80px",
-                                               }}>
-                                            <Label color='blue'>Z</Label>
-                                            <input/>
+                                        <Input labelPosition='right' type='text' placeholder='No selected' size='small'  style={{ width:'45%' }} disabled={!selectObj}>
+                                            <Label color='blue' pointing={"right"}>Z</Label>
+                                            <input defaultValue={selectObj ? Number(selectObj.position.z).toFixed(2) : undefined}/>
                                             <Label color='blue'>mm</Label>
                                         </Input>
                                     </List.Item>
-                                </List>
+                                </List></div>
                             </div>
                         </Card.Content>
                     </Card>
                 break;
         }
 
-        const MenuItemStyle = {marginLeft: 'auto', marginRight: 'auto', display: 'block'};
-
         return (
             <div style={{
-                width: "30vmax",
+                width: "200px",
                 height: "auto",
                 padding: "1vmin",
                 opacity: Settings().ui.opacity,
@@ -99,7 +101,7 @@ class SceneTransform extends Component<any, any> {
                             onClick={this.handleItemClick}
                         >
                             <p>
-                                <Icon name='arrows alternate' size='large' style={MenuItemStyle}/>
+                                <Icon name='arrows alternate' size='large' style={MenuItemStyleCenter}/>
                             </p>
                         </Menu.Item>
 
@@ -109,7 +111,7 @@ class SceneTransform extends Component<any, any> {
                             onClick={this.handleItemClick}
                         >
                             <p>
-                                <Icon name='refresh' size='large' style={MenuItemStyle}/>
+                                <Icon name='refresh' size='large' style={MenuItemStyleCenter}/>
                             </p>
                         </Menu.Item>
 
@@ -119,7 +121,7 @@ class SceneTransform extends Component<any, any> {
                             onClick={this.handleItemClick}
                         >
                             <p>
-                                <Icon name='expand' size='large' style={MenuItemStyle}/>
+                                <Icon name='expand' size='large' style={MenuItemStyleCenter}/>
                             </p>
                         </Menu.Item>
                     </Menu>

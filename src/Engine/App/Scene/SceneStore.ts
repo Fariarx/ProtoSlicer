@@ -18,21 +18,27 @@ export interface ISceneStore {
 
     transformInstrument?: TransformControls;
     transformInstrumentState: TransformInstrumentEnum;
+    transformObjectGroupOld: THREE.Object3D;
     transformObjectGroup: THREE.Object3D;
 
     groupSelected: Array<SceneObject>;
 }
 
-export const sceneStore: ISceneStore = makeAutoObservable({
-    needUpdateFrame: false,
-    scene:new THREE.Scene(),
-    objects:[],
-    materialForPlane: new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} ),
-    materialForObjects: SceneMaterials.default,
-    transformInstrumentState: TransformInstrumentEnum.None,
-    groupSelected: new Array<SceneObject>(),
-    transformObjectGroup: new THREE.Object3D()
-} as ISceneStore);
+export const sceneStoreCreate = (): ISceneStore=>{
+    return  makeAutoObservable({
+        needUpdateFrame: false,
+        scene:new THREE.Scene(),
+        objects:[],
+        materialForPlane: new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} ),
+        materialForObjects: SceneMaterials.default,
+        transformInstrumentState: TransformInstrumentEnum.None,
+        groupSelected: new Array<SceneObject>(),
+        transformObjectGroup: new THREE.Object3D(),
+        transformObjectGroupOld: new THREE.Object3D()
+    } as ISceneStore);
+}
+
+export let sceneStore: ISceneStore = sceneStoreCreate();
 
 export const sceneStoreUpdateFrame = action(()=>{
     sceneStore.needUpdateFrame = true;
@@ -63,14 +69,30 @@ export const sceneStoreUpdateTransformControls = () => {
 
     if(isWorkingInstrument && sceneStore.groupSelected.length > 1)
     {
+        sceneStore.transformObjectGroupOld = sceneStore.transformObjectGroup.clone();
         sceneStore.transformInstrument?.attach(sceneStore.transformObjectGroup);
     }
     else if(isWorkingInstrument && sceneStore.groupSelected.length === 1)
     {
+        sceneStore.transformObjectGroupOld = sceneStore.groupSelected[0].mesh.clone();
         sceneStore.transformInstrument?.attach(sceneStore.groupSelected[0].mesh);
     }
     else {
         sceneStore.transformInstrument?.detach();
+    }
+}
+
+export const sceneStoreGetTransformObj = () : THREE.Object3D | null => {
+    if(sceneStore.groupSelected.length > 1)
+    {
+        return (sceneStore.transformObjectGroup);
+    }
+    else if(sceneStore.groupSelected.length === 1)
+    {
+        return (sceneStore.groupSelected[0].mesh);
+    }
+    else {
+        return null;
     }
 }
 
