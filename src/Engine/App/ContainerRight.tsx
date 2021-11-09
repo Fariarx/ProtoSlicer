@@ -8,9 +8,10 @@ function ContainerRight(props) {
     return (
         <div style={{
             width: "18vmax",
-            height: "100vh",
-            opacity: Settings().ui.opacity
-        }} className="position-fixed bottom-0 end-0">
+            height: "auto",
+            opacity: Settings().ui.opacity,
+            backgroundColor:'red'
+        }} className="position-fixed top-0 end-0">
             <div style={{
                 width: "100%",
                 height: '100%',

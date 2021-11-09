@@ -290,6 +290,7 @@ export class Scene extends Component<any, any> {
             let transformObj = sceneStoreGetTransformObj();
 
             if (transformObj !== null && sceneStore.groupSelected.length > 0) {
+
                 switch (sceneStore.transformInstrumentState) {
                     case TransformInstrumentEnum.Move:
                         if(sceneStore.groupSelected.length === 1)
@@ -339,6 +340,102 @@ export class Scene extends Component<any, any> {
                             }
                         }
                         break;
+                    case TransformInstrumentEnum.Rotate:
+                        if(sceneStore.groupSelected.length === 1)
+                        {
+                            let now = sceneStore.groupSelected[0].mesh.rotation;
+                            let old = sceneStore.transformObjectGroupOld.rotation;
+
+                            if(!now.equals(old)) {
+                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                    difference: differenceVector3,
+                                    from: old,
+                                    to: now,
+                                    sceneObject: sceneStore.groupSelected[0],
+                                    doNotMoveInDispatch:true
+                                } as MoveObject)
+
+                                sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
+                            }
+                        }
+                        else {
+                            let now = sceneStore.transformObjectGroup.rotation;
+                            let old = sceneStore.transformObjectGroupOld.rotation;
+
+                            if(!now.equals(old)) {
+                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
+
+                                for(let sceneObject of sceneStore.objects)
+                                {
+                                    let oldPosition = sceneObject.mesh.rotation;
+                                    let newPosition = sceneObject.mesh.rotation;
+
+                                    newPosition.x -= differenceVector3.x;
+                                    newPosition.y -= differenceVector3.y;
+                                    newPosition.z -= differenceVector3.z;
+
+                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                        difference: differenceVector3,
+                                        from: oldPosition,
+                                        to: newPosition,
+                                        sceneObject: sceneObject
+                                    } as MoveObject)
+                                }
+                            }
+                        }
+                        break;
+                    case TransformInstrumentEnum.Scale:
+                        if(sceneStore.groupSelected.length === 1)
+                        {
+                            let now = sceneStore.groupSelected[0].mesh.scale;
+                            let old = sceneStore.transformObjectGroupOld.scale;
+
+                            if(!now.equals(old)) {
+                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                    difference: differenceVector3,
+                                    from: old,
+                                    to: now,
+                                    sceneObject: sceneStore.groupSelected[0],
+                                    doNotMoveInDispatch:true
+                                } as MoveObject)
+
+                                sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
+                            }
+                        }
+                        else {
+                            let now = sceneStore.transformObjectGroup.scale;
+                            let old = sceneStore.transformObjectGroupOld.scale;
+
+                            if(!now.equals(old)) {
+                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
+
+                                for(let sceneObject of sceneStore.objects)
+                                {
+                                    let oldPosition = sceneObject.mesh.scale;
+                                    let newPosition = sceneObject.mesh.scale;
+
+                                    newPosition.x -= differenceVector3.x;
+                                    newPosition.y -= differenceVector3.y;
+                                    newPosition.z -= differenceVector3.z;
+
+                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                        difference: differenceVector3,
+                                        from: oldPosition,
+                                        to: newPosition,
+                                        sceneObject: sceneObject
+                                    } as MoveObject)
+                                }
+                            }
+                        }
+                        break;
                 }
             }
             else
@@ -365,9 +462,9 @@ export class Scene extends Component<any, any> {
             animate();
         });
 
-        transform.setTranslationSnap( 0.5 );
+        transform.setTranslationSnap( 0.25 );
         transform.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
-        transform.setScaleSnap( 0.1 );
+        transform.setScaleSnap( 0.01 );
 
         scene.add(transform);
 

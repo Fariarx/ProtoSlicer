@@ -5,8 +5,6 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {action, autorun, makeAutoObservable} from "mobx";
 
-export default this;
-
 export interface ISceneStore {
     needUpdateFrame:boolean,
 
