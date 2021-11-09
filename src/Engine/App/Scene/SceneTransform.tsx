@@ -1,10 +1,15 @@
 import {Button, Card, Icon, Input, Label, List, Menu, Segment} from "semantic-ui-react";
-import {Settings} from "../../Globals";
+import {SaveSettings, Settings} from "../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {autorun, observable} from "mobx";
 import {Dispatch, EventEnum} from "../EventManager";
-import {sceneStore, sceneStoreGetTransformObj, sceneStoreSelectionChanged} from "./SceneStore";
+import {
+    sceneStore,
+    sceneStoreGetTransformObj,
+    sceneStoreSelectionChanged,
+    sceneStoreSelectObjsAlignXZ
+} from "./SceneStore";
 
 export enum TransformInstrumentEnum {
     None = 0,
@@ -36,50 +41,73 @@ class SceneTransform extends Component<any, any> {
 
                 instrumentMenu =
                     <Card style={{
-                        width:'100%',
+                        width: '100%',
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
                         <Card.Content extra>
                             <Card.Header
-                                style={{float: 'left'}}>{ select[0].toUpperCase() + select.slice(1) }</Card.Header>
+                                style={{float: 'left'}}>{select[0].toUpperCase() + select.slice(1)}</Card.Header>
                         </Card.Content>
-                        <Card.Content extra >
+                        <Card.Content extra>
                             <div style={{
-                                width:'100%',
+                                width: '100%',
                                 height: 'auto',
                                 overflow: "auto",
                                 //backgroundColor:'red'
                             }}>
                                 <div style={{
-                                    width:'auto',
+                                    width: 'auto',
                                     height: 'auto',
                                     //backgroundColor:'blue'
                                 }}>
-                                <List>
-                                    <List.Item>
-                                        <Input labelPosition='right' type='text' placeholder='No selected' size='small' style={{ width:'45%' }} disabled={!selectObj}>
-                                            <Label color='green' pointing={"right"} >X</Label>
-                                            <input defaultValue={selectObj ? Number(selectObj.position.x).toFixed(2) : undefined}/>
-                                            <Label color='green'>mm</Label>
-                                        </Input>
-                                    </List.Item>
-                                    <List.Item>
-                                        <Input labelPosition='right' type='text' placeholder='No selected' size='small'  style={{ width:'45%' }} disabled={!selectObj}>
-                                            <Label color='red' pointing={"right"}>Y</Label>
-                                            <input defaultValue={selectObj ? Number(selectObj.position.y).toFixed(2) : undefined}/>
-                                            <Label color='red'>mm</Label>
-                                        </Input>
-                                    </List.Item>
-                                    <List.Item>
-                                        <Input labelPosition='right' type='text' placeholder='No selected' size='small'  style={{ width:'45%' }} disabled={!selectObj}>
-                                            <Label color='blue' pointing={"right"}>Z</Label>
-                                            <input defaultValue={selectObj ? Number(selectObj.position.z).toFixed(2) : undefined}/>
-                                            <Label color='blue'>mm</Label>
-                                        </Input>
-                                    </List.Item>
-                                </List></div>
+                                    <List>
+                                        <List.Item>
+                                            <Input labelPosition='right' type='text' placeholder='No selected'
+                                                   size='small' style={{width: '45%'}} disabled={!selectObj}>
+                                                <Label color='green' pointing={"right"}>X</Label>
+                                                <input
+                                                    defaultValue={selectObj ? Number(selectObj.position.x).toFixed(2) : undefined}/>
+                                                <Label color='green'>mm</Label>
+                                            </Input>
+                                        </List.Item>
+                                        <List.Item>
+                                            <Input labelPosition='right' type='text' placeholder='No selected'
+                                                   size='small' style={{width: '45%'}} disabled={!selectObj}>
+                                                <Label color='red' pointing={"right"}>Y</Label>
+                                                <input
+                                                    defaultValue={selectObj ? Number(selectObj.position.z).toFixed(2) : undefined}/>
+                                                <Label color='red'>mm</Label>
+                                            </Input>
+                                        </List.Item>
+                                        <List.Item>
+                                            <Input labelPosition='right' type='text' placeholder='No selected'
+                                                   size='small' style={{width: '45%'}} disabled={!selectObj}>
+                                                <Label color='blue' pointing={"right"}>Z</Label>
+                                                <input
+                                                    defaultValue={selectObj ? Number(selectObj.position.y).toFixed(2) : undefined}/>
+                                                <Label color='blue'>mm</Label>
+                                            </Input>
+                                        </List.Item>
+                                    </List>
+                                </div>
                             </div>
+                        </Card.Content>
+
+                        <Card.Content extra>
+                            <Button size={"tiny"} compact onClick={() => {
+                                sceneStoreSelectObjsAlignXZ();
+                            }}>
+                                <Button.Content>Center</Button.Content>
+                            </Button>
+                            <Button size={"tiny"} compact active={Settings().scene.transformAlignToPlane}
+                                    color={Settings().scene.transformAlignToPlane ? 'teal' : undefined} onClick={() => {
+                                Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
+                                SaveSettings();
+                                this.setState({});
+                            }}>
+                                <Button.Content>Align</Button.Content>
+                            </Button>
                         </Card.Content>
                     </Card>
                 break;

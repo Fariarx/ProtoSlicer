@@ -4,12 +4,15 @@ import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {action, autorun, makeAutoObservable} from "mobx";
+import {Vector3} from "three";
 
 export interface ISceneStore {
     needUpdateFrame:boolean,
 
     scene: THREE.Scene;
     objects:SceneObject[];
+
+    gridSize: Vector3;
 
     materialForPlane: THREE.Material;
     materialForObjects: ISceneMaterial;
@@ -22,8 +25,8 @@ export interface ISceneStore {
     groupSelected: Array<SceneObject>;
 }
 
-export const sceneStoreCreate = (): ISceneStore=>{
-    return  makeAutoObservable({
+export const sceneStoreCreate = () => {
+    sceneStore = makeAutoObservable({
         needUpdateFrame: false,
         scene:new THREE.Scene(),
         objects:[],
@@ -32,11 +35,12 @@ export const sceneStoreCreate = (): ISceneStore=>{
         transformInstrumentState: TransformInstrumentEnum.None,
         groupSelected: new Array<SceneObject>(),
         transformObjectGroup: new THREE.Object3D(),
-        transformObjectGroupOld: new THREE.Object3D()
+        transformObjectGroupOld: new THREE.Object3D(),
+        gridSize: new Vector3(1,1,1)
     } as ISceneStore);
 }
 
-export let sceneStore: ISceneStore = sceneStoreCreate();
+export let sceneStore: ISceneStore;
 
 export const sceneStoreUpdateFrame = action(()=>{
     sceneStore.needUpdateFrame = true;
@@ -109,6 +113,38 @@ export const sceneStoreInstrumentStateChanged = action((state: TransformInstrume
 
     sceneStoreUpdateFrame();
 })
+
+export const sceneStoreSelectObjsAlignY = () => {
+    if (sceneStore.groupSelected.length === 1) {
+        if (Settings().scene.transformAlignToPlane) {
+            sceneStore.groupSelected[0].AlignToPlaneY();
+        }
+    } else {
+        for (let sceneObject of sceneStore.objects) {
+            if (Settings().scene.transformAlignToPlane) {
+                sceneObject.AlignToPlaneY();
+            }
+        }
+    }
+
+    sceneStoreUpdateFrame();
+}
+
+export const sceneStoreSelectObjsAlignXZ = () => {
+    if (sceneStore.groupSelected.length === 1) {
+        if (Settings().scene.transformAlignToPlane) {
+            sceneStore.groupSelected[0].AlignToPlaneXZ(sceneStore.gridSize);
+        }
+    } else {
+        for (let sceneObject of sceneStore.objects) {
+            if (Settings().scene.transformAlignToPlane) {
+                sceneObject.AlignToPlaneXZ(sceneStore.gridSize);
+            }
+        }
+    }
+    
+    sceneStoreUpdateFrame();
+}
 
 autorun(()=>{
     sceneStore.scene.add(sceneStore.transformObjectGroup);

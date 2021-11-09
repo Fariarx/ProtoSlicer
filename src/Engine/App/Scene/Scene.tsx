@@ -9,7 +9,7 @@ import {Printer} from "../Configs/Printer";
 import * as SceneHelper from "./SceneHelper";
 import {File3DLoad} from "./SceneHelper";
 import {dirname, path, storeMain, url} from "../../Bridge";
-import {Log} from "../../Globals";
+import {Log, Settings} from "../../Globals";
 import {SceneObject} from "./SceneObject";
 import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrinterConfigurator";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
@@ -19,8 +19,9 @@ import SceneTransform, {TransformInstrumentEnum} from "./SceneTransform";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {Dispatch, EventEnum, MoveObject} from "../EventManager";
-import {sceneStore, sceneStoreGetTransformObj} from "./SceneStore";
+import {sceneStore, sceneStoreCreate, sceneStoreGetTransformObj, sceneStoreSelectObjsAlignY} from "./SceneStore";
 
+sceneStoreCreate();
 
 @observer
 export class Scene extends Component<any, any> {
@@ -39,7 +40,6 @@ export class Scene extends Component<any, any> {
     printerConfig?: Printer;
 
     grid?: SceneHelper.Grid;
-    gridSize: THREE.Vector3 = new Vector3(1,1,1);
     plane?: THREE.Mesh;
     updateCameraPositionRelativelyToGrid: Function = ()=>{};
     animate: Function = ()=>{};
@@ -80,7 +80,7 @@ export class Scene extends Component<any, any> {
 
         if(this.printerConfig)
         {
-            this.gridSize.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
+            sceneStore.gridSize.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
 
             if(isStart) {
                 var loader = new THREE.TextureLoader();
@@ -134,12 +134,12 @@ export class Scene extends Component<any, any> {
                 const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1);
                 const plane = new THREE.Mesh(geometry, sceneStore.materialForPlane);
                 plane.rotateX(-Math.PI / 2);
-                plane.position.set(this.gridSize.x / 2, 0, this.gridSize.z / 2);
+                plane.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
                 sceneStore.scene.add(plane);
             }
         }
 
-        this.grid = SceneHelper.CreateGrid(this.gridSize, sceneStore.scene);
+        this.grid = SceneHelper.CreateGrid(sceneStore.gridSize, sceneStore.scene);
     }
 
     setupDragNDrop = () => {
@@ -170,7 +170,7 @@ export class Scene extends Component<any, any> {
                 {
                     let result = File3DLoad(file, function (geometry: BufferGeometry) {
                         let obj = new SceneObject(geometry, file.name, sceneStore.objects, true);
-                        obj.AlignToPlaneXZ(thisObj.gridSize);
+                        obj.AlignToPlaneXZ(sceneStore.gridSize);
                         obj.AlignToPlaneY();
                         obj.AddToScene(sceneStore.scene);
                         Dispatch(EventEnum.ADD_OBJECT, obj);
@@ -195,7 +195,7 @@ export class Scene extends Component<any, any> {
     iniScene = () => {
         let thisObj = this;
 
-        let gridSize = this.gridSize;
+        let gridSize = sceneStore.gridSize;
 
         let scene = sceneStore.scene;
         let camera = new THREE.PerspectiveCamera(
@@ -447,6 +447,10 @@ export class Scene extends Component<any, any> {
         });
         transform.addEventListener( 'dragging-changed', function ( event ) {
             orbitControls.enabled = !event.value;
+
+            if (!event.value) {
+                sceneStoreSelectObjsAlignY();
+            }
         });
 
         File3DLoad(url.format({
@@ -455,7 +459,7 @@ export class Scene extends Component<any, any> {
             slashes: true,
         }), function (geometry: BufferGeometry) {
             let obj = new SceneObject(geometry, 'test.stl', sceneStore.objects, true);
-            obj.AlignToPlaneXZ(thisObj.gridSize);
+            obj.AlignToPlaneXZ(sceneStore.gridSize);
             obj.AlignToPlaneY();
             obj.AddToScene(sceneStore.scene);
             Dispatch(EventEnum.ADD_OBJECT, obj);

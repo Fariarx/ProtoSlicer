@@ -6,7 +6,8 @@ export let DefaultConfig = {
             opacity: 0.8
         },
         scene:{
-            workingPlaneColor:"#898989"
+            workingPlaneColor:"#898989",
+            transformAlignToPlane: true
         }
     }
 };

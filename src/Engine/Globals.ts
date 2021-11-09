@@ -9,6 +9,9 @@ export {LogSendText as Log}  from "./App/Notifications/ElementConsole";
 export let Settings = () => {
     return storeMain.get('settings') as typeof DefaultConfig.settings;
 }
+export let SaveSettings = () => {
+    storeMain.fullSave();
+}
 
 export type ISceneMaterial = {
     normal: THREE.Material;
