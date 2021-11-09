@@ -19,7 +19,12 @@ import SceneTransform, {TransformInstrumentEnum} from "./SceneTransform";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {Dispatch, EventEnum, MoveObject} from "../EventManager";
-import {sceneStore, sceneStoreCreate, sceneStoreGetTransformObj, sceneStoreSelectObjsAlignY} from "./SceneStore";
+import {
+    sceneStore,
+    sceneStoreCreate,
+    sceneStoreGetSelectObj,
+    sceneStoreSelectObjsAlignY
+} from "./SceneStore";
 
 sceneStoreCreate();
 
@@ -287,7 +292,7 @@ export class Scene extends Component<any, any> {
 
         const transform = new TransformControls(camera, this.renderer.domElement);
         transform.addEventListener( 'change', (event) => {
-            let transformObj = sceneStoreGetTransformObj();
+            let transformObj = sceneStoreGetSelectObj();
 
             if (transformObj !== null && sceneStore.groupSelected.length > 0) {
 
@@ -312,7 +317,7 @@ export class Scene extends Component<any, any> {
                                 sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
                             }
                         }
-                        else {
+                        else if(sceneStore.groupSelected.length > 1) {
                             let now = sceneStore.transformObjectGroup.position;
                             let old = sceneStore.transformObjectGroupOld.position;
 
@@ -360,7 +365,7 @@ export class Scene extends Component<any, any> {
                                 sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
                             }
                         }
-                        else {
+                        else if(sceneStore.groupSelected.length > 1) {
                             let now = sceneStore.transformObjectGroup.rotation;
                             let old = sceneStore.transformObjectGroupOld.rotation;
 
@@ -408,7 +413,7 @@ export class Scene extends Component<any, any> {
                                 sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
                             }
                         }
-                        else {
+                        else if(sceneStore.groupSelected.length > 1) {
                             let now = sceneStore.transformObjectGroup.scale;
                             let old = sceneStore.transformObjectGroupOld.scale;
 

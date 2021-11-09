@@ -6,41 +6,38 @@ import {TransformInstrumentEnum} from "./SceneTransform";
 import {action, autorun, makeAutoObservable} from "mobx";
 import {Vector3} from "three";
 
-export interface ISceneStore {
-    needUpdateFrame:boolean,
+export class CSceneStore {
+    needUpdateFrame:boolean = false;
 
-    scene: THREE.Scene;
-    objects:SceneObject[];
+    scene: THREE.Scene = new THREE.Scene();
+    objects:SceneObject[] = [];
 
-    gridSize: Vector3;
+    gridSize: Vector3 = new Vector3(1,1,1);
 
-    materialForPlane: THREE.Material;
-    materialForObjects: ISceneMaterial;
+    materialForPlane: THREE.Material = new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} );
+    materialForObjects: ISceneMaterial = SceneMaterials.default;
 
     transformInstrument?: TransformControls;
-    transformInstrumentState: TransformInstrumentEnum;
-    transformObjectGroupOld: THREE.Object3D;
-    transformObjectGroup: THREE.Object3D;
+    transformInstrumentState: TransformInstrumentEnum = TransformInstrumentEnum.None;
+    transformObjectGroupOld: THREE.Object3D = new THREE.Object3D();
+    transformObjectGroup: THREE.Object3D = new THREE.Object3D();
 
-    groupSelected: Array<SceneObject>;
+    groupSelected: Array<SceneObject> = new Array<SceneObject>();
+
+    constructor() {
+        makeAutoObservable(this);
+    }
+
+    get needUpdateTransformInstrumentWindow() {
+        return sceneStoreGetSelectObj()
+    }
 }
 
 export const sceneStoreCreate = () => {
-    sceneStore = makeAutoObservable({
-        needUpdateFrame: false,
-        scene:new THREE.Scene(),
-        objects:[],
-        materialForPlane: new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} ),
-        materialForObjects: SceneMaterials.default,
-        transformInstrumentState: TransformInstrumentEnum.None,
-        groupSelected: new Array<SceneObject>(),
-        transformObjectGroup: new THREE.Object3D(),
-        transformObjectGroupOld: new THREE.Object3D(),
-        gridSize: new Vector3(1,1,1)
-    } as ISceneStore);
+    sceneStore = new CSceneStore();
 }
 
-export let sceneStore: ISceneStore;
+export let sceneStore: CSceneStore;
 
 export const sceneStoreUpdateFrame = action(()=>{
     sceneStore.needUpdateFrame = true;
@@ -84,7 +81,7 @@ export const sceneStoreUpdateTransformControls = () => {
     }
 }
 
-export const sceneStoreGetTransformObj = () : THREE.Object3D | null => {
+export const sceneStoreGetSelectObj = () : THREE.Object3D | null => {
     if(sceneStore.groupSelected.length > 1)
     {
         return (sceneStore.transformObjectGroup);
@@ -119,7 +116,7 @@ export const sceneStoreSelectObjsAlignY = () => {
         if (Settings().scene.transformAlignToPlane) {
             sceneStore.groupSelected[0].AlignToPlaneY();
         }
-    } else {
+    } else if(sceneStore.groupSelected.length > 1) {
         for (let sceneObject of sceneStore.objects) {
             if (Settings().scene.transformAlignToPlane) {
                 sceneObject.AlignToPlaneY();
@@ -135,14 +132,14 @@ export const sceneStoreSelectObjsAlignXZ = () => {
         if (Settings().scene.transformAlignToPlane) {
             sceneStore.groupSelected[0].AlignToPlaneXZ(sceneStore.gridSize);
         }
-    } else {
+    } else if(sceneStore.groupSelected.length > 1) {
         for (let sceneObject of sceneStore.objects) {
             if (Settings().scene.transformAlignToPlane) {
                 sceneObject.AlignToPlaneXZ(sceneStore.gridSize);
             }
         }
     }
-    
+
     sceneStoreUpdateFrame();
 }
 

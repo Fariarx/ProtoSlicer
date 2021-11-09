@@ -6,7 +6,7 @@ import {autorun, observable} from "mobx";
 import {Dispatch, EventEnum} from "../EventManager";
 import {
     sceneStore,
-    sceneStoreGetTransformObj,
+    sceneStoreGetSelectObj,
     sceneStoreSelectionChanged,
     sceneStoreSelectObjsAlignXZ
 } from "./SceneStore";
@@ -32,13 +32,12 @@ class SceneTransform extends Component<any, any> {
     }
 
     render() {
-        let select = sceneStore.transformInstrumentState;
+        let instrumentEnum = sceneStore.transformInstrumentState;
         let instrumentMenu = <div/>;
+        let selectObj = sceneStoreGetSelectObj();
 
-        switch (select) {
+        switch (instrumentEnum) {
             case TransformInstrumentEnum.Move:
-                let selectObj = sceneStoreGetTransformObj();
-
                 instrumentMenu =
                     <Card style={{
                         width: '100%',
@@ -47,7 +46,7 @@ class SceneTransform extends Component<any, any> {
                     }}>
                         <Card.Content extra>
                             <Card.Header
-                                style={{float: 'left'}}>{select[0].toUpperCase() + select.slice(1)}</Card.Header>
+                                style={{float: 'left'}}>{instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}</Card.Header>
                         </Card.Content>
                         <Card.Content extra>
                             <div style={{
@@ -125,7 +124,7 @@ class SceneTransform extends Component<any, any> {
                     <Menu vertical pointing fluid>
                         <Menu.Item
                             name='Move'
-                            active={select === TransformInstrumentEnum.Move}
+                            active={instrumentEnum === TransformInstrumentEnum.Move}
                             onClick={this.handleItemClick}
                         >
                             <p>
@@ -135,7 +134,7 @@ class SceneTransform extends Component<any, any> {
 
                         <Menu.Item
                             name='Rotate'
-                            active={select === TransformInstrumentEnum.Rotate}
+                            active={instrumentEnum === TransformInstrumentEnum.Rotate}
                             onClick={this.handleItemClick}
                         >
                             <p>
@@ -145,7 +144,7 @@ class SceneTransform extends Component<any, any> {
 
                         <Menu.Item
                             name='Scale'
-                            active={select === TransformInstrumentEnum.Scale}
+                            active={instrumentEnum === TransformInstrumentEnum.Scale}
                             onClick={this.handleItemClick}
                         >
                             <p>
