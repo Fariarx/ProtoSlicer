@@ -4,17 +4,23 @@ import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {action, autorun, makeAutoObservable} from "mobx";
-import {Vector3} from "three";
+import {Euler, Vector3} from "three";
 
 export class CSceneStore {
-    needUpdateFrame:boolean = false;
+    needUpdateFrame: boolean = false;
+    needUpdateTransformTool: boolean = false;
 
     scene: THREE.Scene = new THREE.Scene();
-    objects:SceneObject[] = [];
+    objects: SceneObject[] = [];
 
-    gridSize: Vector3 = new Vector3(1,1,1);
+    gridSize: Vector3 = new Vector3(1, 1, 1);
 
-    materialForPlane: THREE.Material = new THREE.MeshBasicMaterial( {color: Settings().scene.workingPlaneColor, side: THREE.FrontSide, opacity: 0.6, transparent: true} );
+    materialForPlane: THREE.Material = new THREE.MeshBasicMaterial({
+        color: Settings().scene.workingPlaneColor,
+        side: THREE.FrontSide,
+        opacity: 0.6,
+        transparent: true
+    });
     materialForObjects: ISceneMaterial = SceneMaterials.default;
 
     transformInstrument?: TransformControls;
@@ -28,8 +34,14 @@ export class CSceneStore {
         makeAutoObservable(this);
     }
 
-    get needUpdateTransformInstrumentWindow() {
-        return sceneStoreGetSelectObj()
+    get sceneStoreGetSelectObj() {
+        if (sceneStore.groupSelected.length > 1) {
+            return (sceneStore.transformObjectGroup);
+        } else if (sceneStore.groupSelected.length === 1) {
+            return (sceneStore.groupSelected[0].mesh);
+        } else {
+            return null;
+        }
     }
 }
 
@@ -78,20 +90,6 @@ export const sceneStoreUpdateTransformControls = () => {
     }
     else {
         sceneStore.transformInstrument?.detach();
-    }
-}
-
-export const sceneStoreGetSelectObj = () : THREE.Object3D | null => {
-    if(sceneStore.groupSelected.length > 1)
-    {
-        return (sceneStore.transformObjectGroup);
-    }
-    else if(sceneStore.groupSelected.length === 1)
-    {
-        return (sceneStore.groupSelected[0].mesh);
-    }
-    else {
-        return null;
     }
 }
 

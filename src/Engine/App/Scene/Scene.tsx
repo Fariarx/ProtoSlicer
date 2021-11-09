@@ -22,7 +22,6 @@ import {Dispatch, EventEnum, MoveObject} from "../EventManager";
 import {
     sceneStore,
     sceneStoreCreate,
-    sceneStoreGetSelectObj,
     sceneStoreSelectObjsAlignY
 } from "./SceneStore";
 
@@ -292,161 +291,155 @@ export class Scene extends Component<any, any> {
 
         const transform = new TransformControls(camera, this.renderer.domElement);
         transform.addEventListener( 'change', (event) => {
-            let transformObj = sceneStoreGetSelectObj();
+            let transformObj = sceneStore.sceneStoreGetSelectObj;
 
-            if (transformObj !== null && sceneStore.groupSelected.length > 0) {
+            runInAction(() => {
+                sceneStore.needUpdateTransformTool = true;
 
-                switch (sceneStore.transformInstrumentState) {
-                    case TransformInstrumentEnum.Move:
-                        if(sceneStore.groupSelected.length === 1)
-                        {
-                            let now = sceneStore.groupSelected[0].mesh.position;
-                            let old = sceneStore.transformObjectGroupOld.position;
+                if (transformObj !== null && sceneStore.groupSelected.length > 0) {
 
-                            if(!now.equals(old)) {
-                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+                    switch (sceneStore.transformInstrumentState) {
+                        case TransformInstrumentEnum.Move:
+                            if (sceneStore.groupSelected.length === 1) {
+                                let now = sceneStore.groupSelected[0].mesh.position;
+                                let old = sceneStore.transformObjectGroupOld.position;
 
-                                Dispatch(EventEnum.TRANSFORM_OBJECT, {
-                                    difference: differenceVector3,
-                                    from: old,
-                                    to: now,
-                                    sceneObject: sceneStore.groupSelected[0],
-                                    doNotMoveInDispatch:true
-                                } as MoveObject)
-
-                                sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
-                            }
-                        }
-                        else if(sceneStore.groupSelected.length > 1) {
-                            let now = sceneStore.transformObjectGroup.position;
-                            let old = sceneStore.transformObjectGroupOld.position;
-
-                            if(!now.equals(old)) {
-                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
-
-                                sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
-
-                                for(let sceneObject of sceneStore.objects)
-                                {
-                                    let oldPosition = sceneObject.mesh.position;
-                                    let newPosition = sceneObject.mesh.position;
-
-                                    newPosition.x -= differenceVector3.x;
-                                    newPosition.y -= differenceVector3.y;
-                                    newPosition.z -= differenceVector3.z;
+                                if (!now.equals(old)) {
+                                    let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
 
                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         difference: differenceVector3,
-                                        from: oldPosition,
-                                        to: newPosition,
-                                        sceneObject: sceneObject
+                                        from: old,
+                                        to: now,
+                                        sceneObject: sceneStore.groupSelected[0],
+                                        doNotMoveInDispatch: true
                                     } as MoveObject)
+
+                                    sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
+                                }
+                            } else if (sceneStore.groupSelected.length > 1) {
+                                let now = sceneStore.transformObjectGroup.position;
+                                let old = sceneStore.transformObjectGroupOld.position;
+
+                                if (!now.equals(old)) {
+                                    let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                    sceneStore.transformObjectGroupOld.position.set(now.x, now.y, now.z);
+
+                                    for (let sceneObject of sceneStore.objects) {
+                                        let oldPosition = sceneObject.mesh.position;
+                                        let newPosition = sceneObject.mesh.position;
+
+                                        newPosition.x -= differenceVector3.x;
+                                        newPosition.y -= differenceVector3.y;
+                                        newPosition.z -= differenceVector3.z;
+
+                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                            difference: differenceVector3,
+                                            from: oldPosition,
+                                            to: newPosition,
+                                            sceneObject: sceneObject
+                                        } as MoveObject)
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case TransformInstrumentEnum.Rotate:
-                        if(sceneStore.groupSelected.length === 1)
-                        {
-                            let now = sceneStore.groupSelected[0].mesh.rotation;
-                            let old = sceneStore.transformObjectGroupOld.rotation;
+                            break;
+                        case TransformInstrumentEnum.Rotate:
+                            if (sceneStore.groupSelected.length === 1) {
+                                let now = sceneStore.groupSelected[0].mesh.rotation;
+                                let old = sceneStore.transformObjectGroupOld.rotation;
 
-                            if(!now.equals(old)) {
-                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
-
-                                Dispatch(EventEnum.TRANSFORM_OBJECT, {
-                                    difference: differenceVector3,
-                                    from: old,
-                                    to: now,
-                                    sceneObject: sceneStore.groupSelected[0],
-                                    doNotMoveInDispatch:true
-                                } as MoveObject)
-
-                                sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
-                            }
-                        }
-                        else if(sceneStore.groupSelected.length > 1) {
-                            let now = sceneStore.transformObjectGroup.rotation;
-                            let old = sceneStore.transformObjectGroupOld.rotation;
-
-                            if(!now.equals(old)) {
-                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
-
-                                sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
-
-                                for(let sceneObject of sceneStore.objects)
-                                {
-                                    let oldPosition = sceneObject.mesh.rotation;
-                                    let newPosition = sceneObject.mesh.rotation;
-
-                                    newPosition.x -= differenceVector3.x;
-                                    newPosition.y -= differenceVector3.y;
-                                    newPosition.z -= differenceVector3.z;
+                                if (!now.equals(old)) {
+                                    let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
 
                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         difference: differenceVector3,
-                                        from: oldPosition,
-                                        to: newPosition,
-                                        sceneObject: sceneObject
+                                        from: old,
+                                        to: now,
+                                        sceneObject: sceneStore.groupSelected[0],
+                                        doNotMoveInDispatch: true
                                     } as MoveObject)
+
+                                    sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
+                                }
+                            } else if (sceneStore.groupSelected.length > 1) {
+                                let now = sceneStore.transformObjectGroup.rotation;
+                                let old = sceneStore.transformObjectGroupOld.rotation;
+
+                                if (!now.equals(old)) {
+                                    let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                    sceneStore.transformObjectGroupOld.rotation.set(now.x, now.y, now.z);
+
+                                    for (let sceneObject of sceneStore.objects) {
+                                        let oldPosition = sceneObject.mesh.rotation;
+                                        let newPosition = sceneObject.mesh.rotation;
+
+                                        newPosition.x -= differenceVector3.x;
+                                        newPosition.y -= differenceVector3.y;
+                                        newPosition.z -= differenceVector3.z;
+
+                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                            difference: differenceVector3,
+                                            from: oldPosition,
+                                            to: newPosition,
+                                            sceneObject: sceneObject
+                                        } as MoveObject)
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case TransformInstrumentEnum.Scale:
-                        if(sceneStore.groupSelected.length === 1)
-                        {
-                            let now = sceneStore.groupSelected[0].mesh.scale;
-                            let old = sceneStore.transformObjectGroupOld.scale;
+                            break;
+                        case TransformInstrumentEnum.Scale:
+                            if (sceneStore.groupSelected.length === 1) {
+                                let now = sceneStore.groupSelected[0].mesh.scale;
+                                let old = sceneStore.transformObjectGroupOld.scale;
 
-                            if(!now.equals(old)) {
-                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
-
-                                Dispatch(EventEnum.TRANSFORM_OBJECT, {
-                                    difference: differenceVector3,
-                                    from: old,
-                                    to: now,
-                                    sceneObject: sceneStore.groupSelected[0],
-                                    doNotMoveInDispatch:true
-                                } as MoveObject)
-
-                                sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
-                            }
-                        }
-                        else if(sceneStore.groupSelected.length > 1) {
-                            let now = sceneStore.transformObjectGroup.scale;
-                            let old = sceneStore.transformObjectGroupOld.scale;
-
-                            if(!now.equals(old)) {
-                                let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
-
-                                sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
-
-                                for(let sceneObject of sceneStore.objects)
-                                {
-                                    let oldPosition = sceneObject.mesh.scale;
-                                    let newPosition = sceneObject.mesh.scale;
-
-                                    newPosition.x -= differenceVector3.x;
-                                    newPosition.y -= differenceVector3.y;
-                                    newPosition.z -= differenceVector3.z;
+                                if (!now.equals(old)) {
+                                    let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
 
                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         difference: differenceVector3,
-                                        from: oldPosition,
-                                        to: newPosition,
-                                        sceneObject: sceneObject
+                                        from: old,
+                                        to: now,
+                                        sceneObject: sceneStore.groupSelected[0],
+                                        doNotMoveInDispatch: true
                                     } as MoveObject)
+
+                                    sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
+                                }
+                            } else if (sceneStore.groupSelected.length > 1) {
+                                let now = sceneStore.transformObjectGroup.scale;
+                                let old = sceneStore.transformObjectGroupOld.scale;
+
+                                if (!now.equals(old)) {
+                                    let differenceVector3 = new Vector3(old.x - now.x, old.y - now.y, old.z - now.z);
+
+                                    sceneStore.transformObjectGroupOld.scale.set(now.x, now.y, now.z);
+
+                                    for (let sceneObject of sceneStore.objects) {
+                                        let oldPosition = sceneObject.mesh.scale;
+                                        let newPosition = sceneObject.mesh.scale;
+
+                                        newPosition.x -= differenceVector3.x;
+                                        newPosition.y -= differenceVector3.y;
+                                        newPosition.z -= differenceVector3.z;
+
+                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                            difference: differenceVector3,
+                                            from: oldPosition,
+                                            to: newPosition,
+                                            sceneObject: sceneObject
+                                        } as MoveObject)
+                                    }
                                 }
                             }
-                        }
-                        break;
+                            break;
+                    }
+                } else {
+                    Log('Error of \'change\': transformObj is null or sceneStore.groupSelected.length = 0');
                 }
-            }
-            else
-            {
-                Log('Error of \'change\': transformObj is null or sceneStore.groupSelected.length = 0');
-            }
+
+            });
 
             animate();
         });
