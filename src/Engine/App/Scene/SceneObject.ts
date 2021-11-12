@@ -10,6 +10,7 @@ export class SceneObject {
     min: Vector3;
     max: Vector3;
     center: Vector3;
+    size: Vector3 = new Vector3();
 
     isSelected: boolean;
     private wasSelected: boolean;
@@ -70,6 +71,8 @@ export class SceneObject {
             this.wasSelected = this.isSelected;
         }
 
+        new THREE.Box3().setFromObject(this.mesh).getSize(this.size);
+
         this.mesh.updateMatrixWorld();
         this.bbox.update();
 
@@ -95,7 +98,7 @@ export class SceneObject {
     }
 
     AlignToPlaneY() {
-        this.mesh.position.y = this.mesh.localToWorld(this.center).y - this.mesh.localToWorld(this.min).y;
+        this.mesh.position.y = this.size.y / 2;
     }
 
     AlignToPlaneXZ(gridVec: Vector3) {

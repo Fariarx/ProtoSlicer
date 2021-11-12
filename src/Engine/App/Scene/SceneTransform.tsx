@@ -1,16 +1,17 @@
 import {Button, Card, Icon, Input, Label, List, Menu, Segment} from "semantic-ui-react";
 import {SaveSettings, Settings} from "../../Globals";
-import React, {Component} from "react";
+import React, {Component, RefObject} from "react";
 import {inject, observer} from "mobx-react";
 import {autorun, observable, runInAction} from "mobx";
 import {Dispatch, EventEnum} from "../EventManager";
 import {
     sceneStore,
     sceneStoreSelectionChanged,
-    sceneStoreSelectObjsAlignXZ, sceneStoreUpdateFrame
+    sceneStoreSelectObjsAlignXZ, sceneStoreSelectObjsAlignY, sceneStoreUpdateFrame
 } from "./SceneStore";
 import {Vector3} from "three";
 import {isFloat, isNumeric} from "../../Utils";
+import {SceneTransformInput} from "./SceneTransformInput";
 
 export enum TransformInstrumentEnum {
     None = 0,
@@ -21,6 +22,7 @@ export enum TransformInstrumentEnum {
 
 const MenuItemStyleCenter = {marginLeft: 'auto', marginRight: 'auto', display: 'block'};
 
+
 @inject('sceneStore')
 @observer
 class SceneTransform extends Component<any, any> {
@@ -28,7 +30,7 @@ class SceneTransform extends Component<any, any> {
         Dispatch(EventEnum.SELECT_TRANSFORM_MODE, {value: TransformInstrumentEnum[obj.name]});
     }
 
-    labelX;
+
 
     render() {
         let instrumentEnum = sceneStore.transformInstrumentState;
@@ -44,11 +46,6 @@ class SceneTransform extends Component<any, any> {
 
         switch (instrumentEnum) {
             case TransformInstrumentEnum.Move:
-
-                if((document.activeElement as any).name !== 'transform_x') {
-                    this.labelX = Number(selectObj?.position.x).toFixed(2);
-                }
-
                 instrumentMenu =
                     <Card style={{
                         width: '100%',
@@ -73,58 +70,34 @@ class SceneTransform extends Component<any, any> {
                                 }}>
                                     <List>
                                         <List.Item>
-                                            <Input fluid labelPosition='right' type='text' placeholder='No selected'
-                                                   size='small' disabled={!selectObj}>
-                                                <Label color='green' pointing={"right"}>X</Label>
-                                                <input
-                                                    name='transform_x' value={selectObj ? this.labelX : undefined}
-                                                    onChange={(e) => {
-                                                        let value = e.target.value.replace(',','.');
-
-                                                        this.labelX = value;
-
-                                                        let float = parseFloat(value);
-
-                                                        if (float) {
-                                                            selectObj?.position.setX(float);
-                                                        }
-
-                                                        this.setState({})
-                                                        sceneStoreUpdateFrame();
-                                                    }}
-                                                    onBlur={(e) =>{
-                                                        if(parseFloat(this.labelX)) {
-                                                            this.labelX = Number(this.labelX).toFixed(2)
-                                                        }
-                                                        else
-                                                        {
-                                                            this.labelX = Number(selectObj?.position.x).toFixed(2);
-                                                        }
-
-                                                        this.setState({})
-                                                        sceneStoreUpdateFrame();
-                                                    }}
-                                                />
-                                                <Label color='green'>mm</Label>
-                                            </Input>
+                                            <SceneTransformInput
+                                                updateValue={()=> Number(selectObj?.position.x).toFixed(2)}
+                                                setValue={(number)=>{selectObj?.position.setX(number)}}
+                                                selectObj={selectObj}
+                                                unitsText={'mm'}
+                                                axisColor={'red'}
+                                                axisText={'X'}
+                                            />
                                         </List.Item>
                                         <List.Item>
-                                            <Input fluid labelPosition='right' type='text' placeholder='No selected'
-                                                   size='small' disabled={!selectObj}>
-                                                <Label color='red' pointing={"right"}>Y</Label>
-                                                <input
-                                                    value={selectObj ? Number(selectObj?.position.z).toFixed(2) : undefined}/>
-                                                <Label color='red'>mm</Label>
-                                            </Input>
+                                            <SceneTransformInput
+                                                updateValue={()=> Number(selectObj?.position.z).toFixed(2)}
+                                                setValue={(number)=>{selectObj?.position.setZ(number)}}
+                                                selectObj={selectObj}
+                                                unitsText={'mm'}
+                                                axisColor={'blue'}
+                                                axisText={'Y'}
+                                            />
                                         </List.Item>
                                         <List.Item>
-                                            <Input fluid labelPosition='right' type='text' placeholder='No selected'
-                                                   size='small' disabled={!selectObj}>
-                                                <Label color='blue' pointing={"right"}>Z</Label>
-                                                <input
-                                                    value={selectObj ? Number(selectObj?.position.y).toFixed(2) : undefined}/>
-                                                <Label color='blue'>mm</Label>
-                                            </Input>
+                                            <SceneTransformInput
+                                                updateValue={()=> Number(selectObj?.position.y).toFixed(2)}
+                                                setValue={(number)=>{selectObj?.position.setY(number)}}
+                                                selectObj={selectObj}
+                                                unitsText={'mm'}
+                                                axisColor={'green'}
+                                                axisText={'Z'}
+                                            />
                                         </List.Item>
                                     </List>
                                 </div>
@@ -141,6 +114,11 @@ class SceneTransform extends Component<any, any> {
                                     color={Settings().scene.transformAlignToPlane ? 'teal' : undefined} onClick={() => {
                                 Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
                                 SaveSettings();
+
+                                if(Settings().scene.transformAlignToPlane) {
+                                    sceneStoreSelectObjsAlignY();
+                                }
+                                
                                 this.setState({});
                             }}>
                                 <Button.Content>AlignZ</Button.Content>
