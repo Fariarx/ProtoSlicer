@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import {Box3, Vector3} from "three";
 import {sceneStore} from "./SceneStore";
+import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {TransformInstrumentEnum} from "./SceneTransform";
 
 export class SceneObject {
     name: string;
@@ -11,6 +13,7 @@ export class SceneObject {
     max: Vector3;
     center: Vector3;
     size: Vector3 = new Vector3();
+    scaleFactor: number;
 
     isSelected: boolean;
     private wasSelected: boolean;
@@ -52,6 +55,8 @@ export class SceneObject {
         this.isSelected = selected;
         this.wasSelected = selected;
         this.SetSelection();
+
+        this.scaleFactor = (0.1 / this.size.x + 0.1 / this.size.y + 0.1 / this.size.z) / 3;
     }
 
     private SetSelection() {
@@ -98,12 +103,25 @@ export class SceneObject {
     }
 
     AlignToPlaneY() {
-        this.mesh.position.y = this.size.y / 2;
+        this.Update();
+
+        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+            from: this.mesh.position.clone(),
+            to: this.mesh.position.setY(this.size.y / 2).clone(),
+            sceneObject: this as SceneObject,
+            instrument:TransformInstrumentEnum.Move
+        } as MoveObject)
     }
 
     AlignToPlaneXZ(gridVec: Vector3) {
-        this.mesh.position.x = gridVec.x / 2;
-        this.mesh.position.z = gridVec.z / 2;
+        this.Update();
+
+        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+            from: this.mesh.position.clone(),
+            to: this.mesh.position.setX(gridVec.x / 2).setZ(gridVec.z / 2).clone(),
+            sceneObject: this as SceneObject,
+            instrument:TransformInstrumentEnum.Move
+        } as MoveObject)
     }
 
     IsEqual3dObject(_mesh: THREE.Mesh) {
@@ -153,5 +171,25 @@ export class SceneObject {
         })
 
         return _element;
+    }
+    static CalculateGroupMaxSize(objs: SceneObject[]) : Vector3
+    {
+        let deltaSize;
+
+        objs.every(function(element, index) {
+            let size = objs[index].size;
+
+            if(index === 0)
+            {
+                deltaSize = size.clone();
+            }
+            else {
+                deltaSize.x += (deltaSize.x + size.x)/2;
+                deltaSize.y += (deltaSize.y + size.y)/2;
+                deltaSize.z += (deltaSize.z + size.z)/2;
+            }
+        })
+
+        return deltaSize;
     }
 }

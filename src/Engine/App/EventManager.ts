@@ -1,16 +1,23 @@
 import {observable, runInAction} from "mobx";
 import { TransformInstrumentEnum} from "./Scene/SceneTransform";
 import {ElementStepsSelect, StepsEnum} from "./Steps";
-import {sceneStore, sceneStoreInstrumentStateChanged, sceneStoreSelectionChanged} from "./Scene/SceneStore";
+import {
+    sceneStore,
+    sceneStoreInstrumentStateChanged,
+    sceneStoreSelectionChanged,
+    sceneStoreUpdateFrame, sceneStoreUpdateTransformTool
+} from "./Scene/SceneStore";
 import {Euler, Vector3} from "three";
 import {SceneObject} from "./Scene/SceneObject";
+import {Settings} from "../Globals";
 
 export type MoveObject = {
-    difference: Vector3 | Euler,
+    instrument?: TransformInstrumentEnum,
     from: Vector3 | Euler,
     to: Vector3 | Euler,
-    sceneObject: SceneObject,
-    doNotMoveInDispatch: true | undefined
+    sceneObject: SceneObject | THREE.Object3D,
+    actionBreak: true | undefined,
+    isGroup: true | undefined,
 }
 export enum EventEnum {
     SELECT_TRANSFORM_MODE,
@@ -51,20 +58,48 @@ const Handler = (message) => {
             break;
         case EventEnum.TRANSFORM_OBJECT:
             let moveObject = message.args as MoveObject;
+            let mesh = moveObject.sceneObject instanceof SceneObject ? moveObject.sceneObject.mesh : moveObject.sceneObject;
 
-            if(!moveObject.doNotMoveInDispatch) {
-                switch (sceneStore.transformInstrumentState) {
+            moveObject.to = moveObject.to.clone();
+            moveObject.from = moveObject.from.clone();
+
+            if(!moveObject.actionBreak) {
+                if(!moveObject.instrument) {
+                    moveObject.instrument = sceneStore.transformInstrumentState;
+                }
+
+                switch (moveObject.instrument) {
                     case TransformInstrumentEnum.Move:
-                        moveObject.sceneObject.mesh.position.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
+                        mesh.position.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
                         break;
                     case TransformInstrumentEnum.Rotate:
-                        moveObject.sceneObject.mesh.rotation.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
+                        mesh.rotation.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
                         break;
                     case TransformInstrumentEnum.Scale:
-                        moveObject.sceneObject.mesh.scale.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
+                        let minScale = Settings().scene.sharpness;
+
+                        if(moveObject.to.x < minScale)
+                        {
+                            moveObject.to.x = minScale;
+                        }
+                        if(moveObject.to.y < minScale)
+                        {
+                            moveObject.to.y = minScale;
+                        }
+                        if(moveObject.to.z < minScale)
+                        {
+                            moveObject.to.z = minScale;
+                        }
+
+                        mesh.scale.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
                         break;
                 }
             }
+
+            //console.log(moveObject);
+
+            sceneStoreUpdateFrame();
+            sceneStoreUpdateTransformTool();
             break;
         case EventEnum.ADD_OBJECT:
             sceneStore.objects.push(message.args);

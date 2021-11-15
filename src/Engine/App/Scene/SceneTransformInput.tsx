@@ -20,10 +20,10 @@ export const SceneTransformInput = function (props) {
                 onChange={(e) => {
                     let value = e.target.value.replace(',', '.');
 
-                    let float = parseFloat(value);
+                    let number = parseFloat(value);
 
-                    if (float) {
-                        props.setValue(float);//props.selectObj?.position.setX(float);
+                    if (number || number === 0) {
+                        props.setValue(number);//props.selectObj?.position.setX(number);
                     }
 
                     updateValue(value);
@@ -42,7 +42,7 @@ export const SceneTransformInput = function (props) {
                     sceneStoreUpdateFrame();
                 }}
             />
-            <Label color='green'>{props.unitsText}</Label>
+            <Label color={props.axisColor} >{props.unitsText}</Label>
         </Input>
     );
 }

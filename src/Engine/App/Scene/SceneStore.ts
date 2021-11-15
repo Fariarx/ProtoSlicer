@@ -11,6 +11,7 @@ export class CSceneStore {
     needUpdateTransformTool: boolean = false;
 
     scene: THREE.Scene = new THREE.Scene();
+    decorations: THREE.Group = new THREE.Group();
     objects: SceneObject[] = [];
 
     gridSize: Vector3 = new Vector3(1, 1, 1);
@@ -32,13 +33,14 @@ export class CSceneStore {
 
     constructor() {
         makeAutoObservable(this);
+
+        this.scene.add(this.transformObjectGroup);
+        this.scene.add(this.decorations);
     }
 
     get sceneStoreGetSelectObj() {
-        if (sceneStore.groupSelected.length > 1) {
+        if (sceneStore.groupSelected.length) {
             return (sceneStore.transformObjectGroup);
-        } else if (sceneStore.groupSelected.length === 1) {
-            return (sceneStore.groupSelected[0].mesh);
         } else {
             return null;
         }
@@ -54,6 +56,10 @@ export let sceneStore: CSceneStore;
 export const sceneStoreUpdateFrame = action(()=>{
     sceneStore.needUpdateFrame = true;
 });
+export const sceneStoreUpdateTransformTool = action(()=>{
+    sceneStore.needUpdateTransformTool = true;
+});
+
 
 export const sceneStoreSelectionChanged = action(()=>{
     sceneStore.transformInstrument?.detach();
@@ -78,15 +84,9 @@ export const sceneStoreSelectionChanged = action(()=>{
 export const sceneStoreUpdateTransformControls = () => {
     let isWorkingInstrument = sceneStore.transformInstrumentState !== TransformInstrumentEnum.None;
 
-    if(isWorkingInstrument && sceneStore.groupSelected.length > 1)
+    if(isWorkingInstrument && sceneStore.groupSelected.length)
     {
-        sceneStore.transformObjectGroupOld = sceneStore.transformObjectGroup.clone();
         sceneStore.transformInstrument?.attach(sceneStore.transformObjectGroup);
-    }
-    else if(isWorkingInstrument && sceneStore.groupSelected.length === 1)
-    {
-        sceneStore.transformObjectGroupOld = sceneStore.groupSelected[0].mesh.clone();
-        sceneStore.transformInstrument?.attach(sceneStore.groupSelected[0].mesh);
     }
     else {
         sceneStore.transformInstrument?.detach();
@@ -110,37 +110,44 @@ export const sceneStoreInstrumentStateChanged = action((state: TransformInstrume
 })
 
 export const sceneStoreSelectObjsAlignY = () => {
-    if (sceneStore.groupSelected.length === 1) {
-        if (Settings().scene.transformAlignToPlane) {
-            sceneStore.groupSelected[0].AlignToPlaneY();
-        }
-    } else if(sceneStore.groupSelected.length > 1) {
-        for (let sceneObject of sceneStore.objects) {
-            if (Settings().scene.transformAlignToPlane) {
+    if (sceneStore.groupSelected.length ) {
+            for (let sceneObject of sceneStore.groupSelected) {
                 sceneObject.AlignToPlaneY();
             }
         }
+
+        sceneStoreUpdateFrame();
+}
+
+export const sceneStoreSelectObjsResetRotation = () => {
+    if(sceneStore.groupSelected.length ) {
+        for (let sceneObject of sceneStore.groupSelected) {
+                sceneObject.mesh.rotation.set(0,0,0);
+        }
     }
 
     sceneStoreUpdateFrame();
+    sceneStoreUpdateTransformTool();
+}
+
+export const sceneStoreSelectObjsResetScale = () => {
+    if (sceneStore.groupSelected.length) {
+        for (let sceneObject of sceneStore.groupSelected) {
+            sceneObject.mesh.scale.set(0.1, 0.1, 0.1);
+            sceneObject.Update();
+        }
+    }
+
+    sceneStoreUpdateFrame();
+    sceneStoreUpdateTransformTool();
 }
 
 export const sceneStoreSelectObjsAlignXZ = () => {
-    if (sceneStore.groupSelected.length === 1) {
-        if (Settings().scene.transformAlignToPlane) {
-            sceneStore.groupSelected[0].AlignToPlaneXZ(sceneStore.gridSize);
-        }
-    } else if(sceneStore.groupSelected.length > 1) {
-        for (let sceneObject of sceneStore.objects) {
-            if (Settings().scene.transformAlignToPlane) {
+    if(sceneStore.groupSelected.length ) {
+        for (let sceneObject of sceneStore.groupSelected) {
                 sceneObject.AlignToPlaneXZ(sceneStore.gridSize);
-            }
         }
     }
 
     sceneStoreUpdateFrame();
 }
-
-autorun(()=>{
-    sceneStore.scene.add(sceneStore.transformObjectGroup);
-})

@@ -129,7 +129,7 @@ export class Printer {
                 files = [...fs.readdirSync(window.bridge.userData + "/ChangedConfigsV" + DefaultConfig.versionPrinterConfigs)];
             }
             if (fs.existsSync('./src/Engine/App/Configs/Default')) {
-                files = [...fs.readdirSync('./src/App/Engine/Configs/Default'), ...files];
+                files = [...fs.readdirSync('./src/Engine/App/Configs/Default'), ...files];
             }
 
             files = files.filter(function(item, pos) {
