@@ -82,65 +82,64 @@ export class Scene extends Component<any, any> {
             this.plane.clear();
         }
 
-        if(this.printerConfig)
-        {
+        if(this.printerConfig) {
             sceneStore.gridSize.set(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), this.printerConfig.Workspace.height * 0.1, Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
 
-                var loader = new THREE.TextureLoader();
-                var materialForText;
+            var loader = new THREE.TextureLoader();
+            var materialForText;
 
-                sceneStore.decorations.clear();
+            sceneStore.decorations.clear();
 
-                //1cm
-                loader.load(
-                    // resource URL
-                    url.format({
-                        pathname: path.join(dirname, './Engine/App/Pictures/10mm.png'),
-                        protocol: 'file:',
-                        slashes: true,
-                    }),
+            //1cm
+            loader.load(
+                // resource URL
+                url.format({
+                    pathname: path.join(dirname, './Engine/App/Pictures/10mm.png'),
+                    protocol: 'file:',
+                    slashes: true,
+                }),
 
-                    // onLoad callback
-                    function (texture) {
+                // onLoad callback
+                function (texture) {
 
-                        materialForText = new THREE.MeshStandardMaterial({
-                            map: texture,
-                            transparent: true,
-                            opacity: 0.7,
-                            color: 0xFFFFFF
-                        });
+                    materialForText = new THREE.MeshStandardMaterial({
+                        map: texture,
+                        transparent: true,
+                        opacity: 0.7,
+                        color: 0xFFFFFF
+                    });
 
-                        const geometry = new THREE.PlaneGeometry(1, 1);
+                    const geometry = new THREE.PlaneGeometry(1, 1);
 
-                        let plane;
+                    let plane;
 
-                        /*plane = new THREE.Mesh( geometry, materialForText );
-                        plane.rotateX(- Math.PI/2);
-                        plane.position.set(0.5,-0.001,-0.25);
-                        sceneStore.scene.add( plane ); */
+                    /*plane = new THREE.Mesh( geometry, materialForText );
+                    plane.rotateX(- Math.PI/2);
+                    plane.position.set(0.5,-0.001,-0.25);
+                    sceneStore.scene.add( plane ); */
 
-                        plane = new THREE.Mesh(geometry, materialForText);
-                        plane.rotateX(-Math.PI / 2);
-                        plane.rotateZ(Math.PI / 2);
-                        plane.position.set(1.5, 0.05, 1.5);
-                        sceneStore.decorations.add(plane);
-                    },
+                    plane = new THREE.Mesh(geometry, materialForText);
+                    plane.rotateX(-Math.PI / 2);
+                    plane.rotateZ(Math.PI / 2);
+                    plane.position.set(1.5, 0.05, 1.5);
+                    sceneStore.decorations.add(plane);
+                },
 
-                    // onProgress callback currently not supported
-                    undefined,
+                // onProgress callback currently not supported
+                undefined,
 
-                    // onError callback
-                    function (err) {
-                        console.error(err);
-                    }
-                );
+                // onError callback
+                function (err) {
+                    console.error(err);
+                }
+            );
 
 
-                const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1);
-                const plane = new THREE.Mesh(geometry, sceneStore.materialForPlane);
-                plane.rotateX(-Math.PI / 2);
-                plane.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
-                sceneStore.decorations.add(plane);
+            const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1);
+            const plane = new THREE.Mesh(geometry, sceneStore.materialForPlane);
+            plane.rotateX(-Math.PI / 2);
+            plane.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
+            sceneStore.decorations.add(plane);
         }
 
         this.grid = SceneHelper.CreateGrid(sceneStore.gridSize, sceneStore.scene);

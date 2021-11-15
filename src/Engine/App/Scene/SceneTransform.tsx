@@ -49,6 +49,20 @@ class SceneTransform extends Component<any, any> {
             })
         }
 
+        let buttonAlignY = <Button size={"tiny"} compact active={Settings().scene.transformAlignToPlane}
+                                   color={Settings().scene.transformAlignToPlane ? 'teal' : undefined} onClick={() => {
+            Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
+            SaveSettings();
+
+            if(Settings().scene.transformAlignToPlane) {
+                sceneStoreSelectObjsAlignY();
+            }
+
+            this.setState({});
+        }}>
+            <Button.Content>AlignZ</Button.Content>
+        </Button>;
+
         switch (instrumentEnum) {
             case TransformInstrumentEnum.Move:
                 instrumentMenu =
@@ -143,19 +157,7 @@ class SceneTransform extends Component<any, any> {
                             }}>
                                 <Button.Content>Center</Button.Content>
                             </Button>
-                            <Button size={"tiny"} compact active={Settings().scene.transformAlignToPlane}
-                                    color={Settings().scene.transformAlignToPlane ? 'teal' : undefined} onClick={() => {
-                                Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
-                                SaveSettings();
-
-                                if(Settings().scene.transformAlignToPlane) {
-                                    sceneStoreSelectObjsAlignY();
-                                }
-
-                                this.setState({});
-                            }}>
-                                <Button.Content>AlignZ</Button.Content>
-                            </Button>
+                            {buttonAlignY}
                         </Card.Content>
                     </Card>
                 break;
@@ -220,10 +222,16 @@ class SceneTransform extends Component<any, any> {
                         <Card.Content extra>
                             <Button size={"tiny"} compact onClick={() => {
                                 sceneStoreSelectObjsResetRotation();
+
+                                if(Settings().scene.transformAlignToPlane) {
+                                    sceneStoreSelectObjsAlignY();
+                                }
+
                                 this.setState({});
                             }}>
                                 <Button.Content>Reset</Button.Content>
                             </Button>
+                            {buttonAlignY}
                         </Card.Content>
                     </Card>
                 break;
@@ -502,10 +510,16 @@ class SceneTransform extends Component<any, any> {
                         <Card.Content extra>
                             <Button size={"tiny"} compact onClick={() => {
                                 sceneStoreSelectObjsResetScale();
+
+                                if(Settings().scene.transformAlignToPlane) {
+                                    sceneStoreSelectObjsAlignY();
+                                }
+
                                 this.setState({});
                             }}>
                                 <Button.Content>Reset</Button.Content>
                             </Button>
+                            {buttonAlignY}
                         </Card.Content>
                     </Card>
                 break;
