@@ -1,10 +1,12 @@
 import * as THREE from "three";
+import {Euler, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
 import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./SceneTransform";
-import {action, autorun, makeAutoObservable} from "mobx";
-import {Euler, Vector3} from "three";
+import {action, makeAutoObservable} from "mobx";
+import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {LinearGenerator} from "../../Utils";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;
@@ -127,23 +129,56 @@ export const sceneStoreSelectObjsAlignY = () => {
 }
 
 export const sceneStoreSelectObjsResetRotation = () => {
+    let id = LinearGenerator();
+
     if(sceneStore.groupSelected.length ) {
         for (let sceneObject of sceneStore.groupSelected) {
-                sceneObject.mesh.rotation.set(0,0,0);
+            Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                from: sceneObject.mesh.rotation.clone(),
+                to: new Euler(0,0,0),
+                sceneObject: sceneObject,
+                instrument: TransformInstrumentEnum.Rotate,
+                id:id
+            } as MoveObject)
         }
     }
+
+    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+        from: sceneStore.transformObjectGroup.rotation.clone(),
+        to: new Euler(0,0,0),
+        sceneObject: sceneStore.transformObjectGroup,
+        instrument: TransformInstrumentEnum.Rotate,
+        id:id
+    } as MoveObject)
 
     sceneStoreUpdateFrame();
     sceneStoreUpdateTransformTool();
 }
 
 export const sceneStoreSelectObjsResetScale = () => {
+    let id = LinearGenerator();
+
     if (sceneStore.groupSelected.length) {
         for (let sceneObject of sceneStore.groupSelected) {
-            sceneObject.mesh.scale.set(0.1, 0.1, 0.1);
+            Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                from: sceneObject.mesh.scale.clone(),
+                to: new Vector3(0.1,0.1,0.1),
+                sceneObject: sceneObject,
+                instrument: TransformInstrumentEnum.Scale,
+                id:id
+            } as MoveObject)
+
             sceneObject.Update();
         }
     }
+
+    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+        from: sceneStore.transformObjectGroup.scale.clone(),
+        to: new Vector3(1,1,1),
+        sceneObject: sceneStore.transformObjectGroup,
+        instrument: TransformInstrumentEnum.Scale,
+        id:id
+    } as MoveObject)
 
     sceneStoreUpdateFrame();
     sceneStoreUpdateTransformTool();
