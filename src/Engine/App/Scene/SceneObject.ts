@@ -177,19 +177,39 @@ export class SceneObject {
         let deltaSize;
 
         objs.every(function(element, index) {
-            let size = objs[index].size;
+            let size = element.size;
 
             if(index === 0)
             {
                 deltaSize = size.clone();
             }
             else {
-                deltaSize.x += (deltaSize.x + size.x)/2;
-                deltaSize.y += (deltaSize.y + size.y)/2;
-                deltaSize.z += (deltaSize.z + size.z)/2;
+                deltaSize.x = (deltaSize.x + size.x)/2;
+                deltaSize.y = (deltaSize.y + size.y)/2;
+                deltaSize.z = (deltaSize.z + size.z)/2;
             }
         })
 
         return deltaSize;
+    }
+    static CalculateGroupCenter(objs: SceneObject[]) : Vector3
+    {
+        let delta;
+
+        objs.every(function(element, index) {
+            let position = element.mesh.position;
+
+            if(index === 0)
+            {
+                delta = position.clone();
+            }
+            else {
+                delta.x = (delta.x + position.x)/2;
+                delta.y = (delta.y + position.y)/2;
+                delta.z = (delta.z + position.z)/2;
+            }
+        })
+
+        return delta;
     }
 }

@@ -14,7 +14,7 @@ import {
     sceneStoreUpdateFrame
 } from "./SceneStore";
 import {MathUtils, Vector3} from "three";
-import {isFloat, isNumeric} from "../../Utils";
+import {isFloat, isNumeric, LinearGenerator} from "../../Utils";
 import {SceneTransformInput} from "./SceneTransformInput";
 import {SceneObject} from "./SceneObject";
 
@@ -96,12 +96,30 @@ class SceneTransform extends Component<any, any> {
                                                 axisText={'X'}
                                                 updateValue={()=> Number(selectObj?.position.x).toFixed(2)}
                                                 setValue={(number)=> {
-                                                    if(!selectObj) return;
+                                                    if (!selectObj) return;
+
+                                                    let difference = selectObj?.position.x - number;
+                                                    let id = LinearGenerator();
+
+                                                    for (let sceneObject of sceneStore.groupSelected) {
+                                                        let oldPosition = sceneObject.mesh.position.clone();
+                                                        let newPosition = sceneObject.mesh.position.clone();
+
+                                                        newPosition.x -= difference;
+
+                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                            from: oldPosition,
+                                                            to: newPosition,
+                                                            sceneObject: sceneObject,
+                                                            id:id
+                                                        } as MoveObject)
+                                                    }
 
                                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setX(number),
-                                                        sceneObject: selectObj
+                                                        sceneObject: selectObj,
+                                                        id:id
                                                     } as MoveObject)
                                                 }}
                                             />
@@ -116,10 +134,28 @@ class SceneTransform extends Component<any, any> {
                                                 setValue={(number)=> {
                                                     if(!selectObj) return;
 
+                                                    let difference = selectObj?.position.z - number;
+                                                    let id = LinearGenerator();
+
+                                                    for (let sceneObject of sceneStore.groupSelected) {
+                                                        let oldPosition = sceneObject.mesh.position.clone();
+                                                        let newPosition = sceneObject.mesh.position.clone();
+
+                                                        newPosition.z -= difference;
+
+                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                            from: oldPosition,
+                                                            to: newPosition,
+                                                            sceneObject: sceneObject,
+                                                            id:id
+                                                        } as MoveObject)
+                                                    }
+
                                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setZ(number),
-                                                        sceneObject: selectObj
+                                                        sceneObject: selectObj,
+                                                        id:id
                                                     } as MoveObject)
                                                 }}
                                             />
@@ -134,10 +170,28 @@ class SceneTransform extends Component<any, any> {
                                                 setValue={(number)=> {
                                                     if(!selectObj) return;
 
+                                                    let difference = selectObj?.position.y - number;
+                                                    let id = LinearGenerator();
+
+                                                    for (let sceneObject of sceneStore.groupSelected) {
+                                                        let oldPosition = sceneObject.mesh.position.clone();
+                                                        let newPosition = sceneObject.mesh.position.clone();
+
+                                                        newPosition.y -= difference;
+
+                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                            from: oldPosition,
+                                                            to: newPosition,
+                                                            sceneObject: sceneObject,
+                                                            id:id
+                                                        } as MoveObject)
+                                                    }
+
                                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setY(number),
-                                                        sceneObject: selectObj
+                                                        sceneObject: selectObj,
+                                                        id:id
                                                     } as MoveObject)
 
                                                     if (Settings().scene.transformAlignToPlane) {
@@ -323,13 +377,15 @@ class SceneTransform extends Component<any, any> {
                                                     }
 
 
+                                                    let id = LinearGenerator();
+
                                                     sceneStore.groupSelected.every((t, i)=>{
                                                         Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
                                                             actionBreak:true,
-                                                            isGroup:true
+                                                            id:id
                                                         } as MoveObject)
                                                     });
                                                 }}
@@ -402,6 +458,7 @@ class SceneTransform extends Component<any, any> {
                                                         }
                                                     }
 
+                                                    let id = LinearGenerator();
 
                                                     sceneStore.groupSelected.every((t, i)=>{
                                                         Dispatch(EventEnum.TRANSFORM_OBJECT, {
@@ -409,7 +466,7 @@ class SceneTransform extends Component<any, any> {
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
                                                             actionBreak:true,
-                                                            isGroup:true
+                                                            id:id
                                                         } as MoveObject)
                                                     });
                                                 }}
@@ -482,6 +539,7 @@ class SceneTransform extends Component<any, any> {
                                                         }
                                                     }
 
+                                                    let id = LinearGenerator();
 
                                                     sceneStore.groupSelected.every((t, i)=>{
                                                         Dispatch(EventEnum.TRANSFORM_OBJECT, {
@@ -489,7 +547,7 @@ class SceneTransform extends Component<any, any> {
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
                                                             actionBreak:true,
-                                                            isGroup:true
+                                                            id:id
                                                         } as MoveObject)
                                                     });
 

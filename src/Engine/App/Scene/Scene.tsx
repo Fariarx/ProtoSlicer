@@ -218,11 +218,14 @@ export class Scene extends Component<any, any> {
         let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
 
         this.updateCameraPositionRelativelyToGrid = () => {
-            if (gridSize.x >= gridSize.z) {
-                camera.position.set(gridSize.x / 2, gridSize.z, gridSize.z / 2 + gridSize.z * 1.6);
+            /*if (gridSize.x >= gridSize.z) {
+                camera.position.set(gridSize.x / 2, gridSize.y * 1.5, gridSize.z * 1.5 + gridSize.z * 1.6);
             } else {
-                camera.position.set(gridSize.x / 2 + gridSize.x * 1.6, gridSize.x, gridSize.z / 2);
-            }
+                camera.position.set(gridSize.x * 1.5 + gridSize.x * 1.6, gridSize.y * 1.5, gridSize.z / 2);
+            }*/
+
+            camera.position.set(gridSize.x / 2, gridSize.y * 2.5, gridSize.z / 2);
+
             orbitControls.target = new THREE.Vector3(gridSize.x / 2, 0, gridSize.z / 2);
             orbitControls.update();
         }

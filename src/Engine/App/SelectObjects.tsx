@@ -40,6 +40,7 @@ class SelectObjectsView extends Component<any, any> {
                     {
                         if(p.name === object.name)
                         {
+                            console.log(object.name)
                             object.isSelected = !object.isSelected;
                             sceneStoreSelectionChanged();
                             this.setState({});
@@ -54,23 +55,23 @@ class SelectObjectsView extends Component<any, any> {
                         textOverflow:"ellipsis",
                         overflow: "hidden",
                         width:'100%',
-                        padding:'1vmin',
-                        paddingBottom:'1vmin',
-                        paddingTop:'1vmin',
+                        paddingLeft:'5px',
+                        paddingBottom:'5px',
+                        paddingTop:'5px',
                         backgroundColor: (obj != null && obj.isSelected ? 'rgba(0,0,255,0.06)' : 'rgba(0,0,0,0.05)'),
                         borderRadius:'3px',
                         cursor:"pointer"
                     }}>
-                        <Checkbox toggle readOnly style={{
-                            flex:'0 0 60px'
+                        <Checkbox  readOnly style={{
+                            flex:'0 0 22px'
                         }} checked={obj != null && obj.isSelected}/>
 
-                        <Header as='h5' color='grey' style={{
+                        <text color='grey' style={{
                             whiteSpace:'nowrap',
                             flex:3
                         }}>
                             {t.name}
-                        </Header>
+                        </text>
                     </div>
                 </List.Item>
             )

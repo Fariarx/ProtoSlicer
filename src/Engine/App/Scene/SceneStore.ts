@@ -76,6 +76,13 @@ export const sceneStoreSelectionChanged = action(()=>{
         object.Update();
     }
 
+    if( sceneStore.groupSelected.length) {
+        let centerGroup = SceneObject.CalculateGroupCenter(sceneStore.groupSelected);
+
+        sceneStore.transformObjectGroup.position.set(centerGroup.x, 0 , centerGroup.z);
+        sceneStore.transformObjectGroupOld.position.set(centerGroup.x, 0 , centerGroup.z);
+    }
+
     sceneStoreUpdateTransformControls();
 
     sceneStoreUpdateFrame();

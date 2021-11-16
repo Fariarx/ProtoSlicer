@@ -17,7 +17,7 @@ export type MoveObject = {
     to: Vector3 | Euler,
     sceneObject: SceneObject | THREE.Object3D,
     actionBreak: true | undefined,
-    isGroup: true | undefined,
+    id: number | undefined,
 }
 export enum EventEnum {
     SELECT_TRANSFORM_MODE,
@@ -93,6 +93,25 @@ const Handler = (message) => {
 
                         mesh.scale.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
                         break;
+                }
+
+                if(moveObject.sceneObject === sceneStore.transformObjectGroup)
+                {
+                    sceneStore.transformObjectGroupOld.position.set(
+                        sceneStore.transformObjectGroup.position.x,
+                        sceneStore.transformObjectGroup.position.y,
+                        sceneStore.transformObjectGroup.position.z,
+                    );
+                    sceneStore.transformObjectGroupOld.rotation.set(
+                        sceneStore.transformObjectGroup.rotation.x,
+                        sceneStore.transformObjectGroup.rotation.y,
+                        sceneStore.transformObjectGroup.rotation.z,
+                    );
+                    sceneStore.transformObjectGroupOld.scale.set(
+                        sceneStore.transformObjectGroup.scale.x,
+                        sceneStore.transformObjectGroup.scale.y,
+                        sceneStore.transformObjectGroup.scale.z,
+                    );
                 }
             }
 
