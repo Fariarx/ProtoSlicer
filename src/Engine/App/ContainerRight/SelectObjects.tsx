@@ -12,13 +12,13 @@ import {
     GridColumn,
     Feed, Item, Container
 } from "semantic-ui-react";
-import {storeMain} from "../Bridge";
-import {Log, Settings} from "../Globals";
+import {storeMain} from "../../Bridge";
+import {Log, Settings} from "../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
-import {SceneObject} from "./Scene/SceneObject";
+import {SceneObject} from "../Scene/SceneObject";
 import {action, observable} from "mobx";
-import {sceneStoreSelectionChanged} from "./Scene/SceneStore";
+import {sceneStoreSelectionChanged} from "../Scene/SceneStore";
 
 @inject("sceneStore")
 @observer

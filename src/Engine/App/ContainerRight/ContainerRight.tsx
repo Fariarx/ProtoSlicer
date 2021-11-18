@@ -1,12 +1,12 @@
 import {Icon, List, Step, Segment} from "semantic-ui-react";
-import {storeMain} from "../Bridge";
-import {Settings} from "../Globals";
-import Steps from "./Steps";
+import {storeMain} from "../../Bridge";
+import {Settings} from "../../Globals";
+import Steps from "../Steps";
 import SelectObjects from "./SelectObjects";
 import {Vector2, Vector3} from "three";
 import React from "react";
 
-function ContainerRight(props) { 
+function ContainerRight(props) {
     return (
         <div style={{
             width: "250px",

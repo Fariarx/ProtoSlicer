@@ -3,7 +3,7 @@ import { ElementConsole } from "./Notifications/ElementConsole";
 import React, {Component} from "react";
 import DragAndDropModal from "./Scene/SceneDragAndDropModal";
 import LabelPopup from "./Notifications/ElementPopupLabel";
-import ContainerRight from "./ContainerRight";
+import ContainerRight from "./ContainerRight/ContainerRight";
 import {Button, Card, Feed} from "semantic-ui-react";
 import {Provider} from "mobx-react";
 import {sceneStore} from "./Scene/SceneStore";
