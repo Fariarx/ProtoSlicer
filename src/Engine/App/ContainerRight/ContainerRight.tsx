@@ -9,7 +9,7 @@ import React from "react";
 function ContainerRight(props) {
     return (
         <div style={{
-            width: "250px",
+            width: "235px",
             height: "auto",
             opacity: Settings().ui.opacity,
             //backgroundColor:'red',

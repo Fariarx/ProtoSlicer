@@ -74,7 +74,7 @@ function createWindow() {
         }
     });
 
-    mainWindow.setMinimumSize(1100, 700);
+    mainWindow.setMinimumSize(1200, 800);
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()

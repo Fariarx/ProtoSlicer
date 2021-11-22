@@ -18,12 +18,13 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import SceneTransform, {TransformInstrumentEnum} from "./SceneTransform";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
-import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {Dispatch, EventEnum } from "../Managers/Events";
 import {
     sceneStore,
     sceneStoreCreate,
     sceneStoreSelectObjsAlignY
 } from "./SceneStore";
+import {MoveObject} from "../Managers/Entities/MoveObject";
 
 sceneStoreCreate();
 
@@ -411,7 +412,7 @@ export class Scene extends Component<any, any> {
 
         transform.setTranslationSnap( 0.25 );
         transform.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
-        transform.setScaleSnap( 0.01 );
+        transform.setScaleSnap( 0.001 );
 
         scene.add(transform);
 

@@ -3,7 +3,7 @@ import {SaveSettings, Settings} from "../../Globals";
 import React, {Component, RefObject} from "react";
 import {inject, observer} from "mobx-react";
 import {autorun, observable, runInAction} from "mobx";
-import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {Dispatch, EventEnum } from "../Managers/Events";
 import {
     sceneStore,
     sceneStoreSelectionChanged,
@@ -17,6 +17,7 @@ import {MathUtils, Vector3} from "three";
 import {isFloat, isNumeric, LinearGenerator} from "../../Utils";
 import {SceneTransformInput} from "./SceneTransformInput";
 import {SceneObject} from "./SceneObject";
+import {MoveObject} from "../Managers/Entities/MoveObject";
 
 export enum TransformInstrumentEnum {
     None = 0,
@@ -589,7 +590,7 @@ class SceneTransform extends Component<any, any> {
                 height: "auto",
                 padding: "1vmin",
                 opacity: Settings().ui.opacity,
-                marginTop: '-20vh'
+                marginTop: '-30vh'
             }} className="top-50 start-0 position-fixed ">
                 <div style={{width: '60px'}}>
                     <Menu vertical pointing fluid>

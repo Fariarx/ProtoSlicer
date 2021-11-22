@@ -2,7 +2,7 @@ import {Button, Card, Icon, Menu, Segment, Rating} from "semantic-ui-react";
 import React, {Component} from "react";
 import {observer} from "mobx-react";
 import {autorun, observable} from "mobx";
-import {Dispatch, EventEnum} from "./EventManager";
+import {Dispatch, EventEnum} from "./Managers/Events";
 import {Settings} from "../Globals";
 
 export enum StepsEnum {

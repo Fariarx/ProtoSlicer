@@ -1,24 +1,16 @@
 import {observable, runInAction} from "mobx";
-import { TransformInstrumentEnum} from "./Scene/SceneTransform";
-import {ElementStepsSelect, StepsEnum} from "./Steps";
+import { TransformInstrumentEnum} from "../Scene/SceneTransform";
+import {ElementStepsSelect, StepsEnum} from "../Steps";
 import {
     sceneStore,
     sceneStoreInstrumentStateChanged,
     sceneStoreSelectionChanged,
     sceneStoreUpdateFrame, sceneStoreUpdateTransformTool
-} from "./Scene/SceneStore";
-import {Euler, Vector3} from "three";
-import {SceneObject} from "./Scene/SceneObject";
-import {Settings} from "../Globals";
+} from "../Scene/SceneStore";
+import {SceneObject} from "../Scene/SceneObject";
+import {Settings} from "../../Globals";
+import {MoveObject} from "./Entities/MoveObject";
 
-export type MoveObject = {
-    instrument?: TransformInstrumentEnum,
-    from: Vector3 | Euler,
-    to: Vector3 | Euler,
-    sceneObject: SceneObject | THREE.Object3D,
-    actionBreak: true | undefined,
-    id: number | undefined,
-}
 export enum EventEnum {
     SELECT_TRANSFORM_MODE,
     SELECT_MENU_STEP,
@@ -32,7 +24,7 @@ type Message = {
     last:   any
 }
 
-const EventList = observable(new Array<Message>());
+const eventList = new Array<Message>();
 
 export const Dispatch = (name: EventEnum, args?: object) => {
     let message = {
@@ -41,7 +33,7 @@ export const Dispatch = (name: EventEnum, args?: object) => {
     } as Message;
 
     if(Handler(message)) {
-        EventList.push(message);
+        eventList.push(message);
     }
 }
 

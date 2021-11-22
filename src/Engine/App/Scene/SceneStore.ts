@@ -5,8 +5,9 @@ import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {action, makeAutoObservable} from "mobx";
-import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {Dispatch, EventEnum  } from "../Managers/Events";
 import {LinearGenerator} from "../../Utils";
+import {MoveObject} from "../Managers/Entities/MoveObject";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;

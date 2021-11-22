@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import {Box3, Vector3} from "three";
 import {sceneStore} from "./SceneStore";
-import {Dispatch, EventEnum, MoveObject} from "../EventManager";
+import {Dispatch, EventEnum  } from "../Managers/Events";
 import {TransformInstrumentEnum} from "./SceneTransform";
+import {MoveObject} from "../Managers/Entities/MoveObject";
 
 export class SceneObject {
     name: string;

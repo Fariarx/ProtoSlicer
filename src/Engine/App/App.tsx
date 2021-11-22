@@ -31,10 +31,10 @@ export class App extends Component<any, any> {
                     <Scene dragAndDropSetState={this.showDragAndDropModal}>
                         {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
                         <ElementConsole/>
-                        <LabelPopup/>
                     </Scene>
-
+                    
                     <ContainerRight/>
+                    <LabelPopup/>
                 </div>
             </Provider>
         );
