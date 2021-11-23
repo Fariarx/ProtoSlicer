@@ -6,8 +6,9 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {action, makeAutoObservable} from "mobx";
 import {Dispatch, EventEnum  } from "../Managers/Events";
-import {LinearGenerator} from "../../Utils";
+import {LinearGenerator} from "../Utils/Utils";
 import {MoveObject} from "../Managers/Entities/MoveObject";
+import {Printer} from "../Configs/Printer";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;
@@ -18,6 +19,8 @@ export class CSceneStore {
     objects: SceneObject[] = [];
 
     gridSize: Vector3 = new Vector3(1, 1, 1);
+
+    printer?: Printer;
 
     materialForPlane: THREE.Material = new THREE.MeshBasicMaterial({
         color: Settings().scene.workingPlaneColor,

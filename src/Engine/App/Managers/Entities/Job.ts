@@ -1,8 +1,8 @@
 export class Job
 {
-    onResult: () => void;
+    onResult: (data: any) => void;
 
-    constructor(onResult: () => void)
+    constructor(onResult: (data: any) => void)
     {
         this.onResult = onResult;
     }

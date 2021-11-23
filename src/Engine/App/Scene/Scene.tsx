@@ -25,6 +25,7 @@ import {
     sceneStoreSelectObjsAlignY
 } from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
+import {JobSliceScene} from "../Managers/Entities/JobSliceScene";
 
 sceneStoreCreate();
 
@@ -141,6 +142,8 @@ export class Scene extends Component<any, any> {
             plane.rotateX(-Math.PI / 2);
             plane.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
             sceneStore.decorations.add(plane);
+
+            sceneStore.printer = this.printerConfig;
         }
 
         this.grid = SceneHelper.CreateGrid(sceneStore.gridSize, sceneStore.scene);
@@ -408,6 +411,8 @@ export class Scene extends Component<any, any> {
             obj.AddToScene(sceneStore.scene);
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
+
+            new JobSliceScene(()=>{}, obj.mesh)
         });
 
         transform.setTranslationSnap( 0.25 );

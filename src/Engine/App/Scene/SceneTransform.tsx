@@ -14,7 +14,7 @@ import {
     sceneStoreUpdateFrame
 } from "./SceneStore";
 import {MathUtils, Vector3} from "three";
-import {isFloat, isNumeric, LinearGenerator} from "../../Utils";
+import {isFloat, isNumeric, LinearGenerator} from "../Utils/Utils";
 import {SceneTransformInput} from "./SceneTransformInput";
 import {SceneObject} from "./SceneObject";
 import {MoveObject} from "../Managers/Entities/MoveObject";

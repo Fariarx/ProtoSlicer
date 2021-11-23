@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import {Box3, Vector3} from "three";
+import {Box3, BufferGeometry, Vector3} from "three";
 import {sceneStore} from "./SceneStore";
 import {Dispatch, EventEnum  } from "../Managers/Events";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {MoveObject} from "../Managers/Entities/MoveObject";
+import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 
 export class SceneObject {
     name: string;
@@ -82,6 +83,7 @@ export class SceneObject {
         this.mesh.updateMatrixWorld();
         this.bbox.update();
 
+        this.mesh.geometry.computeBoundsTree();
         this.mesh.geometry.computeBoundingBox();
         this.mesh.geometry.computeBoundingSphere();
 
@@ -108,7 +110,7 @@ export class SceneObject {
 
         Dispatch(EventEnum.TRANSFORM_OBJECT, {
             from: this.mesh.position.clone(),
-            to: this.mesh.position.setY(this.size.y / 2).clone(),
+            to: this.mesh.position.clone().setY(this.size.y / 2),
             sceneObject: this as SceneObject,
             instrument:TransformInstrumentEnum.Move
         } as MoveObject)
@@ -119,7 +121,7 @@ export class SceneObject {
 
         Dispatch(EventEnum.TRANSFORM_OBJECT, {
             from: this.mesh.position.clone(),
-            to: this.mesh.position.setX(gridVec.x / 2).setZ(gridVec.z / 2).clone(),
+            to: this.mesh.position.clone().setX(gridVec.x / 2).setZ(gridVec.z / 2),
             sceneObject: this as SceneObject,
             instrument:TransformInstrumentEnum.Move
         } as MoveObject)
@@ -212,5 +214,17 @@ export class SceneObject {
         })
 
         return delta;
+    }
+    static CalculateGeometry(objs: SceneObject[]) : BufferGeometry
+    {
+        let geometry = objs[0].mesh.geometry.clone().applyMatrix4(objs[0].mesh.matrix);
+
+        objs.forEach(function(element, index) {
+            if(index !== 0) {
+                geometry.merge(element.mesh.geometry.clone().applyMatrix4(objs[index].mesh.matrix));
+            }
+        })
+
+        return geometry;
     }
 }

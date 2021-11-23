@@ -13,7 +13,7 @@ import {
     Search,
     Segment
 } from "semantic-ui-react";
-import {LinearGenerator} from "../../Utils";
+import {LinearGenerator} from "../Utils/Utils";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Printer} from "../Configs/Printer";
 import {PrinterConfiguratorState} from "./ContainerPrinterConfigurator";

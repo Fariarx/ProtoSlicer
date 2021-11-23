@@ -28,3 +28,23 @@ export function SimpleCopyObj(from: any, to:any) {
         to[val1] = from[val1];
     }
 }
+export function DrawDirLine(origin, dir, scene, length : number = 100)
+{
+    dir.normalize();
+
+    const hex = 0xf27f00;
+
+    const arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+
+    scene.add( arrowHelper );
+}
+export function DrawPoint(origin,  scene, size : number = 0.05)
+{
+    const geometry = new THREE.SphereGeometry( size, 32, 16 );
+    const material = new THREE.MeshBasicMaterial( { color: 0xf27f00 } );
+    const sphere = new THREE.Mesh( geometry, material );
+
+    sphere.position.set(origin.x,origin.y,origin.z);
+
+    scene.add( sphere );
+}

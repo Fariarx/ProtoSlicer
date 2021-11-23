@@ -1,6 +1,11 @@
 import * as THREE from 'three'
 import {storeMain} from "./Bridge";
 import {DefaultConfig} from './DefaultConfig'
+import {acceleratedRaycast, computeBoundsTree, disposeBoundsTree} from "three-mesh-bvh";
+
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 export default this;
 

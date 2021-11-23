@@ -4,8 +4,11 @@
   "version": "0.1.0",
   "private": false,
   "dependencies": {
+    "@types/three": "^0.134.0",
     "faker": "^5.5.3",
+    "fast-png": "^6.1.0",
     "fs": "^0.0.1-security",
+    "three-mesh-bvh": "^0.5.2",
     "ts-keycode-enum": "^1.0.6",
     "wait-on": "^6.0.0"
   },

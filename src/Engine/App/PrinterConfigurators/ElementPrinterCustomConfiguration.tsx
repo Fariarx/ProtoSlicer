@@ -11,7 +11,7 @@ import {PrinterConfiguratorState} from "./ContainerPrinterConfigurator";
 import {observer} from "mobx-react";
 import {Printer} from "../Configs/Printer";
 import {PopupLabelSendText} from "../Notifications/ElementPopupLabel";
-import {isFloat, isInteger, isNumeric} from "../../Utils";
+import {isFloat, isInteger, isNumeric} from "../Utils/Utils";
 import {LogSendText} from "../Notifications/ElementConsole";
 
 export class ElementPrinterCustomConfiguration extends Component<any, any> {
