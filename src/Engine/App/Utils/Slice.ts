@@ -7,180 +7,126 @@ import * as THREE from "three";
 import {DrawDirLine, DrawPoint} from "./Utils";
 import Globals from "../../Globals";
 import {fs} from "../../Bridge";
+import Jimp from 'jimp';
 
-export default function slice(printer: Printer, layer: number) {
-        const voxelSizeX = .1 * printer.Workspace.sizeX / printer.Resolution.X;
-        const voxelSizeY = .1 * printer.PrintSettings.LayerHeight;
-        const voxelSizeZ = .1 * printer.Workspace.sizeY / printer.Resolution.Y;
+export default {}
 
-        const startPixelPositionX = sceneStore.gridSize.x / 2 - voxelSizeX * printer.Resolution.X / 2;
-        const startPixelPositionY = layer * voxelSizeY;
+async function createImage(sizeX, sizeY) {
+        let promise = new Promise((resolve, reject) => {
+                new Jimp(sizeX, sizeY, 0xff0000ff, (err, image) => {
+                        resolve(image);
+                });
+        });
+
+        let result = await promise;
+
+        return result as Jimp;
+}
+
+export function calculateVoxelSizes(printer: Printer) {
+       return {
+               voxelSizeX: .1 * printer.Workspace.sizeX / printer.Resolution.X,
+               voxelSizeY: .1 * printer.PrintSettings.LayerHeight,
+               voxelSizeZ: .1 * printer.Workspace.sizeY / printer.Resolution.Y,
+       }
+}
+
+export type SliceResult = {
+        image: Jimp,
+        voxelDrawCount: number
+}
+
+export async function slice(printer: Printer, layer: number) {
+        const voxelSizes = calculateVoxelSizes(printer);
+
+        const startPixelPositionX = sceneStore.gridSize.x / 2 - voxelSizes.voxelSizeX * printer.Resolution.X / 2;
+        const startPixelPositionY = layer * voxelSizes.voxelSizeY;
         const startPixelPositionZ = sceneStore.gridSize.z / 2 - .1 * printer.Workspace.sizeY / 2;
 
         const raycaster = new Raycaster();
         const geometry = SceneObject.CalculateGeometry(sceneStore.objects);
         const mesh = new THREE.Mesh(geometry, sceneStore.materialForObjects.normal);
         geometry.computeBoundsTree();
-        raycaster.ray.direction.set(0,0, 1);
 
-        const image = new Uint8Array( printer.Resolution.X * printer.Resolution.Y );
+        let promise = new Promise<SliceResult>((resolve, reject) => {
+                createImage(printer.Resolution.X, printer.Resolution.Y).then((image) => {
+                        let voxelDrawCount = 0;
+                        let indexPixelX = 0;
 
-        image.fill(0);
+                        raycaster.ray.direction.set(0, 0, 1);
 
-        let intersection: any[]  = [];
-        let indexPixelX = 0;
+                        while (indexPixelX < printer.Resolution.X) {
+                                let newPixelPositionX = startPixelPositionX + voxelSizes.voxelSizeX * indexPixelX;
 
-        while (indexPixelX < printer.Resolution.X)
-        {
-                let newPixelPositionX = startPixelPositionX + voxelSizeX * indexPixelX;
+                                raycaster.ray.origin.set(newPixelPositionX, startPixelPositionY, startPixelPositionZ);
 
-                raycaster.ray.origin.set(newPixelPositionX, startPixelPositionY, startPixelPositionZ);
+                                let intersection: any[] = [];
 
+                                mesh.raycast(raycaster, intersection);
 
-                mesh.raycast(raycaster, intersection);
+                                //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction, sceneStore.scene)
 
-                DrawDirLine(raycaster.ray.origin, raycaster.ray.direction, sceneStore.scene)
+                                intersection.sort((a, b) => {
+                                        return a.distance < b.distance ? -1 : 1;
+                                })
 
-                intersection.sort((a,b)=> {
-                        return a.distance < b.distance ? -1 : 1;
-                })
+                                //console.log(intersection)
 
-                let pixelLineStartPoint: Vector3 | null = null;
+                                for (let i = 0; i < intersection.length; i++) {
 
-                for(let i = 0; i < intersection.length; i++)
-                {
-                        if(!pixelLineStartPoint)
-                        {
-                                pixelLineStartPoint = intersection[i].point as Vector3;
-                        }
-                        else {
-                                let pixelLineFinishPoint = intersection[i].point;
+                                        const isFrontFacing = intersection[i].face.normal.dot(raycaster.ray.direction) < 0;
 
-                                image.fill(255, Math.round(pixelLineStartPoint.x / voxelSizeX), Math.round(pixelLineFinishPoint.x / voxelSizeX))
+                                        if (!isFrontFacing) {
+                                                continue;
+                                        }
 
-                                pixelLineStartPoint = null;
-                        }
-                }
+                                        let numSolidsInside = 0;
+                                        let j = i + 1;
 
-                indexPixelX += 43;
-        }
+                                        while (j < intersection.length) {
+                                                const isFrontFacing = intersection[j].face.normal.dot(raycaster.ray.direction) < 0;
 
-        const data = btoa(
-            image.reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
+                                                if (!isFrontFacing) {
+                                                        if (numSolidsInside === 0) {
+                                                                // Found it
+                                                                break;
+                                                        }
+                                                        numSolidsInside--;
+                                                } else {
+                                                        numSolidsInside++;
+                                                }
 
-        fs.writeFileSync(`texs.png`, 'data:image/png;base64' + data, 'binary');
+                                                j++;
+                                        }
 
+                                        if (j >= intersection.length) {
+                                                continue;
+                                        }
 
-        //console.log(intersection)
+                                        while (intersection[i].point.z <= intersection[j].point.z) {
+                                                let indexZ = Math.ceil((intersection[i].point.z - (startPixelPositionZ)) / voxelSizes.voxelSizeZ);
 
-/*
-        // Raycast layer section (no antialiasing)
+                                                image.setPixelColor(0xFFFFFFFF, indexPixelX, indexZ);
 
-        /!*
-            Beware different coordinate system axis:
-            X in machine is Z in Three.js
-            Y in machine is X in Three.js
-            Z in machine is Y in Three.js
-        *!/
-        const layerHeight = printer.PrintSettings.LayerHeight;
-        const initialRayZ = printer.Workspace.height * 1.5;
-        const resolutionX = printer.Resolution.X;
-        const resolutionZ = printer.Resolution.Y;
-        const voxelXSize = printer.Workspace.sizeX / resolutionX;
-        const voxelZSize = printer.Workspace.sizeY / resolutionZ;
-        const initialLayerRayX = printer.Workspace.sizeX * 0.5 - voxelXSize * 0.5;
-        const pixelOffset = printer.Workspace.height * 0.5;
+                                                voxelDrawCount++;
 
-        const mesh = this.mesh;
-        const raycaster = this.raycaster;
-        const ray = raycaster.ray;
-        const bvh = this.bvh;
+                                                intersection[i].point.setZ(intersection[i].point.z + voxelSizes.voxelSizeZ);
+                                        }
 
-        ray.direction.set( 0, 0, - 1 );
+                                        i = j;
+                                }
 
-        // Clear image
-        image.fill( 0 );
-
-        // Cast rays across the layer
-        for ( let layerRayIndex = 0; layerRayIndex < resolutionX; layerRayIndex ++ ) {
-
-            let x = initialLayerRayX - layerRayIndex * voxelXSize;
-            ray.origin.set( x, layerHeight * ( layerIndex + 0.5 ), initialRayZ );
-
-            const intersections = [ ];
-            bvh.raycast( mesh, raycaster, ray, intersections );
-
-            // intersects[ i ]. distance point uv face.normal
-
-            intersections.sort( ( a, b ) => {
-                if ( a.distance === b.distance ) return 0;
-                return a.distance < b.distance ? - 1 : 1;
-            } );
-
-            const firstPixelIndex = layerRayIndex * resolutionZ;
-
-            // Set pixels which are inside the solids
-            const numIntersections = intersections.length;
-            let intersectionIndex0 = 0;
-            while ( intersectionIndex0 < numIntersections ) {
-
-                // Find front-facing intersection
-                let intersection0;
-                while ( intersectionIndex0 < numIntersections ) {
-
-                    intersection0 = intersections[ intersectionIndex0 ];
-
-                    //const isFrontFacing = intersection0.face.normal.x < 0;
-                    const isFrontFacing = intersection0.face.normal.dot( ray.direction ) < 0;
-
-                    // Found it
-                    if ( isFrontFacing ) break;
-
-                    intersectionIndex0 ++;
-
-                }
-
-                if ( intersectionIndex0 >= numIntersections ) break;
-
-                // Find back-facing intersection after the ray has left all contained solids behind.
-                let numSolidsInside = 0;
-                let intersectionIndex1 = intersectionIndex0 + 1;
-                let intersection1;
-                while ( intersectionIndex1 < numIntersections ) {
-
-                    intersection1 = intersections[ intersectionIndex1 ];
-
-                    //const isFrontFacing = intersection1.face.normal.x < 0;
-                    const isFrontFacing = intersection1.face.normal.dot( ray.direction ) < 0;
-
-                    if ( ! isFrontFacing ) {
-
-                        if ( numSolidsInside === 0 ) {
-                            // Found it
-                            break;
+                                indexPixelX += 1;
                         }
 
-                        numSolidsInside --;
+                        resolve( {
+                                image:image,
+                                voxelDrawCount: voxelDrawCount
+                        } as SliceResult);
+                });
+        });
 
-                    }
-                    else numSolidsInside ++;
+        let result = await promise;
 
-                    intersectionIndex1 ++;
-
-                }
-
-                if ( intersectionIndex1 >= numIntersections ) break;
-
-                var minXIndex = Math.max( 0, Math.min( resolutionZ - 1, Math.round( ( - intersection0.point.z + pixelOffset ) / voxelZSize ) ) );
-                var maxXIndex = Math.max( 0, Math.min( resolutionZ - 1, Math.floor( ( - intersection1.point.z + pixelOffset ) / voxelZSize ) ) );
-
-                image.fill( 255, firstPixelIndex + minXIndex, firstPixelIndex + maxXIndex );
-
-                intersectionIndex0 = intersectionIndex1 + 1;
-
-            }
-
-        }*/
-
+        return result;
 }

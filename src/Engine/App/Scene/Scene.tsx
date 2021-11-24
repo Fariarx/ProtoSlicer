@@ -25,7 +25,8 @@ import {
     sceneStoreSelectObjsAlignY
 } from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
-import {JobSliceScene} from "../Managers/Entities/JobSliceScene";
+import {JobSliceLayerScene} from "../Managers/Entities/JobSliceLayerScene";
+import {JobSliceFullScene} from "../Managers/Entities/JobSliceFullScene";
 
 sceneStoreCreate();
 
@@ -412,7 +413,7 @@ export class Scene extends Component<any, any> {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
 
-            new JobSliceScene(()=>{}, obj.mesh)
+            new JobSliceFullScene(()=>{}, ()=>{ }).start();
         });
 
         transform.setTranslationSnap( 0.25 );

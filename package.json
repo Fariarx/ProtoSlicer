@@ -8,6 +8,8 @@
     "faker": "^5.5.3",
     "fast-png": "^6.1.0",
     "fs": "^0.0.1-security",
+    "jimp": "^0.16.1",
+    "sharp": "^0.29.3",
     "three-mesh-bvh": "^0.5.2",
     "ts-keycode-enum": "^1.0.6",
     "wait-on": "^6.0.0"
