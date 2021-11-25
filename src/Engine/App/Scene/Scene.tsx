@@ -27,6 +27,7 @@ import {
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {JobSliceLayerScene} from "../Managers/Entities/JobSliceLayerScene";
 import {JobSliceFullScene} from "../Managers/Entities/JobSliceFullScene";
+import Jimp from "jimp";
 
 sceneStoreCreate();
 
@@ -106,10 +107,7 @@ export class Scene extends Component<any, any> {
                 function (texture) {
 
                     materialForText = new THREE.MeshStandardMaterial({
-                        map: texture,
-                        transparent: true,
-                        opacity: 0.7,
-                        color: 0xFFFFFF
+                        map: texture
                     });
 
                     const geometry = new THREE.PlaneGeometry(1, 1);
@@ -124,7 +122,8 @@ export class Scene extends Component<any, any> {
                     plane = new THREE.Mesh(geometry, materialForText);
                     plane.rotateX(-Math.PI / 2);
                     plane.rotateZ(Math.PI / 2);
-                    plane.position.set(1.5, 0.05, 1.5);
+                    plane.position.set(1.5, 0.01, 1.5);
+                    plane.scale.set(.75,.75,.75)
                     sceneStore.decorations.add(plane);
                 },
 
@@ -141,8 +140,14 @@ export class Scene extends Component<any, any> {
             const geometry = new THREE.PlaneGeometry(this.printerConfig.Workspace.sizeX * 0.1, this.printerConfig.Workspace.sizeY * 0.1);
             const plane = new THREE.Mesh(geometry, sceneStore.materialForPlane);
             plane.rotateX(-Math.PI / 2);
-            plane.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
+            plane.position.set(sceneStore.gridSize.x / 2, -0.01, sceneStore.gridSize.z / 2);
             sceneStore.decorations.add(plane);
+
+            const geometry1 = new THREE.PlaneGeometry(Math.ceil(this.printerConfig.Workspace.sizeX * 0.1), Math.ceil(this.printerConfig.Workspace.sizeY * 0.1));
+            const plane1 = new THREE.Mesh(geometry1, sceneStore.materialForPlaneLimit);
+            plane1.rotateX(-Math.PI / 2);
+            plane1.position.set(sceneStore.gridSize.x / 2, -0.02, sceneStore.gridSize.z / 2);
+            sceneStore.decorations.add(plane1);
 
             sceneStore.printer = this.printerConfig;
         }
@@ -216,7 +221,9 @@ export class Scene extends Component<any, any> {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio( window.devicePixelRatio );
 
-        this.outlineEffect = new OutlineEffect( this.renderer );
+        this.outlineEffect = new OutlineEffect( this.renderer, {
+            defaultThickness:0.001
+        } );
 
         const orbitControls = new OrbitControls(camera, this.renderer.domElement);
 
@@ -229,9 +236,9 @@ export class Scene extends Component<any, any> {
                 camera.position.set(gridSize.x * 1.5 + gridSize.x * 1.6, gridSize.y * 1.5, gridSize.z / 2);
             }*/
 
-            camera.position.set(gridSize.x / 2, gridSize.y * 2.5, gridSize.z / 2);
+            camera.position.set(gridSize.x , gridSize.y , gridSize.z );
 
-            orbitControls.target = new THREE.Vector3(gridSize.x / 2, 0, gridSize.z / 2);
+            orbitControls.target = new THREE.Vector3(gridSize.x / 3, 0, gridSize.z / 3);
             orbitControls.update();
         }
 
@@ -257,7 +264,7 @@ export class Scene extends Component<any, any> {
 	MovingCube.position.set(0, 25.1, 0);
 	scene.add( MovingCube );*/
 
-        scene.background = new THREE.Color("#d2d2d2");
+        scene.background = new THREE.Color(Settings().ui.color2);
 
         let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
         let windowHeight = window.innerHeight;
@@ -380,7 +387,7 @@ export class Scene extends Component<any, any> {
                                         sceneObject: sceneObject
                                     } as MoveObject)
 
-                                    sceneObject.Update();//for .size and CalculateGroupMaxSize()
+                                    sceneObject.UpdateSize();//for .size and CalculateGroupMaxSize()
                                 }
                             }
                             break;
@@ -413,7 +420,9 @@ export class Scene extends Component<any, any> {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
 
-            new JobSliceFullScene(()=>{}, ()=>{ }).start();
+            /*new JobSliceFullScene((data)=> {
+                console.log(data);
+            }, (percent)=>{console.log(percent)}).start();*/
         });
 
         transform.setTranslationSnap( 0.25 );

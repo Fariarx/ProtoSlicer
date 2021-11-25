@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Input, Label, List, Menu, Segment} from "semantic-ui-react";
+import {Button, Card, Header, Icon, Input, Label, List, Menu, Segment, SegmentGroup} from "semantic-ui-react";
 import {SaveSettings, Settings} from "../../Globals";
 import React, {Component, RefObject} from "react";
 import {inject, observer} from "mobx-react";
@@ -36,8 +36,6 @@ class SceneTransform extends Component<any, any> {
         Dispatch(EventEnum.SELECT_TRANSFORM_MODE, {value: TransformInstrumentEnum[obj.name]});
     }
 
-
-
     render() {
         let instrumentEnum = sceneStore.transformInstrumentState;
         let instrumentMenu = <div/>;
@@ -50,7 +48,7 @@ class SceneTransform extends Component<any, any> {
             })
         }
 
-        let buttonAlignY = <Button size={"tiny"} compact active={Settings().scene.transformAlignToPlane}
+        let buttonAlignY = <Button inverted size={"tiny"} compact active={Settings().scene.transformAlignToPlane}
                                    color={Settings().scene.transformAlignToPlane ? 'teal' : undefined} onClick={() => {
             Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
             SaveSettings();
@@ -67,16 +65,17 @@ class SceneTransform extends Component<any, any> {
         switch (instrumentEnum) {
             case TransformInstrumentEnum.Move:
                 instrumentMenu =
-                    <Card style={{
+                    <SegmentGroup size={"tiny"} color='black' style={{
                         width: '100%',
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
-                        <Card.Content extra>
-                            <Card.Header
-                                style={{float: 'left'}}>{instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}</Card.Header>
-                        </Card.Content>
-                        <Card.Content extra>
+                        <Segment inverted>
+                            <Header as='h4'>
+                                {instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}
+                            </Header>
+                        </Segment>
+                        <Segment inverted>
                             <div style={{
                                 width: '100%',
                                 height: 'auto',
@@ -204,30 +203,31 @@ class SceneTransform extends Component<any, any> {
                                     </List>
                                 </div>
                             </div>
-                        </Card.Content>
-                        <Card.Content extra>
-                            <Button size={"tiny"} compact onClick={() => {
+                        </Segment>
+                        <Segment inverted size={"mini"}>
+                            <Button size={"tiny"} inverted compact onClick={() => {
                                 sceneStoreSelectObjsAlignXZ();
                                 this.setState({});
                             }}>
                                 <Button.Content>Center</Button.Content>
                             </Button>
                             {buttonAlignY}
-                        </Card.Content>
-                    </Card>
+                        </Segment>
+                    </SegmentGroup>
                 break;
             case TransformInstrumentEnum.Rotate:
                 instrumentMenu =
-                    <Card style={{
+                    <SegmentGroup size={"tiny"} color='black' style={{
                         width: '100%',
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
-                        <Card.Content extra>
-                            <Card.Header
-                                style={{float: 'left'}}>{instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}</Card.Header>
-                        </Card.Content>
-                        <Card.Content extra>
+                        <Segment  inverted>
+                            <Header as='h4'>
+                                {instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}
+                            </Header>
+                        </Segment>
+                        <Segment  inverted>
                             <div style={{
                                 width: '100%',
                                 height: 'auto',
@@ -273,9 +273,9 @@ class SceneTransform extends Component<any, any> {
                                     </List>
                                 </div>
                             </div>
-                        </Card.Content>
-                        <Card.Content extra>
-                            <Button size={"tiny"} compact onClick={() => {
+                        </Segment>
+                        <Segment  inverted>
+                            <Button inverted size={"tiny"} compact onClick={() => {
                                 sceneStoreSelectObjsResetRotation();
 
                                 if(Settings().scene.transformAlignToPlane) {
@@ -287,21 +287,22 @@ class SceneTransform extends Component<any, any> {
                                 <Button.Content>Reset</Button.Content>
                             </Button>
                             {buttonAlignY}
-                        </Card.Content>
-                    </Card>
+                        </Segment>
+                    </SegmentGroup>
                 break;
             case TransformInstrumentEnum.Scale:
                 instrumentMenu =
-                    <Card style={{
+                    <SegmentGroup size={"tiny"} style={{
                         width: '100%',
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
-                        <Card.Content extra>
-                            <Card.Header
-                                style={{float: 'left'}}>{instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}</Card.Header>
-                        </Card.Content>
-                        <Card.Content extra>
+                        <Segment  inverted>
+                            <Header as='h4'>
+                                {instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}
+                            </Header>
+                        </Segment>
+                        <Segment inverted  >
                             <div style={{
                                 width: '100%',
                                 height: 'auto',
@@ -340,14 +341,14 @@ class SceneTransform extends Component<any, any> {
 
                                                             for (let sceneObject of sceneStore.groupSelected) {
                                                                 sceneObject.mesh.scale.setX(sceneObject.mesh.scale.x + sharpness);
-                                                                sceneObject.Update();
+                                                                sceneObject.UpdateSize();
                                                             }
 
                                                             maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
                                                             iterations++;
 
-                                                            if (iterations > 999)
+                                                            if (iterations > 499)
                                                             {
                                                                 console.log("iteration of scale error");
                                                                 break;
@@ -362,14 +363,14 @@ class SceneTransform extends Component<any, any> {
 
                                                             for (let sceneObject of sceneStore.groupSelected) {
                                                                 sceneObject.mesh.scale.setX(sceneObject.mesh.scale.x - sharpness);
-                                                                sceneObject.Update();
+                                                                sceneObject.UpdateSize();
                                                             }
 
                                                             maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
                                                             iterations++;
 
-                                                            if (iterations > 999)
+                                                            if (iterations > 499)
                                                             {
                                                                 console.log("iteration of scale error");
                                                                 break;
@@ -422,14 +423,14 @@ class SceneTransform extends Component<any, any> {
 
                                                             for (let sceneObject of sceneStore.groupSelected) {
                                                                 sceneObject.mesh.scale.setZ(sceneObject.mesh.scale.z + sharpness);
-                                                                sceneObject.Update();
+                                                                sceneObject.UpdateSize();
                                                             }
 
                                                             maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
                                                             iterations++;
 
-                                                            if (iterations > 999)
+                                                            if (iterations > 499)
                                                             {
                                                                 console.log("iteration of scale error");
                                                                 break;
@@ -444,14 +445,14 @@ class SceneTransform extends Component<any, any> {
 
                                                             for (let sceneObject of sceneStore.groupSelected) {
                                                                 sceneObject.mesh.scale.setZ(sceneObject.mesh.scale.z - sharpness);
-                                                                sceneObject.Update();
+                                                                sceneObject.UpdateSize();
                                                             }
 
                                                             maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
                                                             iterations++;
 
-                                                            if (iterations > 999)
+                                                            if (iterations > 499)
                                                             {
                                                                 console.log("iteration of scale error");
                                                                 break;
@@ -503,14 +504,14 @@ class SceneTransform extends Component<any, any> {
 
                                                             for (let sceneObject of sceneStore.groupSelected) {
                                                                 sceneObject.mesh.scale.setY(sceneObject.mesh.scale.y + sharpness);
-                                                                sceneObject.Update();
+                                                                sceneObject.UpdateSize();
                                                             }
 
                                                             maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
                                                             iterations++;
 
-                                                            if (iterations > 999)
+                                                            if (iterations > 499)
                                                             {
                                                                 console.log("iteration of scale error");
                                                                 break;
@@ -525,14 +526,14 @@ class SceneTransform extends Component<any, any> {
 
                                                             for (let sceneObject of sceneStore.groupSelected) {
                                                                 sceneObject.mesh.scale.setY(sceneObject.mesh.scale.y - sharpness);
-                                                                sceneObject.Update();
+                                                                sceneObject.UpdateSize();
                                                             }
 
                                                             maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
                                                             iterations++;
 
-                                                            if (iterations > 999)
+                                                            if (iterations > 499)
                                                             {
                                                                 console.log("iteration of scale error");
                                                                 break;
@@ -565,9 +566,9 @@ class SceneTransform extends Component<any, any> {
                                     </List>
                                 </div>
                             </div>
-                        </Card.Content>
-                        <Card.Content extra>
-                            <Button size={"tiny"} compact onClick={() => {
+                        </Segment>
+                        <Segment inverted  >
+                            <Button inverted size={"tiny"} compact onClick={() => {
                                 sceneStoreSelectObjsResetScale();
 
                                 if(Settings().scene.transformAlignToPlane) {
@@ -579,28 +580,28 @@ class SceneTransform extends Component<any, any> {
                                 <Button.Content>Reset</Button.Content>
                             </Button>
                             {buttonAlignY}
-                        </Card.Content>
-                    </Card>
+                        </Segment>
+                    </SegmentGroup>
                 break;
         }
-
+//
         return (
             <div style={{
-                width: "200px",
+                marginLeft:'10vmin',
+                width: "26vmin",
                 height: "auto",
                 padding: "1vmin",
-                opacity: Settings().ui.opacity,
-                marginTop: '-30vh'
-            }} className="top-50 start-0 position-fixed ">
-                <div style={{width: '60px'}}>
-                    <Menu vertical pointing fluid>
+                opacity: Settings().ui.opacity
+            }} className="top-0 start-0 position-fixed ">
+                <div style={{width: '40px'}}>
+                    <Menu secondary inverted  fluid>
                         <Menu.Item
                             name='Move'
                             active={instrumentEnum === TransformInstrumentEnum.Move}
                             onClick={this.handleItemClick}
                         >
                             <p>
-                                <Icon name='arrows alternate' size='large' style={MenuItemStyleCenter}/>
+                                <Icon name='arrows alternate' size='large'  inverted style={MenuItemStyleCenter}/>
                             </p>
                         </Menu.Item>
 
@@ -610,7 +611,7 @@ class SceneTransform extends Component<any, any> {
                             onClick={this.handleItemClick}
                         >
                             <p>
-                                <Icon name='refresh' size='large' style={MenuItemStyleCenter}/>
+                                <Icon name='refresh' size='large' inverted style={MenuItemStyleCenter}/>
                             </p>
                         </Menu.Item>
 
@@ -620,7 +621,7 @@ class SceneTransform extends Component<any, any> {
                             onClick={this.handleItemClick}
                         >
                             <p>
-                                <Icon name='expand' size='large' style={MenuItemStyleCenter}/>
+                                <Icon name='expand' size='large'  inverted style={MenuItemStyleCenter}/>
                             </p>
                         </Menu.Item>
                     </Menu>

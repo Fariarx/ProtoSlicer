@@ -91,6 +91,10 @@ export class SceneObject {
         this.max = (this.mesh.geometry.boundingBox as Box3).max;
         this.center = (this.mesh.geometry.boundingSphere as THREE.Sphere).center;
     }
+    UpdateSize() {
+        new THREE.Box3().setFromObject(this.mesh).getSize(this.size);
+    }
+
 
     UpdateGeometryCenter() {
         this.mesh.geometry.applyMatrix4( new THREE.Matrix4().makeTranslation(   -this.center.x, -this.center.y, -this.center.z));

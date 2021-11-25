@@ -86,8 +86,8 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): Grid {
     geometry.setPositions(positions);
 
     var matLine = new LineMaterial({
-        color: +"0x424242",
-        linewidth: 0.8
+        color: 0xa1a1a1,
+        linewidth: 1
     });
 
     var line = new Line2(geometry, matLine);
@@ -110,9 +110,9 @@ export function CreateAxesHelper(scene: THREE.Scene):THREE.Object3D {
     const size = 1;
 
     const axesHelper = new THREE.Object3D();
-    axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), origin, size, "#b80808"));
-    axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, size, "#09b111"));
-    axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), origin, size, "#091ab1"));
+    axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(1, 0.01, 0.01), origin, size, "#b80808"));
+    axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(0.01, 1, 0.01), origin, size, "#09b111"));
+    axesHelper.add(new THREE.ArrowHelper(new THREE.Vector3(0.01, 0.01, 1), origin, size, "#091ab1"));
 
     scene.add(axesHelper);
 

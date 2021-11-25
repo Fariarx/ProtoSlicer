@@ -32,7 +32,7 @@ export function calculateVoxelSizes(printer: Printer) {
 }
 
 export type SliceResult = {
-        image: Jimp,
+        image: Uint8Array,
         voxelDrawCount: number
 }
 
@@ -48,82 +48,85 @@ export async function slice(printer: Printer, layer: number) {
         const mesh = new THREE.Mesh(geometry, sceneStore.materialForObjects.normal);
         geometry.computeBoundsTree();
 
-        let promise = new Promise<SliceResult>((resolve, reject) => {
-                createImage(printer.Resolution.X, printer.Resolution.Y).then((image) => {
-                        let voxelDrawCount = 0;
-                        let indexPixelX = 0;
+        const imageBuffer = new Uint8Array(printer.Resolution.X * printer.Resolution.Y );
 
-                        raycaster.ray.direction.set(0, 0, 1);
+        imageBuffer.fill(0x00);
 
-                        while (indexPixelX < printer.Resolution.X) {
-                                let newPixelPositionX = startPixelPositionX + voxelSizes.voxelSizeX * indexPixelX;
+        let voxelDrawCount = 0;
+        let indexPixelX = 0;
 
-                                raycaster.ray.origin.set(newPixelPositionX, startPixelPositionY, startPixelPositionZ);
+        raycaster.ray.direction.set(0, 0, 1);
 
-                                let intersection: any[] = [];
+        while (indexPixelX < printer.Resolution.X) {
+                let newPixelPositionX = startPixelPositionX + voxelSizes.voxelSizeX * indexPixelX;
 
-                                mesh.raycast(raycaster, intersection);
+                raycaster.ray.origin.set(newPixelPositionX, startPixelPositionY, startPixelPositionZ);
 
-                                //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction, sceneStore.scene)
+                let intersection: any[] = [];
 
-                                intersection.sort((a, b) => {
-                                        return a.distance < b.distance ? -1 : 1;
-                                })
+                mesh.raycast(raycaster, intersection);
 
-                                //console.log(intersection)
+                //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction, sceneStore.scene)
 
-                                for (let i = 0; i < intersection.length; i++) {
+                intersection.sort((a, b) => {
+                        return a.distance < b.distance ? -1 : 1;
+                })
 
-                                        const isFrontFacing = intersection[i].face.normal.dot(raycaster.ray.direction) < 0;
+                //console.log(intersection)
 
-                                        if (!isFrontFacing) {
-                                                continue;
-                                        }
+                for (let i = 0; i < intersection.length; i++) {
 
-                                        let numSolidsInside = 0;
-                                        let j = i + 1;
+                        const isFrontFacing = intersection[i].face.normal.dot(raycaster.ray.direction) < 0;
 
-                                        while (j < intersection.length) {
-                                                const isFrontFacing = intersection[j].face.normal.dot(raycaster.ray.direction) < 0;
-
-                                                if (!isFrontFacing) {
-                                                        if (numSolidsInside === 0) {
-                                                                // Found it
-                                                                break;
-                                                        }
-                                                        numSolidsInside--;
-                                                } else {
-                                                        numSolidsInside++;
-                                                }
-
-                                                j++;
-                                        }
-
-                                        if (j >= intersection.length) {
-                                                continue;
-                                        }
-
-                                        while (intersection[i].point.z <= intersection[j].point.z) {
-                                                let indexZ = Math.ceil((intersection[i].point.z - (startPixelPositionZ)) / voxelSizes.voxelSizeZ);
-
-                                                image.setPixelColor(0xFFFFFFFF, indexPixelX, indexZ);
-
-                                                voxelDrawCount++;
-
-                                                intersection[i].point.setZ(intersection[i].point.z + voxelSizes.voxelSizeZ);
-                                        }
-
-                                        i = j;
-                                }
-
-                                indexPixelX += 1;
+                        if (!isFrontFacing) {
+                                continue;
                         }
 
-                        resolve( {
-                                image:image,
-                                voxelDrawCount: voxelDrawCount
-                        } as SliceResult);
-                });
+                        let numSolidsInside = 0;
+                        let j = i + 1;
+
+                        while (j < intersection.length) {
+                                const isFrontFacing = intersection[j].face.normal.dot(raycaster.ray.direction) < 0;
+
+                                if (!isFrontFacing) {
+                                        if (numSolidsInside === 0) {
+                                                // Found it
+                                                break;
+                                        }
+                                        numSolidsInside--;
+                                } else {
+                                        numSolidsInside++;
+                                }
+
+                                j++;
+                        }
+
+                        if (j >= intersection.length) {
+                                continue;
+                        }
+
+
+
+                        const indexStartZ = Math.floor((intersection[i].point.z - (startPixelPositionZ)) / voxelSizes.voxelSizeZ);
+                        const indexFinishZ = Math.ceil((intersection[j].point.z - (startPixelPositionZ)) / voxelSizes.voxelSizeZ)
+                        const bufferStartIndexX = printer.Resolution.X * indexPixelX;
+
+                        voxelDrawCount += indexFinishZ - indexPixelX;
+                        
+                        imageBuffer.fill(0xff, bufferStartIndexX + indexStartZ, bufferStartIndexX +  indexFinishZ);
+
+                        i = j;
+                }
+
+                indexPixelX += 1;
+        }
+
+
+        let promise = new Promise<SliceResult>((resolve, reject) => {
+                resolve( {
+                        image:imageBuffer,
+                        voxelDrawCount: voxelDrawCount
+                } as SliceResult);
         });
 
         let result = await promise;

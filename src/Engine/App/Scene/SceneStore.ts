@@ -25,7 +25,11 @@ export class CSceneStore {
     materialForPlane: THREE.Material = new THREE.MeshBasicMaterial({
         color: Settings().scene.workingPlaneColor,
         side: THREE.FrontSide,
-        opacity: 0.6,
+        transparent: true
+    });
+    materialForPlaneLimit: THREE.Material = new THREE.MeshBasicMaterial({
+        color: Settings().scene.workingPlaneLimitColor,
+        side: THREE.DoubleSide,
         transparent: true
     });
     materialForObjects: ISceneMaterial = SceneMaterials.default;

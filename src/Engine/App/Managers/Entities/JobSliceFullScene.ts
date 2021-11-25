@@ -46,7 +46,7 @@ export class JobSliceFullScene extends Job
                     sliceNext();
                 }
                 else {
-                    thisObj.onResult({});
+                    thisObj.onResult(result);
                 }
             });
         }
