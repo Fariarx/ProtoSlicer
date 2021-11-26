@@ -5,6 +5,8 @@
   "private": false,
   "dependencies": {
     "@types/three": "^0.134.0",
+    "custom-electron-titlebar": "^3.2.7",
+    "electron-titlebar-windows": "^3.0.0",
     "faker": "^5.5.3",
     "fast-png": "^6.1.0",
     "fs": "^0.0.1-security",

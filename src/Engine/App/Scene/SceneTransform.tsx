@@ -592,7 +592,7 @@ class SceneTransform extends Component<any, any> {
                 height: "auto",
                 padding: "1vmin",
                 opacity: Settings().ui.opacity
-            }} className="top-0 start-0 position-fixed ">
+            }} >
                 <div style={{width: '40px'}}>
                     <Menu secondary inverted  fluid>
                         <Menu.Item

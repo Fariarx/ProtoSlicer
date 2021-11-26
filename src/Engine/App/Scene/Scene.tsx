@@ -40,7 +40,8 @@ export class Scene extends Component<any, any> {
     }
 
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
-        antialias: true
+        antialias: true,
+        alpha:true
     });
     outlineEffect?: OutlineEffect;
 
@@ -264,7 +265,7 @@ export class Scene extends Component<any, any> {
 	MovingCube.position.set(0, 25.1, 0);
 	scene.add( MovingCube );*/
 
-        scene.background = new THREE.Color(Settings().ui.color2);
+       // scene.background = new THREE.Color(Settings().ui.colorBackgroundScene);
 
         let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
         let windowHeight = window.innerHeight;
@@ -300,7 +301,9 @@ export class Scene extends Component<any, any> {
 
         orbitControls.addEventListener( 'change', animate);
 
+        this.renderer.setClearColor(0x000000, 0)
 
+        this.renderer.domElement.style.background =  'linear-gradient(to bottom,  '+Settings().ui.colorBackgroundScene+' 0%,'+ Settings().ui.colorBackgroundSceneBottom +' 100%)'
 
 
         const transform = new TransformControls(camera, this.renderer.domElement);
@@ -481,9 +484,6 @@ export class Scene extends Component<any, any> {
                     position: "fixed"
                 }}>
                 </div>
-
-                <SceneTransform/>
-
 
                 {!this.printerConfig && <ContainerPrinterConfigurator setupConfiguration={(config: Printer)=>{
                     storeMain.set('printer', config.name);

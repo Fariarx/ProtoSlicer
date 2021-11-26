@@ -63,7 +63,7 @@ function createWindow() {
         maxWidth: dimensions.width,
         maxHeight: dimensions.height,
         show: false,
-        autoHideMenuBar: true,
+        frame: false,
         "webPreferences": {
             preload: path.join(__dirname, "preload.js"), // use a preload script
             nodeIntegration: true,
@@ -87,10 +87,7 @@ function createWindow() {
                 pathname: path.join(__dirname, '../build/index.html'),
                 protocol: 'file:',
                 slashes: true,
-            })
-    , {
-
-        });
+            }));
 
     app.on('browser-window-focus', () => {
         if (mainWindow) {
@@ -110,11 +107,11 @@ function createWindow() {
     if (isDev) {
         // Open the DevTools.
         mainWindow.webContents.openDevTools();
-        mainWindow.webContents.setFrameRate(30);
+        mainWindow.webContents.setFrameRate(50);
         console.log(electron.app.getPath('userData'));
     }
     else {
-        mainWindow.webContents.setFrameRate(60)
+        //mainWindow.webContents.setFrameRate(60)
     }
 
     mainWindow.removeMenu();

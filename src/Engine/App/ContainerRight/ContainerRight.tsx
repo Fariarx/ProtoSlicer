@@ -12,13 +12,12 @@ function ContainerRight(props) {
             width: "235px",
             height: "auto",
             opacity: Settings().ui.opacity,
-            //backgroundColor:'red',
-        }} className="position-fixed top-0 end-0">
+            marginLeft:'auto'
+        }} >
             <div style={{
                 width: "100%",
                 height: '100%',
-                padding: '1vmin',
-                paddingLeft: 0
+                padding: '1vmin'
             }}>
                 {/*<Steps />*/}
                 <SelectObjects />

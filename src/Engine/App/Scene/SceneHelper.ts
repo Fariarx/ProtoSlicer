@@ -68,7 +68,7 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): Grid {
         }
     }
 
-    positions.push(0, gridSizeZ, 0);
+    /*positions.push(0, gridSizeZ, 0);
     positions.push(gridSizeX, gridSizeZ, 0);
     positions.push(gridSizeX, 0, 0);
     positions.push(gridSizeX, gridSizeZ, 0);
@@ -78,7 +78,7 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): Grid {
     positions.push(0, gridSizeZ, gridSizeY);
     positions.push(0, 0, gridSizeY);
     positions.push(0, gridSizeZ, gridSizeY);
-    positions.push(0, gridSizeZ, 0);
+    positions.push(0, gridSizeZ, 0);*/
 
     // Line2 ( LineGeometry, LineMaterial )
 
@@ -87,7 +87,7 @@ export function CreateGrid(size: THREE.Vector3, scene: THREE.Scene): Grid {
 
     var matLine = new LineMaterial({
         color: 0xa1a1a1,
-        linewidth: 1
+        linewidth: 3
     });
 
     var line = new Line2(geometry, matLine);

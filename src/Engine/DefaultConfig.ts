@@ -1,16 +1,17 @@
 export let DefaultConfig = {
-    version:3,
+    version:2,
     versionPrinterConfigs: 3,
     settings: {
         ui: {
             opacity: 0.8,
+            colorBackgroundScene:'#2f2f2f',
+            colorBackgroundSceneBottom:'#6c6c6c',
             colorBackground:'#1d1d1d',
             color1:'#2a2a2a',
-            color2:'#575757'
         },
         scene:{
-            workingPlaneLimitColor:'#895e5e',
-            workingPlaneColor:"#3f4f68",
+            workingPlaneLimitColor:'#c4736c',
+            workingPlaneColor:"#68798d",
             transformAlignToPlane: true,
             sharpness:.0001
         }
