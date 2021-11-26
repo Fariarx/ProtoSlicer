@@ -30,6 +30,21 @@ ipcMain.on('electron.userData', (event, arg) => {
 ipcMain.on('electron.checkFocus', (event, arg) => {
     event.returnValue = mainWindowFocus;
 })
+ipcMain.on('electron.minimize', (event, arg) => {
+    let _window = BrowserWindow.getFocusedWindow();
+
+     _window && _window.isMinimized() ? _window.restore() : _window.minimize()
+})
+ipcMain.on('electron.maximize', (event, arg) => {
+    let _window = BrowserWindow.getFocusedWindow();
+
+    _window && _window.isMaximized() ? _window.unmaximize() : _window.maximize()
+})
+ipcMain.on('electron.closeWindow', (event, arg) => {
+    let _window = BrowserWindow.getFocusedWindow();
+
+    _window && _window.close();
+})
 
 const Store = require('./store');
 

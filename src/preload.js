@@ -19,3 +19,12 @@ window.bridge.userData = ipcRenderer.sendSync('electron.userData', '');
 window.bridge.checkFocus = () => {
     return ipcRenderer.sendSync('electron.checkFocus', '')
 };
+window.minimizeWindow = () => {
+    ipcRenderer.send('electron.minimize')
+}
+window.maximizeWindow = () => {
+    ipcRenderer.send('electron.maximize')
+}
+window.closeWindow = () => {
+    ipcRenderer.send('electron.closeWindow')
+}
