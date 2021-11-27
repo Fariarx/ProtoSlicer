@@ -5,11 +5,12 @@ import Steps from "../Steps";
 import SelectObjects from "./SelectObjects";
 import {Vector2, Vector3} from "three";
 import React from "react";
+import AddingSupports from "./AddingSupports";
 
 function ContainerRight(props) {
     return (
         <div style={{
-            width: "235px",
+            width: "26vmin",
             height: "auto",
             opacity: Settings().ui.opacity,
             marginLeft:'auto'
@@ -21,6 +22,7 @@ function ContainerRight(props) {
             }}>
                 {/*<Steps />*/}
                 <SelectObjects />
+                <AddingSupports />
             </div>
         </div>
     );

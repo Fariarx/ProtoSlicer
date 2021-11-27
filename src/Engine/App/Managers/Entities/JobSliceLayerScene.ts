@@ -23,3 +23,7 @@ export class JobSliceLayerScene extends Job
         });
     }
 }
+
+window.self.addEventListener('message', function(e) {
+    e.data.instance.start();
+}, false);

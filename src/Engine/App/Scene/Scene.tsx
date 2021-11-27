@@ -28,6 +28,7 @@ import {MoveObject} from "../Managers/Entities/MoveObject";
 import {JobSliceLayerScene} from "../Managers/Entities/JobSliceLayerScene";
 import {JobSliceFullScene} from "../Managers/Entities/JobSliceFullScene";
 import Jimp from "jimp";
+import {addJob} from "../Managers/Worker";
 
 sceneStoreCreate();
 
@@ -423,9 +424,10 @@ export class Scene extends Component<any, any> {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
 
-            /*new JobSliceFullScene((data)=> {
+            addJob(new JobSliceFullScene((data)=> {
                 console.log(data);
-            }, (percent)=>{console.log(percent)}).start();*/
+            }, (percent)=>{console.log(percent)}));
+            /*.start();*/
         });
 
         transform.setTranslationSnap( 0.25 );

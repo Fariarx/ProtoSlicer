@@ -10,6 +10,8 @@ export let addJob = (job: Job) =>
 {
     jobList.push(job);
 
+    let worker = new Worker('./src/Engine/App/Managers/Entities/' + job.constructor.name + '.ts');
+
     let onResultHook = job.onResult;
 
     job.onResult = (data: any) => {
@@ -17,19 +19,23 @@ export let addJob = (job: Job) =>
 
         if(jobList.length !== 0)
         {
-            jobList[0].start();
+            jobList[0].worker?.postMessage({ instance:jobList[0] });
             isWorking = true;
         }
         else {
             isWorking = false;
         }
 
+        worker.terminate();
+
         return onResultHook(data);
     }
 
     if(!isWorking)
     {
-        job.start();
+        worker.postMessage({ instance:job });
         isWorking = true;
     }
+
+    job.worker = worker;
 }

@@ -57,3 +57,8 @@ export class JobSliceFullScene extends Job
         sliceNext();
     }
 }
+
+
+window.self.addEventListener('message', function(e) {
+    e.data.instance.start();
+}, false);

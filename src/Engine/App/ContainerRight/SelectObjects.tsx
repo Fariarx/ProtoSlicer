@@ -10,7 +10,7 @@ import {
     Header,
     Grid,
     GridColumn,
-    Feed, Item, Container
+    Feed, Item, Container, SegmentGroup
 } from "semantic-ui-react";
 import {storeMain} from "../../Bridge";
 import {Log, Settings} from "../../Globals";
@@ -58,18 +58,11 @@ class SelectObjectsView extends Component<any, any> {
                         paddingLeft:'5px',
                         paddingBottom:'5px',
                         paddingTop:'5px',
-                        backgroundColor: (obj != null && obj.isSelected ? 'rgba(0,0,255,0.06)' : 'rgba(0,0,0,0.05)'),
+                        backgroundColor: (obj != null && obj.isSelected ? 'rgba(91,91,255,0.62)' : 'rgba(56,56,56,0.26)'),
                         borderRadius:'3px',
                         cursor:"pointer"
                     }}>
-                        <Checkbox  readOnly style={{
-                            flex:'0 0 22px'
-                        }} checked={obj != null && obj.isSelected}/>
-
-                        <text color='grey' style={{
-                            whiteSpace:'nowrap',
-                            flex:3
-                        }}>
+                        <text color='grey' >
                             {t.name}
                         </text>
                     </div>
@@ -80,14 +73,16 @@ class SelectObjectsView extends Component<any, any> {
         list = <List>{list}</List>
 
         return (
-            <Card style={{
+            <SegmentGroup size={"tiny"} color='black' style={{
                 width: '100%',
-                userSelect:"none"
+                height: 'auto'
             }}>
-                <Card.Content extra>
-                    <Card.Header style={{float: 'left'}}>Select objects</Card.Header>
-                </Card.Content>
-                <Card.Content extra>
+                <Segment inverted >
+                    <Header as='h4'>
+                        Selected objects
+                    </Header>
+                </Segment>
+                <Segment inverted >
                     <div style={{
                         width: "100%",
                         height: '14vh',
@@ -95,10 +90,10 @@ class SelectObjectsView extends Component<any, any> {
                     }}>
                         {list}
                     </div>
-                </Card.Content>
-                <Card.Content extra>
-                    <Button.Group basic size='small'>
-                        <Button icon='plus square' onClick={()=>{
+                </Segment>
+                <Segment  inverted>
+                    <Button.Group basic size='mini' inverted>
+                        <Button icon='plus' onClick={()=>{
                             for(let object of sceneStore.objects)
                             {
                                 object.isSelected = true;
@@ -106,7 +101,7 @@ class SelectObjectsView extends Component<any, any> {
                             sceneStoreSelectionChanged();
                             this.setState({});
                         }}/>
-                        <Button icon='minus square outline' onClick={()=>{
+                        <Button icon='minus' onClick={()=>{
                             for(let object of sceneStore.objects)
                             {
                                 object.isSelected = false;
@@ -115,8 +110,8 @@ class SelectObjectsView extends Component<any, any> {
                             this.setState({});
                         }}/>
                     </Button.Group>
-                </Card.Content>
-            </Card>
+                </Segment>
+            </SegmentGroup>
         );
     }
 }

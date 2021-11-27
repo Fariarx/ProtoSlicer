@@ -10,9 +10,6 @@ import {Button, Header, Icon, Label} from "semantic-ui-react";
 import {closeWindow, maximizeWindow, minimizeWindow} from "../Bridge";
 
 export class AppTitleBar extends Component<any, any> {
-    state: any = {
-        isMinimized: false
-    }
     render(): React.ReactNode {
         return (
             <div style={{
