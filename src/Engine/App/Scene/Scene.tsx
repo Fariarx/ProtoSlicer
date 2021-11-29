@@ -360,6 +360,7 @@ export class Scene extends Component<any, any> {
                                     } as MoveObject)
 
                                 }
+
                             }
                             break;
                         case TransformInstrumentEnum.Scale:
@@ -404,6 +405,9 @@ export class Scene extends Component<any, any> {
             if (!event.value && Settings().scene.transformAlignToPlane) {
                 sceneStoreSelectObjsAlignY();
             }
+
+            sceneStore.transformObjectGroup.rotation.set(0,0,0);
+            sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
         });
 
         File3DLoad(url.format({

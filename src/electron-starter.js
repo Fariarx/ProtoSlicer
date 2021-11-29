@@ -1,4 +1,5 @@
 const electron = require('electron');
+const waitOn = require('wait-on');
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -153,10 +154,18 @@ function createWindow() {
     });*/
 }
 
+function run() {
+    isDev ?  waitOn({
+        timeout: 60000,
+        httpTimeout: 60000,
+        tcpTimeout: 60000,
+        resources: ['http://localhost:3000/']
+    }, createWindow) : createWindow();
+}
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', run);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -171,7 +180,7 @@ app.on('activate', function () {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-        createWindow()
+        run();
     }
 });
 
