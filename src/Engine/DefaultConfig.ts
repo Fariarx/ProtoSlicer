@@ -15,7 +15,7 @@ export let DefaultConfig = {
             transformAlignToPlane: true,
             sharpness:.0001
         },
-        workerCount: 5,
+        workerCount: 10,
     }
 };
 
