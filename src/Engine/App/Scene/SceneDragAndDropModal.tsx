@@ -10,14 +10,8 @@ function DragAndDropModal() {
             backgroundColor:'rgba(0,0,0,0.8)',
             pointerEvents: "none"
         }}>
-            <Header style={{
-                color:"white",
-                position: 'relative',
-                top: '50%',
-                transform: 'translateY(-50%)'
-            }} icon >
-                <Icon name='archive' />
-                <p className='font-weight-light'>Drag and drop 3d files</p>
+            <Header  icon className={'position-absolute top-50 start-50 translate-middle'}>
+                <Icon name='archive' inverted />
             </Header>
         </div>
     )

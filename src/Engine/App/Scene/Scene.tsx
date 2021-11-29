@@ -36,7 +36,9 @@ export class Scene extends Component<any, any> {
 
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: true,
-        alpha:true
+        alpha:true,
+        preserveDrawingBuffer: true,
+        powerPreference: "high-performance"
     });
     outlineEffect?: OutlineEffect;
 
@@ -330,7 +332,8 @@ export class Scene extends Component<any, any> {
                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         from: oldPosition,
                                         to: newPosition,
-                                        sceneObject: sceneObject
+                                        sceneObject: sceneObject,
+                                        renderBreak: true
                                     } as MoveObject)
                                 }
                             }
@@ -356,7 +359,8 @@ export class Scene extends Component<any, any> {
                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         from: oldPosition,
                                         to: newPosition,
-                                        sceneObject: sceneObject
+                                        sceneObject: sceneObject,
+                                        renderBreak: true
                                     } as MoveObject)
 
                                 }
@@ -383,7 +387,8 @@ export class Scene extends Component<any, any> {
                                     Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         from: oldPosition,
                                         to: newPosition,
-                                        sceneObject: sceneObject
+                                        sceneObject: sceneObject,
+                                        renderBreak: true
                                     } as MoveObject)
 
                                     sceneObject.UpdateSize();//for .size and CalculateGroupMaxSize()
@@ -422,7 +427,7 @@ export class Scene extends Component<any, any> {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
 
-            addJob(new Job({
+            /*addJob(new Job({
                 name: WorkerType.SliceFullScene,
                 onResult: result => {
                     console.log(result)
@@ -430,21 +435,12 @@ export class Scene extends Component<any, any> {
                 onState: percent => {
                     console.log(percent)
                 }
-            }));
-            addJob(new Job({
-                name: WorkerType.SliceFullScene,
-                onResult: result => {
-                    console.log(result)
-                },
-                onState: percent => {
-                    console.log(percent)
-                }
-            }));
+            }));*/
             /*.start();*/
         });
 
         transform.setTranslationSnap( 0.25 );
-        transform.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
+        transform.setRotationSnap( THREE.MathUtils.degToRad( 5 ) );
         transform.setScaleSnap( 0.001 );
 
         scene.add(transform);

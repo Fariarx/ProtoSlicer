@@ -109,7 +109,11 @@ const Handler = (message) => {
 
             //console.log(moveObject);
 
-            sceneStoreUpdateFrame();
+            if(!moveObject.renderBreak)
+            {
+                sceneStoreUpdateFrame();
+            }
+
             sceneStoreUpdateTransformTool();
             break;
         case EventEnum.ADD_OBJECT:

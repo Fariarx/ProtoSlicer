@@ -28,7 +28,7 @@ class AddingSupports extends Component<any, any> {
             <SegmentGroup padded size={"tiny"} color='black' style={{
                 width: '100%',
                 height: 'auto',
-                marginTop: '-0.5vmin',
+                marginTop: '-1vmin',
             }}>
                 <Segment inverted>
                     <Button fluid inverted size={"tiny"} onClick={()=>{

@@ -9,5 +9,6 @@ export type MoveObject = {
     to: Vector3 | Euler,
     sceneObject: SceneObject | THREE.Object3D,
     actionBreak: true | undefined,
+    renderBreak: true | undefined,
     id: number | undefined,
 }
