@@ -268,6 +268,7 @@ export class Scene extends Component<any, any> {
         let windowHeight = window.innerHeight;
 
 
+        let transformWorking = false;
 
         let animate = function () {
             thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
@@ -277,6 +278,11 @@ export class Scene extends Component<any, any> {
             light0.position.set(camera.position.x, camera.position.y, camera.position.z);
 
             thisObj.outlineEffect?.render(scene, camera);
+
+            if(transformWorking)
+            {
+                requestAnimationFrame(animate);
+            }
         };
 
         let onWindowResize = (event) => {
@@ -402,10 +408,13 @@ export class Scene extends Component<any, any> {
 
             });
 
-            animate();
         });
+
+
         transform.addEventListener( 'dragging-changed', function ( event ) {
             orbitControls.enabled = !event.value;
+
+            transformWorking = event.value;
 
             if (!event.value && Settings().scene.transformAlignToPlane) {
                 sceneStoreSelectObjsAlignY();
@@ -413,6 +422,8 @@ export class Scene extends Component<any, any> {
 
             sceneStore.transformObjectGroup.rotation.set(0,0,0);
             sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
+
+            requestAnimationFrame(animate);
         });
 
         File3DLoad(url.format({
