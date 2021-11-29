@@ -18,7 +18,7 @@ api.sliceLayers = async (printerJson: string, numLayerFrom: number, numLayerTo: 
     const raycaster = new Raycaster();
     const geometry = new THREE.BufferGeometryLoader().parse(printer.workerData.geometry);
     const mesh = new MeshBVH(geometry, {
-        maxLeafTris: 40
+        maxLeafTris: 20
     });
 
     while (numLayerFrom <= numLayerTo) {

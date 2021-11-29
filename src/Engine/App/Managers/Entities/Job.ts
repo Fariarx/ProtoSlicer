@@ -8,6 +8,12 @@ export type JobSliceOneLayerOptions =
     layerNum: number
 }
 
+export type JobOptions = {
+    name: WorkerType,
+    data?: JobSliceOneLayerOptions,
+    onResult: (data: any) => void,
+    onState?: (percent: number) => boolean | void,
+}
 
 export class Job
 {
@@ -18,11 +24,11 @@ export class Job
     onResult: (data: any) => void;
     onState: (data: any) => boolean | void;
 
-    constructor(name: WorkerType, onResult: (data: any) => void, onState: (percent: number) => boolean | void, _data?: JobSliceOneLayerOptions)
+    constructor(jobOptions: JobOptions)
     {
-        this.onResult = onResult;
-        this.onState = onState;
-        this.name = name;
-        this.data = _data ? _data : {};
+        this.name = jobOptions.name;
+        this.onResult = jobOptions.onResult;
+        this.onState = jobOptions.onState ? jobOptions. onState : () => {};
+        this.data = jobOptions.data ? jobOptions.data : {};
     }
 }

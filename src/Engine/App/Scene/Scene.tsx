@@ -15,17 +15,12 @@ import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrint
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import SceneTransform, {TransformInstrumentEnum} from "./SceneTransform";
+import {TransformInstrumentEnum} from "./SceneTransform";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
-import {Dispatch, EventEnum } from "../Managers/Events";
-import {
-    sceneStore,
-    sceneStoreCreate,
-    sceneStoreSelectObjsAlignY
-} from "./SceneStore";
+import {Dispatch, EventEnum} from "../Managers/Events";
+import {sceneStore, sceneStoreCreate, sceneStoreSelectObjsAlignY} from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
-import Jimp from "jimp";
 import {addJob} from "../Managers/Workers";
 import {Job, WorkerType} from "../Managers/Entities/Job";
 
@@ -423,10 +418,23 @@ export class Scene extends Component<any, any> {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
 
-            addJob(new Job(WorkerType.SliceFullScene,(data)=> {
-                console.log(data);
-            }, (percent)=>{console.log(percent)}, {
-                layerNum:3
+            addJob(new Job({
+                name: WorkerType.SliceFullScene,
+                onResult: result => {
+                    console.log(result)
+                },
+                onState: percent => {
+                    console.log(percent)
+                }
+            }));
+            addJob(new Job({
+                name: WorkerType.SliceFullScene,
+                onResult: result => {
+                    console.log(result)
+                },
+                onState: percent => {
+                    console.log(percent)
+                }
             }));
             /*.start();*/
         });
