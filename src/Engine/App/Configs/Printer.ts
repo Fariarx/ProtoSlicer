@@ -38,6 +38,8 @@ export class Printer {
     Resolution: Resolution;
     PrintSettings: PrintSettings;
 
+    workerData: any = {};
+
     constructor(_name?: string, _settings?: Config) {
         if(_name) {
             this.name = _name;

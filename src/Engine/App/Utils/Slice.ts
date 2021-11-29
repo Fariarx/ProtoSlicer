@@ -1,7 +1,6 @@
 import {Printer} from "../Configs/Printer";
 import {acceleratedRaycast, MeshBVH} from 'three-mesh-bvh';
 import {SceneObject} from "../Scene/SceneObject";
-import {sceneStore} from "../Scene/SceneStore";
 import {BufferGeometry, Float32BufferAttribute, Points, PointsMaterial, Raycaster, Vector3} from "three";
 import * as THREE from "three";
 import {DrawDirLine, DrawPoint} from "./Utils";
@@ -10,6 +9,8 @@ import {fs} from "../../Bridge";
 import Jimp from 'jimp';
 
 export default {}
+
+let material = new THREE.MeshPhongMaterial( { color: '#f8a745', emissive:'#ffd4d4', emissiveIntensity:0.3 , flatShading: true, side: THREE.DoubleSide, shininess: 60 } );
 
 async function createImage(sizeX, sizeY) {
         let promise = new Promise((resolve, reject) => {
@@ -33,20 +34,15 @@ export function calculateVoxelSizes(printer: Printer) {
 
 export type SliceResult = {
         image: Uint8Array,
-        voxelDrawCount: number
+        voxelCount: number
 }
 
-export async function slice(printer: Printer, layer: number) {
-        const voxelSizes = calculateVoxelSizes(printer);
+export function slice(printer: Printer, layer: number, geometry: BufferGeometry, mesh: MeshBVH, raycaster: Raycaster) {
+        const voxelSizes = printer.workerData.voxelSize;
 
-        const startPixelPositionX = sceneStore.gridSize.x / 2 - voxelSizes.voxelSizeX * printer.Resolution.X / 2;
+        const startPixelPositionX = printer.workerData.gridSize.x / 2 - voxelSizes.voxelSizeX * printer.Resolution.X / 2;
         const startPixelPositionY = layer * voxelSizes.voxelSizeY;
-        const startPixelPositionZ = sceneStore.gridSize.z / 2 - .1 * printer.Workspace.sizeY / 2;
-
-        const raycaster = new Raycaster();
-        const geometry = SceneObject.CalculateGeometry(sceneStore.objects);
-        const mesh = new THREE.Mesh(geometry, sceneStore.materialForObjects.normal);
-        geometry.computeBoundsTree();
+        const startPixelPositionZ = printer.workerData.gridSize.z / 2 - .1 * printer.Workspace.sizeY / 2;
 
         const imageBuffer = new Uint8Array(printer.Resolution.X * printer.Resolution.Y );
 
@@ -62,9 +58,7 @@ export async function slice(printer: Printer, layer: number) {
 
                 raycaster.ray.origin.set(newPixelPositionX, startPixelPositionY, startPixelPositionZ);
 
-                let intersection: any[] = [];
-
-                mesh.raycast(raycaster, intersection);
+                let intersection: any[] = mesh.raycast(raycaster.ray, THREE.DoubleSide);
 
                 //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction, sceneStore.scene)
 
@@ -106,7 +100,6 @@ export async function slice(printer: Printer, layer: number) {
                         }
 
 
-
                         const indexStartZ = Math.floor((intersection[i].point.z - (startPixelPositionZ)) / voxelSizes.voxelSizeZ);
                         const indexFinishZ = Math.ceil((intersection[j].point.z - (startPixelPositionZ)) / voxelSizes.voxelSizeZ)
                         const bufferStartIndexX = printer.Resolution.X * indexPixelX;
@@ -121,15 +114,8 @@ export async function slice(printer: Printer, layer: number) {
                 indexPixelX += 1;
         }
 
-
-        let promise = new Promise<SliceResult>((resolve, reject) => {
-                resolve( {
-                        image:imageBuffer,
-                        voxelDrawCount: voxelDrawCount
-                } as SliceResult);
-        });
-
-        let result = await promise;
-
-        return result;
+        return {
+                image:imageBuffer,
+                voxelCount: voxelDrawCount
+        } as SliceResult;
 }

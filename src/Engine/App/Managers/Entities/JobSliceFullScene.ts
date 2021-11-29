@@ -1,3 +1,4 @@
+/*
 import {Job} from "./Job";
 
 import {Mesh, Scene} from "three";
@@ -29,7 +30,7 @@ export class JobSliceFullScene extends Job
             slice(sceneStore.printer as Printer, index).then((sliceResult : SliceResult)=>{
                 index++;
 
-                if(sliceResult.voxelDrawCount > 0)
+                if(sliceResult.voxelCount > 0)
                 {
                     result.push(sliceResult);
                 }
@@ -61,4 +62,6 @@ export class JobSliceFullScene extends Job
 
 window.self.addEventListener('message', function(e) {
     e.data.instance.start();
-}, false);
+}, false);*/
+
+export default {};

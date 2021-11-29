@@ -14,7 +14,8 @@ export let DefaultConfig = {
             workingPlaneColor:"#68798d",
             transformAlignToPlane: true,
             sharpness:.0001
-        }
+        },
+        workerCount: 5,
     }
 };
 

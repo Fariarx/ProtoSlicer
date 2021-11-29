@@ -25,10 +25,9 @@ import {
     sceneStoreSelectObjsAlignY
 } from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
-import {JobSliceLayerScene} from "../Managers/Entities/JobSliceLayerScene";
-import {JobSliceFullScene} from "../Managers/Entities/JobSliceFullScene";
 import Jimp from "jimp";
 import {addJob} from "../Managers/Worker";
+import {Job, WorkerType} from "../Managers/Entities/Job";
 
 sceneStoreCreate();
 
@@ -424,7 +423,7 @@ export class Scene extends Component<any, any> {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             animate();
 
-            addJob(new JobSliceFullScene((data)=> {
+            addJob(new Job(WorkerType.SliceLayerScene,(data)=> {
                 console.log(data);
             }, (percent)=>{console.log(percent)}));
             /*.start();*/

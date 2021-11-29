@@ -6,3 +6,4 @@ declare module "worker-loader!*" {
 
     export default WebpackWorker;
 }
+declare const self: Worker;
