@@ -101,6 +101,11 @@ export const sceneStoreSelectionChanged = action(()=>{
 export const sceneStoreUpdateTransformControls = () => {
     let isWorkingInstrument = sceneStore.transformInstrumentState !== TransformInstrumentEnum.None;
 
+    sceneStore.transformObjectGroup.position.setX(sceneStore.gridSize.x / 2).setZ(sceneStore.gridSize.z / 2).setY(0);
+    sceneStore.transformObjectGroupOld.position.setX(sceneStore.gridSize.x / 2).setZ(sceneStore.gridSize.z / 2).setY(0);
+    sceneStore.transformObjectGroup.rotation.set(0,0,0);
+    sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
+
     if(isWorkingInstrument && sceneStore.groupSelected.length)
     {
         sceneStore.transformInstrument?.attach(sceneStore.transformObjectGroup);

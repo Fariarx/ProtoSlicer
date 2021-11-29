@@ -11,7 +11,7 @@ import {
     sceneStoreSelectObjsAlignY,
     sceneStoreSelectObjsResetRotation,
     sceneStoreSelectObjsResetScale,
-    sceneStoreUpdateFrame
+    sceneStoreUpdateFrame, sceneStoreUpdateTransformControls
 } from "./SceneStore";
 import {MathUtils, Vector3} from "three";
 import {isFloat, isNumeric, LinearGenerator} from "../Utils/Utils";
@@ -206,6 +206,7 @@ class SceneTransform extends Component<any, any> {
                         </Segment>
                         <Segment inverted size={"mini"}>
                             <Button size={"tiny"} inverted compact onClick={() => {
+                                sceneStoreUpdateTransformControls();
                                 sceneStoreSelectObjsAlignXZ();
                                 this.setState({});
                             }}>
