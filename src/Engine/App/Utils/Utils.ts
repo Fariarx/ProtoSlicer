@@ -1,5 +1,6 @@
-import {BufferGeometry} from "three";
+import {BufferGeometry, Scene} from "three";
 import * as THREE from "three";
+import {sceneStore} from "../Scene/SceneStore";
 
 export const LinearGenerator = (()=>{
     let linearGenerator: number = 0;
@@ -28,7 +29,7 @@ export function SimpleCopyObj(from: any, to:any) {
         to[val1] = from[val1];
     }
 }
-export function DrawDirLine(origin, dir, scene, length : number = 100)
+export function DrawDirLine(origin, dir, scene: Scene = sceneStore.scene, length : number = 100)
 {
     dir.normalize();
 

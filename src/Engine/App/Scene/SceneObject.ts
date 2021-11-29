@@ -5,6 +5,7 @@ import {Dispatch, EventEnum  } from "../Managers/Events";
 import {TransformInstrumentEnum} from "./SceneTransform";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry";
+import {CENTER, MeshBVH, SAH, SplitStrategy} from "three-mesh-bvh";
 
 export class SceneObject {
     name: string;

@@ -109,8 +109,17 @@ class SelectObjectsView extends Component<any, any> {
                             sceneStoreSelectionChanged();
                             this.setState({});
                         }}/>
+                        <Button basic size='mini' inverted compact content={'double click'} onClick={()=>{
+                            for(let object of sceneStore.objects)
+                            {
+                                object.isSelected = false;
+                            }
+                            sceneStoreSelectionChanged();
+                            this.setState({});
+                        }}/>
                     </Button.Group>
                 </Segment>
+
             </SegmentGroup>
         );
     }

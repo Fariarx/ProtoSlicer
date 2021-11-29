@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import 'semantic-ui-css/semantic.min.css'
 
 import * as THREE from 'three'
-import {BufferGeometry, Vector3} from 'three'
+import {BufferGeometry, Raycaster, Vector3} from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer} from "../Configs/Printer";
@@ -23,6 +23,8 @@ import {sceneStore, sceneStoreCreate, sceneStoreSelectObjsAlignY} from "./SceneS
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {addJob} from "../Managers/Workers";
 import {Job, WorkerType} from "../Managers/Entities/Job";
+import {DrawDirLine} from "../Utils/Utils";
+import {MeshBVH} from "three-mesh-bvh";
 
 sceneStoreCreate();
 
@@ -302,7 +304,9 @@ export class Scene extends Component<any, any> {
         }
         window.addEventListener('resize', onWindowResize, false);
 
-        orbitControls.addEventListener( 'change', animate);
+        orbitControls.addEventListener( 'change', () => {
+            requestAnimationFrame(animate);
+        });
 
         this.renderer.setClearColor(0x000000, 0)
 
@@ -472,6 +476,81 @@ export class Scene extends Component<any, any> {
                 thisObj.keysPressed.splice(index, 1);
             }
         }, false );
+
+        let mouseTrack: any;
+
+        window.addEventListener("mousedown", (e)=> {
+            if(e.button !== 0) return;
+
+            mouseTrack = {
+                start: {
+                    x: e.clientX,
+                    y: e.clientY
+                }
+            }
+        })
+        window.addEventListener('mouseup', (e)=>{
+            if(e.button !== 0) {
+                return;
+            }
+            else
+            {
+                let dist = Math.sqrt(Math.pow(Math.abs(e.clientX - mouseTrack.start.x), 2) + Math.pow(Math.abs(e.clientY - mouseTrack.start.y), 2));
+
+                mouseTrack = null;
+
+                if(dist > 2)
+                {
+                    return;
+                }
+            }
+
+            const titleBarX = 36; 
+
+            var vec = new THREE.Vector3(); // create once and reuse
+            var pos = new THREE.Vector3(); // create once and reuse
+
+            vec.set(
+                ( (e.clientX) / window.innerWidth ) * 2 - 1,
+                - ( (e.clientY -  titleBarX) / window.innerHeight ) * 2 + 1,
+                0.5 );
+
+
+            camera.updateProjectionMatrix();
+            camera.updateMatrix();
+            camera.updateMatrixWorld(true);
+            camera.updateWorldMatrix(true, true)
+            vec.unproject( camera );
+
+            vec.sub( camera.position ).normalize();
+
+            var distance = - camera.position.z / vec.z;
+
+            pos.copy( camera.position ).add( vec.multiplyScalar( distance ) );
+
+            let raycaster = new Raycaster();
+
+            raycaster.ray.direction = vec
+            //raycaster.setFromCamera( mouse3D, camera );
+            //console.log(raycaster.ray.direction)
+             raycaster.ray.origin.set(camera.position.x,camera.position.y,camera.position.z);
+            //raycaster.firstHitOnly = true;
+
+            //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction)
+
+            sceneStore.objects.forEach(t => {
+
+                let geometry = SceneObject.CalculateGeometry([t]);
+
+                 geometry.computeBoundsTree();
+
+                let intersection: any[] = new MeshBVH(geometry).raycast(raycaster.ray, THREE.DoubleSide);
+
+                console.log(intersection)
+
+                //requestAnimationFrame(animate)
+            });
+        })
 
         animate();
 

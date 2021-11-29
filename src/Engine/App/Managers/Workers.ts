@@ -19,16 +19,6 @@ export let isWorking = false;
 
 const jobList: Array<Job> = [];
 
-const finishJob = () => {
-    isWorking = false;
-
-    if(jobList.length > 0)
-    {
-        addJob(jobList[0]);
-        jobList.splice(0, 1);
-    }
-}
-
 export let addJob = (job: Job) =>
 {
     if(!isWorking)
@@ -48,6 +38,16 @@ export let addJob = (job: Job) =>
     else
     {
         jobList.push(job);
+    }
+}
+
+const finishJob = () => {
+    isWorking = false;
+
+    if(jobList.length > 0)
+    {
+        addJob(jobList[0]);
+        jobList.splice(0, 1);
     }
 }
 
