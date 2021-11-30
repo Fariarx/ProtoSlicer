@@ -46,8 +46,10 @@ class SceneTransformBar extends Component<any, any> {
             })
         }
 
-        let buttonAlignY = <Button inverted size={"tiny"} compact active={Settings().scene.transformAlignToPlane}
-                                   color={Settings().scene.transformAlignToPlane ? 'teal' : undefined} onClick={() => {
+        let buttonAlignY = <Button inverted size={"tiny"} compact
+                                   active={Settings().scene.transformAlignToPlane}
+                                   color={Settings().scene.transformAlignToPlane ? 'teal' : undefined}
+                                   onClick={() => {
             Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
             SaveSettings();
 

@@ -236,7 +236,7 @@ export class Scene extends Component<any, any> {
         const orbitControls = new OrbitControls(perspectiveCamera, this.renderer.domElement);
         const transform = new TransformControls(perspectiveCamera, this.renderer.domElement);
 
-        sceneStore.switchCameraType = (isPerspective, isIni) => {
+        sceneStore.switchCameraType = (isPerspective , isIni) => {
             let position: Vector3 | null = null;
 
             if(sceneStore.activeCamera)
@@ -273,7 +273,7 @@ export class Scene extends Component<any, any> {
             }
         }
 
-        sceneStore.switchCameraType(true, true);
+        sceneStore.switchCameraType(Settings().scene.setStartupPerspectiveCamera, true);
 
         let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
 
@@ -466,7 +466,7 @@ export class Scene extends Component<any, any> {
 
 
         transform.setSize(1.3);
-        
+
 
         transform.addEventListener( 'dragging-changed', function ( event ) {
             orbitControls.enabled = !event.value;

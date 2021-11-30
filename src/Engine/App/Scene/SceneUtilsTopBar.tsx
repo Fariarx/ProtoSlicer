@@ -23,8 +23,9 @@ class SceneUtilsTopBar extends Component<any, any> {
 
                 <Menu  inverted  compact style={{marginLeft: '10vmin'}}>
                     <Menu.Item name='SwitchCameraType' onClick={() => {
-                        console.log(sceneStore.activeCamera instanceof PerspectiveCamera === false)
-                        sceneStore.switchCameraType(sceneStore.activeCamera instanceof PerspectiveCamera === false);
+                        Settings().scene.setStartupPerspectiveCamera = !(sceneStore.activeCamera instanceof PerspectiveCamera);
+                        sceneStore.switchCameraType(Settings().scene.setStartupPerspectiveCamera);
+                        SaveSettings();
                     }}>
                         <p>
                             <Icon name='low vision' size='large' inverted />

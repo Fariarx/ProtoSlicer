@@ -1,5 +1,5 @@
 export let DefaultConfig = {
-    version:2,
+    version:1,
     versionPrinterConfigs: 3,
     settings: {
         ui: {
@@ -13,6 +13,7 @@ export let DefaultConfig = {
             workingPlaneLimitColor:'#c4736c',
             workingPlaneColor:"#68798d",
             transformAlignToPlane: true,
+            setStartupPerspectiveCamera: true,
             sharpness:.0001
         },
         workerCount: 10,

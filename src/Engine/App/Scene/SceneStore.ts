@@ -16,7 +16,7 @@ export class CSceneStore {
     needUpdateSelectTool: boolean = false;
 
     perspectiveCamera = new THREE.PerspectiveCamera(
-        40,
+        45,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
@@ -65,7 +65,7 @@ export class CSceneStore {
         this.scene.add(this.transformObjectGroup);
         this.scene.add(this.decorations);
 
-        this.orthographicCamera.zoom = 100;
+        this.orthographicCamera.zoom = 70;
     }
 
     get sceneStoreGetSelectObj() {
