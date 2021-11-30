@@ -2,7 +2,7 @@ import * as THREE from "three";
 import {Box3, BufferGeometry, Vector3} from "three";
 import {sceneStore} from "./SceneStore";
 import {Dispatch, EventEnum  } from "../Managers/Events";
-import {TransformInstrumentEnum} from "./SceneTransform";
+import {TransformInstrumentEnum} from "./SceneTransformBar";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 import {CENTER, MeshBVH, SAH, SplitStrategy} from "three-mesh-bvh";
@@ -62,7 +62,7 @@ export class SceneObject {
         this.scaleFactor = (0.1 / this.size.x + 0.1 / this.size.y + 0.1 / this.size.z) / 3;
     }
 
-    private SetSelection() {
+    SetSelection() {
         if(this.isSelected)
         {
             this.mesh.material = sceneStore.materialForObjects.select
@@ -79,7 +79,7 @@ export class SceneObject {
             this.wasSelected = this.isSelected;
         }
 
-        new THREE.Box3().setFromObject(this.mesh).getSize(this.size);
+        this.UpdateSize();
 
         this.mesh.updateMatrixWorld();
         this.bbox.update();

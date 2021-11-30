@@ -8,7 +8,8 @@ import {Button, Card, Feed} from "semantic-ui-react";
 import {Provider} from "mobx-react";
 import {sceneStore} from "./Scene/SceneStore";
 import {AppTitleBar} from "./AppTitleBar";
-import SceneTransform from "./Scene/SceneTransform";
+import SceneTransformBar from "./Scene/SceneTransformBar";
+import SceneUtilsTopBar from "./Scene/SceneUtilsTopBar";
 
 let stores = {
     sceneStore
@@ -51,7 +52,7 @@ export class App extends Component<any, any> {
                             {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
                             <ElementConsole/>
                         </Scene>
-                        <SceneTransform />
+                        <SceneUtilsTopBar />
                         <ContainerRight />
                         <LabelPopup/>
                     </div>

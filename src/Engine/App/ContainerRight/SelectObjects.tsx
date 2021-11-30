@@ -17,15 +17,20 @@ import {Log, Settings} from "../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {SceneObject} from "../Scene/SceneObject";
-import {action, observable} from "mobx";
-import {sceneStoreSelectionChanged} from "../Scene/SceneStore";
+import {action, observable, runInAction} from "mobx";
+import {sceneStore, sceneStoreSelectionChanged} from "../Scene/SceneStore";
 
-@inject("sceneStore")
 @observer
 class SelectObjectsView extends Component<any, any> {
     render() {
-        let sceneStore = this.props.sceneStore;
-        let list = sceneStore.objects.map((t) => {
+        if(sceneStore.needUpdateSelectTool)
+        {
+            runInAction(()=>{
+                sceneStore.needUpdateSelectTool = false;
+            })
+        }
+
+        let list: any = sceneStore.objects.map((t) => {
             let obj = SceneObject.GetByName(sceneStore.objects, t.name);
 
             if(obj === null)
@@ -40,7 +45,7 @@ class SelectObjectsView extends Component<any, any> {
                     {
                         if(p.name === object.name)
                         {
-                            console.log(object.name)
+                            //console.log(object.name)
                             object.isSelected = !object.isSelected;
                             sceneStoreSelectionChanged();
                             this.setState({});

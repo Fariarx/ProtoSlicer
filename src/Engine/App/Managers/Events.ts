@@ -1,5 +1,5 @@
 import {observable, runInAction} from "mobx";
-import { TransformInstrumentEnum} from "../Scene/SceneTransform";
+import { TransformInstrumentEnum} from "../Scene/SceneTransformBar";
 import {ElementStepsSelect, StepsEnum} from "../Steps";
 import {
     sceneStore,

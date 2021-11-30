@@ -3,7 +3,7 @@ import {Euler, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
 import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import {TransformInstrumentEnum} from "./SceneTransform";
+import {TransformInstrumentEnum} from "./SceneTransformBar";
 import {action, makeAutoObservable} from "mobx";
 import {Dispatch, EventEnum  } from "../Managers/Events";
 import {LinearGenerator} from "../Utils/Utils";
@@ -13,6 +13,24 @@ import {Printer} from "../Configs/Printer";
 export class CSceneStore {
     needUpdateFrame: boolean = false;
     needUpdateTransformTool: boolean = false;
+    needUpdateSelectTool: boolean = false;
+
+    perspectiveCamera = new THREE.PerspectiveCamera(
+        40,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+    orthographicCamera = new THREE.OrthographicCamera(
+        window.innerWidth / - 2,
+        window.innerWidth / 2,
+        window.innerHeight / 2,
+        window.innerHeight / - 2,
+        0.1,
+        1000,
+    );
+    activeCamera: THREE.OrthographicCamera | THREE.PerspectiveCamera = this.perspectiveCamera;
+    switchCameraType: Function = (isPerspective: boolean | undefined, isIni: boolean = false) => {};
 
     scene: THREE.Scene = new THREE.Scene();
     decorations: THREE.Group = new THREE.Group();
@@ -46,6 +64,8 @@ export class CSceneStore {
 
         this.scene.add(this.transformObjectGroup);
         this.scene.add(this.decorations);
+
+        this.orthographicCamera.zoom = 100;
     }
 
     get sceneStoreGetSelectObj() {
@@ -71,7 +91,7 @@ export const sceneStoreUpdateTransformTool = action(()=>{
 });
 
 
-export const sceneStoreSelectionChanged = action(()=>{
+export const sceneStoreSelectionChanged = action((updateSelectPanel: boolean = false)=>{
     sceneStore.transformInstrument?.detach();
 
     sceneStore.groupSelected = [];
@@ -83,7 +103,7 @@ export const sceneStoreSelectionChanged = action(()=>{
             sceneStore.groupSelected.push(object);
         }
 
-        object.Update();
+        object.SetSelection();
     }
 
     if( sceneStore.groupSelected.length) {
@@ -94,6 +114,11 @@ export const sceneStoreSelectionChanged = action(()=>{
     }
 
     sceneStoreUpdateTransformControls();
+
+    if(updateSelectPanel)
+    {
+        sceneStore.needUpdateSelectTool = true;
+    }
 
     sceneStoreUpdateFrame();
 });

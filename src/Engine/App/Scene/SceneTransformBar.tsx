@@ -29,9 +29,8 @@ export enum TransformInstrumentEnum {
 const MenuItemStyleCenter = {marginLeft: 'auto', marginRight: 'auto', display: 'block'};
 
 
-@inject('sceneStore')
 @observer
-class SceneTransform extends Component<any, any> {
+class SceneTransformBar extends Component<any, any> {
     handleItemClick = (e, obj) => {
         Dispatch(EventEnum.SELECT_TRANSFORM_MODE, {value: TransformInstrumentEnum[obj.name]});
     }
@@ -41,9 +40,8 @@ class SceneTransform extends Component<any, any> {
         let instrumentMenu = <div/>;
         let selectObj = sceneStore.sceneStoreGetSelectObj;
 
-        if(sceneStore.needUpdateTransformTool)
-        {
-            runInAction(()=>{
+        if (sceneStore.needUpdateTransformTool) {
+            runInAction(() => {
                 sceneStore.needUpdateTransformTool = false;
             })
         }
@@ -53,7 +51,7 @@ class SceneTransform extends Component<any, any> {
             Settings().scene.transformAlignToPlane = !Settings().scene.transformAlignToPlane;
             SaveSettings();
 
-            if(Settings().scene.transformAlignToPlane) {
+            if (Settings().scene.transformAlignToPlane) {
                 sceneStoreSelectObjsAlignY();
             }
 
@@ -94,8 +92,8 @@ class SceneTransform extends Component<any, any> {
                                                 unitsText={'cm'}
                                                 axisColor={'red'}
                                                 axisText={'X'}
-                                                updateValue={()=> Number(selectObj?.position.x).toFixed(2)}
-                                                setValue={(number)=> {
+                                                updateValue={() => Number(selectObj?.position.x).toFixed(2)}
+                                                setValue={(number) => {
                                                     if (!selectObj) return;
 
                                                     let difference = selectObj?.position.x - number;
@@ -111,7 +109,7 @@ class SceneTransform extends Component<any, any> {
                                                             from: oldPosition,
                                                             to: newPosition,
                                                             sceneObject: sceneObject,
-                                                            id:id
+                                                            id: id
                                                         } as MoveObject)
                                                     }
 
@@ -119,7 +117,7 @@ class SceneTransform extends Component<any, any> {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setX(number),
                                                         sceneObject: selectObj,
-                                                        id:id
+                                                        id: id
                                                     } as MoveObject)
                                                 }}
                                             />
@@ -130,9 +128,9 @@ class SceneTransform extends Component<any, any> {
                                                 unitsText={'cm'}
                                                 axisColor={'blue'}
                                                 axisText={'Y'}
-                                                updateValue={()=> Number(selectObj?.position.z).toFixed(2)}
-                                                setValue={(number)=> {
-                                                    if(!selectObj) return;
+                                                updateValue={() => Number(selectObj?.position.z).toFixed(2)}
+                                                setValue={(number) => {
+                                                    if (!selectObj) return;
 
                                                     let difference = selectObj?.position.z - number;
                                                     let id = LinearGenerator();
@@ -147,7 +145,7 @@ class SceneTransform extends Component<any, any> {
                                                             from: oldPosition,
                                                             to: newPosition,
                                                             sceneObject: sceneObject,
-                                                            id:id
+                                                            id: id
                                                         } as MoveObject)
                                                     }
 
@@ -155,7 +153,7 @@ class SceneTransform extends Component<any, any> {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setZ(number),
                                                         sceneObject: selectObj,
-                                                        id:id
+                                                        id: id
                                                     } as MoveObject)
                                                 }}
                                             />
@@ -166,9 +164,9 @@ class SceneTransform extends Component<any, any> {
                                                 unitsText={'cm'}
                                                 axisColor={'green'}
                                                 axisText={'Z'}
-                                                updateValue={()=> Number(selectObj?.position.y).toFixed(2)}
-                                                setValue={(number)=> {
-                                                    if(!selectObj) return;
+                                                updateValue={() => Number(selectObj?.position.y).toFixed(2)}
+                                                setValue={(number) => {
+                                                    if (!selectObj) return;
 
                                                     let difference = selectObj?.position.y - number;
                                                     let id = LinearGenerator();
@@ -183,7 +181,7 @@ class SceneTransform extends Component<any, any> {
                                                             from: oldPosition,
                                                             to: newPosition,
                                                             sceneObject: sceneObject,
-                                                            id:id
+                                                            id: id
                                                         } as MoveObject)
                                                     }
 
@@ -191,7 +189,7 @@ class SceneTransform extends Component<any, any> {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setY(number),
                                                         sceneObject: selectObj,
-                                                        id:id
+                                                        id: id
                                                     } as MoveObject)
 
                                                     if (Settings().scene.transformAlignToPlane) {
@@ -223,12 +221,12 @@ class SceneTransform extends Component<any, any> {
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
-                        <Segment  inverted>
+                        <Segment inverted>
                             <Header as='h4'>
                                 {instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}
                             </Header>
                         </Segment>
-                        <Segment  inverted>
+                        <Segment inverted>
                             <div style={{
                                 width: '100%',
                                 height: 'auto',
@@ -243,8 +241,10 @@ class SceneTransform extends Component<any, any> {
                                     <List>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={ ()=> selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.x)).toFixed(2) : undefined }
-                                                setValue={(number)=>{selectObj?.rotation.set(MathUtils.degToRad(number),selectObj?.rotation.y, selectObj?.rotation.z)}}
+                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.x)).toFixed(2) : undefined}
+                                                setValue={(number) => {
+                                                    selectObj?.rotation.set(MathUtils.degToRad(number), selectObj?.rotation.y, selectObj?.rotation.z)
+                                                }}
                                                 selectObj={selectObj}
                                                 unitsText={'deg'}
                                                 axisColor={'red'}
@@ -253,8 +253,10 @@ class SceneTransform extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={ ()=> selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.z)).toFixed(2) : undefined }
-                                                setValue={(number)=>{selectObj?.rotation.set(selectObj?.rotation.x, selectObj?.rotation.y, MathUtils.degToRad(number))}}
+                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.z)).toFixed(2) : undefined}
+                                                setValue={(number) => {
+                                                    selectObj?.rotation.set(selectObj?.rotation.x, selectObj?.rotation.y, MathUtils.degToRad(number))
+                                                }}
                                                 selectObj={selectObj}
                                                 unitsText={'deg'}
                                                 axisColor={'blue'}
@@ -263,8 +265,10 @@ class SceneTransform extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={ ()=> selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.y)).toFixed(2) : undefined }
-                                                setValue={(number)=>{selectObj?.rotation.set(selectObj?.rotation.x, MathUtils.degToRad(number), selectObj?.rotation.z)}}
+                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.y)).toFixed(2) : undefined}
+                                                setValue={(number) => {
+                                                    selectObj?.rotation.set(selectObj?.rotation.x, MathUtils.degToRad(number), selectObj?.rotation.z)
+                                                }}
                                                 selectObj={selectObj}
                                                 unitsText={'deg'}
                                                 axisColor={'green'}
@@ -275,11 +279,11 @@ class SceneTransform extends Component<any, any> {
                                 </div>
                             </div>
                         </Segment>
-                        <Segment  inverted>
+                        <Segment inverted>
                             <Button inverted size={"tiny"} compact onClick={() => {
                                 sceneStoreSelectObjsResetRotation();
 
-                                if(Settings().scene.transformAlignToPlane) {
+                                if (Settings().scene.transformAlignToPlane) {
                                     sceneStoreSelectObjsAlignY();
                                 }
 
@@ -298,12 +302,12 @@ class SceneTransform extends Component<any, any> {
                         height: 'auto',
                         marginTop: '1vmin'
                     }}>
-                        <Segment  inverted>
+                        <Segment inverted>
                             <Header as='h4'>
                                 {instrumentEnum[0].toUpperCase() + instrumentEnum.slice(1)}
                             </Header>
                         </Segment>
-                        <Segment inverted  >
+                        <Segment inverted>
                             <div style={{
                                 width: '100%',
                                 height: 'auto',
@@ -318,24 +322,25 @@ class SceneTransform extends Component<any, any> {
                                     <List>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={ ()=> selectObj ? Number( SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).x ).toFixed(2 ) : undefined }
-                                                setValue={(number)=>{
-                                                    if(!selectObj) {
+                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).x).toFixed(2) : undefined}
+                                                setValue={(number) => {
+                                                    if (!selectObj) {
                                                         return;
                                                     }
 
-                                                    let diff, defSharpness = Settings().scene.sharpness, sharpness, iterations = 0;
+                                                    let diff, defSharpness = Settings().scene.sharpness, sharpness,
+                                                        iterations = 0;
                                                     let maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
-                                                    if(maxSize.x === number || number < defSharpness) {
+                                                    if (maxSize.x === number || number < defSharpness) {
                                                         return;
                                                     }
 
-                                                    let scaleObjects = sceneStore.groupSelected.map((t, i)=>{
+                                                    let scaleObjects = sceneStore.groupSelected.map((t, i) => {
                                                         return t.mesh.scale.clone();
                                                     });
 
-                                                    if(maxSize.x < number) {
+                                                    if (maxSize.x < number) {
                                                         while (maxSize.x < number) {
                                                             diff = Math.abs(number - maxSize.x);
                                                             sharpness = .01 * diff + defSharpness;
@@ -349,15 +354,12 @@ class SceneTransform extends Component<any, any> {
 
                                                             iterations++;
 
-                                                            if (iterations > 499)
-                                                            {
+                                                            if (iterations > 499) {
                                                                 console.log("iteration of scale error");
                                                                 break;
                                                             }
                                                         }
-                                                    }
-                                                    else if(maxSize.x > number)
-                                                    {
+                                                    } else if (maxSize.x > number) {
                                                         while (maxSize.x > number) {
                                                             diff = Math.abs(number - maxSize.x);
                                                             sharpness = .01 * diff + defSharpness;
@@ -371,8 +373,7 @@ class SceneTransform extends Component<any, any> {
 
                                                             iterations++;
 
-                                                            if (iterations > 499)
-                                                            {
+                                                            if (iterations > 499) {
                                                                 console.log("iteration of scale error");
                                                                 break;
                                                             }
@@ -382,13 +383,13 @@ class SceneTransform extends Component<any, any> {
 
                                                     let id = LinearGenerator();
 
-                                                    sceneStore.groupSelected.every((t, i)=>{
+                                                    sceneStore.groupSelected.every((t, i) => {
                                                         Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
-                                                            actionBreak:true,
-                                                            id:id
+                                                            actionBreak: true,
+                                                            id: id
                                                         } as MoveObject)
                                                     });
                                                 }}
@@ -400,24 +401,25 @@ class SceneTransform extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={ ()=> selectObj ? Number( SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).z ).toFixed(2 ) : undefined }
-                                                setValue={(number)=>{
-                                                    if(!selectObj) {
+                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).z).toFixed(2) : undefined}
+                                                setValue={(number) => {
+                                                    if (!selectObj) {
                                                         return;
                                                     }
 
-                                                    let diff, defSharpness = Settings().scene.sharpness, sharpness, iterations = 0;
+                                                    let diff, defSharpness = Settings().scene.sharpness, sharpness,
+                                                        iterations = 0;
                                                     let maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
-                                                    if(maxSize.z === number || number < defSharpness) {
+                                                    if (maxSize.z === number || number < defSharpness) {
                                                         return;
                                                     }
 
-                                                    let scaleObjects = sceneStore.groupSelected.map((t, i)=>{
+                                                    let scaleObjects = sceneStore.groupSelected.map((t, i) => {
                                                         return t.mesh.scale.clone();
                                                     });
 
-                                                    if(maxSize.z < number) {
+                                                    if (maxSize.z < number) {
                                                         while (maxSize.z < number) {
                                                             diff = Math.abs(number - maxSize.z);
                                                             sharpness = .01 * diff + defSharpness;
@@ -431,15 +433,12 @@ class SceneTransform extends Component<any, any> {
 
                                                             iterations++;
 
-                                                            if (iterations > 499)
-                                                            {
+                                                            if (iterations > 499) {
                                                                 console.log("iteration of scale error");
                                                                 break;
                                                             }
                                                         }
-                                                    }
-                                                    else if(maxSize.z > number)
-                                                    {
+                                                    } else if (maxSize.z > number) {
                                                         while (maxSize.z > number) {
                                                             diff = Math.abs(number - maxSize.z);
                                                             sharpness = .01 * diff + defSharpness;
@@ -453,8 +452,7 @@ class SceneTransform extends Component<any, any> {
 
                                                             iterations++;
 
-                                                            if (iterations > 499)
-                                                            {
+                                                            if (iterations > 499) {
                                                                 console.log("iteration of scale error");
                                                                 break;
                                                             }
@@ -463,13 +461,13 @@ class SceneTransform extends Component<any, any> {
 
                                                     let id = LinearGenerator();
 
-                                                    sceneStore.groupSelected.every((t, i)=>{
+                                                    sceneStore.groupSelected.every((t, i) => {
                                                         Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
-                                                            actionBreak:true,
-                                                            id:id
+                                                            actionBreak: true,
+                                                            id: id
                                                         } as MoveObject)
                                                     });
                                                 }}
@@ -481,24 +479,25 @@ class SceneTransform extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={ ()=> selectObj ? Number( SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).y ).toFixed(2 ) : undefined }
-                                                setValue={(number)=>{
-                                                    if(!selectObj) {
+                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).y).toFixed(2) : undefined}
+                                                setValue={(number) => {
+                                                    if (!selectObj) {
                                                         return;
                                                     }
 
-                                                    let diff, defSharpness = Settings().scene.sharpness, sharpness, iterations = 0;
+                                                    let diff, defSharpness = Settings().scene.sharpness, sharpness,
+                                                        iterations = 0;
                                                     let maxSize = SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected);
 
-                                                    if(maxSize.y === number || number < defSharpness) {
+                                                    if (maxSize.y === number || number < defSharpness) {
                                                         return;
                                                     }
 
-                                                    let scaleObjects = sceneStore.groupSelected.map((t, i)=>{
+                                                    let scaleObjects = sceneStore.groupSelected.map((t, i) => {
                                                         return t.mesh.scale.clone();
                                                     });
 
-                                                    if(maxSize.y < number) {
+                                                    if (maxSize.y < number) {
                                                         while (maxSize.y < number) {
                                                             diff = Math.abs(number - maxSize.y);
                                                             sharpness = .01 * diff + defSharpness;
@@ -512,15 +511,12 @@ class SceneTransform extends Component<any, any> {
 
                                                             iterations++;
 
-                                                            if (iterations > 499)
-                                                            {
+                                                            if (iterations > 499) {
                                                                 console.log("iteration of scale error");
                                                                 break;
                                                             }
                                                         }
-                                                    }
-                                                    else if(maxSize.y > number)
-                                                    {
+                                                    } else if (maxSize.y > number) {
                                                         while (maxSize.y > number) {
                                                             diff = Math.abs(number - maxSize.y);
                                                             sharpness = .01 * diff + defSharpness;
@@ -534,8 +530,7 @@ class SceneTransform extends Component<any, any> {
 
                                                             iterations++;
 
-                                                            if (iterations > 499)
-                                                            {
+                                                            if (iterations > 499) {
                                                                 console.log("iteration of scale error");
                                                                 break;
                                                             }
@@ -544,13 +539,13 @@ class SceneTransform extends Component<any, any> {
 
                                                     let id = LinearGenerator();
 
-                                                    sceneStore.groupSelected.every((t, i)=>{
+                                                    sceneStore.groupSelected.every((t, i) => {
                                                         Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
-                                                            actionBreak:true,
-                                                            id:id
+                                                            actionBreak: true,
+                                                            id: id
                                                         } as MoveObject)
                                                     });
 
@@ -568,11 +563,11 @@ class SceneTransform extends Component<any, any> {
                                 </div>
                             </div>
                         </Segment>
-                        <Segment inverted  >
+                        <Segment inverted>
                             <Button inverted size={"tiny"} compact onClick={() => {
                                 sceneStoreSelectObjsResetScale();
 
-                                if(Settings().scene.transformAlignToPlane) {
+                                if (Settings().scene.transformAlignToPlane) {
                                     sceneStoreSelectObjsAlignY();
                                 }
 
@@ -585,52 +580,44 @@ class SceneTransform extends Component<any, any> {
                     </SegmentGroup>
                 break;
         }
-//
+
         return (
-            <div style={{
-                marginLeft:'10vmin',
-                width: "26vmin",
-                height: "auto",
-                padding: "1vmin",
-                opacity: Settings().ui.opacity
-            }} >
-                <div style={{width: '40px'}}>
-                    <Menu secondary inverted  fluid>
-                        <Menu.Item
-                            name='Move'
-                            active={instrumentEnum === TransformInstrumentEnum.Move}
-                            onClick={this.handleItemClick}
-                        >
-                            <p>
-                                <Icon name='arrows alternate' size='large'  inverted style={MenuItemStyleCenter}/>
-                            </p>
-                        </Menu.Item>
+            <div>
+                <Menu  inverted >
+                    <Menu.Item
+                        name='Move'
+                        active={instrumentEnum === TransformInstrumentEnum.Move}
+                        onClick={this.handleItemClick}
+                    >
+                        <p>
+                            <Icon name='arrows alternate' size='large' inverted style={MenuItemStyleCenter}/>
+                        </p>
+                    </Menu.Item>
 
-                        <Menu.Item
-                            name='Rotate'
-                            active={instrumentEnum === TransformInstrumentEnum.Rotate}
-                            onClick={this.handleItemClick}
-                        >
-                            <p>
-                                <Icon name='refresh' size='large' inverted style={MenuItemStyleCenter}/>
-                            </p>
-                        </Menu.Item>
+                    <Menu.Item
+                        name='Rotate'
+                        active={instrumentEnum === TransformInstrumentEnum.Rotate}
+                        onClick={this.handleItemClick}
+                    >
+                        <p>
+                            <Icon name='refresh' size='large' inverted style={MenuItemStyleCenter}/>
+                        </p>
+                    </Menu.Item>
 
-                        <Menu.Item
-                            name='Scale'
-                            active={instrumentEnum === TransformInstrumentEnum.Scale}
-                            onClick={this.handleItemClick}
-                        >
-                            <p>
-                                <Icon name='expand' size='large'  inverted style={MenuItemStyleCenter}/>
-                            </p>
-                        </Menu.Item>
-                    </Menu>
-                </div>
+                    <Menu.Item
+                        name='Scale'
+                        active={instrumentEnum === TransformInstrumentEnum.Scale}
+                        onClick={this.handleItemClick}
+                    >
+                        <p>
+                            <Icon name='expand' size='large' inverted style={MenuItemStyleCenter}/>
+                        </p>
+                    </Menu.Item>
+                </Menu>
                 {instrumentMenu}
             </div>
         )
     }
 }
 
-export default SceneTransform;
+export default SceneTransformBar;

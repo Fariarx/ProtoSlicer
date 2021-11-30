@@ -1,4 +1,4 @@
-import {TransformInstrumentEnum} from "../../Scene/SceneTransform";
+import {TransformInstrumentEnum} from "../../Scene/SceneTransformBar";
 import {SceneObject} from "../../Scene/SceneObject";
 import {Euler, Vector3} from "three";
 import * as THREE from 'three'

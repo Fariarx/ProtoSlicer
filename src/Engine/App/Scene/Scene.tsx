@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import 'semantic-ui-css/semantic.min.css'
 
 import * as THREE from 'three'
-import {BufferGeometry, Raycaster, Vector3} from 'three'
+import {BufferGeometry, PerspectiveCamera, Raycaster, Vector3} from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer} from "../Configs/Printer";
@@ -15,11 +15,11 @@ import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrint
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import {TransformInstrumentEnum} from "./SceneTransform";
+import {TransformInstrumentEnum} from "./SceneTransformBar";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {Dispatch, EventEnum} from "../Managers/Events";
-import {sceneStore, sceneStoreCreate, sceneStoreSelectObjsAlignY} from "./SceneStore";
+import {sceneStore, sceneStoreCreate, sceneStoreSelectionChanged, sceneStoreSelectObjsAlignY} from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {addJob} from "../Managers/Workers";
 import {Job, WorkerType} from "../Managers/Entities/Job";
@@ -49,8 +49,10 @@ export class Scene extends Component<any, any> {
 
     grid?: SceneHelper.Grid;
     plane?: THREE.Mesh;
-    updateCameraPositionRelativelyToGrid: Function = ()=>{};
+
     animate: Function = ()=>{};
+    updateCameraPositionRelativelyToGrid: Function = ()=>{};
+
 
     constructor(props) {
         super(props);
@@ -206,17 +208,23 @@ export class Scene extends Component<any, any> {
     }
 
     iniScene = () => {
-        let thisObj = this;
+        const thisObj = this;
 
-        let gridSize = sceneStore.gridSize;
+        const gridSize = sceneStore.gridSize;
 
-        let scene = sceneStore.scene;
-        let camera = new THREE.PerspectiveCamera(
-            40,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
+        const scene = sceneStore.scene;
+
+        const perspectiveCamera = sceneStore.perspectiveCamera;
+        const orthographicCamera = sceneStore.orthographicCamera;
+
+        const cameraRig = new THREE.Group();
+
+        cameraRig.add( perspectiveCamera );
+        cameraRig.add( orthographicCamera );
+
+        scene.add( cameraRig );
+
+
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -225,18 +233,60 @@ export class Scene extends Component<any, any> {
             defaultThickness:0.001
         } );
 
-        const orbitControls = new OrbitControls(camera, this.renderer.domElement);
+        const orbitControls = new OrbitControls(perspectiveCamera, this.renderer.domElement);
+        const transform = new TransformControls(perspectiveCamera, this.renderer.domElement);
+
+        sceneStore.switchCameraType = (isPerspective, isIni) => {
+            let position: Vector3 | null = null;
+
+            if(sceneStore.activeCamera)
+            {
+                position = sceneStore.activeCamera.position;
+            }
+
+            if(isPerspective)
+            {
+                sceneStore.activeCamera = sceneStore.perspectiveCamera;
+            }
+            else
+            {
+                sceneStore.activeCamera = sceneStore.orthographicCamera;
+            }
+
+            if(position)
+            {
+                sceneStore.activeCamera.position.set(...position.toArray());
+            }
+
+
+            orbitControls.object = sceneStore.activeCamera;
+            orbitControls.target = new THREE.Vector3(gridSize.x / 3, 0, gridSize.z / 3);
+            orbitControls.update();
+
+            transform.camera = sceneStore.activeCamera;
+
+            sceneStore.activeCamera.updateProjectionMatrix()
+
+            if(!isIni)
+            {
+                requestAnimationFrame(animate);
+            }
+        }
+
+        sceneStore.switchCameraType(true, true);
 
         let axes: THREE.Object3D = SceneHelper.CreateAxesHelper(scene);
 
+
+        perspectiveCamera.position.set(gridSize.x , gridSize.y , gridSize.z );
+
         this.updateCameraPositionRelativelyToGrid = () => {
             /*if (gridSize.x >= gridSize.z) {
-                camera.position.set(gridSize.x / 2, gridSize.y * 1.5, gridSize.z * 1.5 + gridSize.z * 1.6);
+                perspectiveCamera.position.set(gridSize.x / 2, gridSize.y * 1.5, gridSize.z * 1.5 + gridSize.z * 1.6);
             } else {
-                camera.position.set(gridSize.x * 1.5 + gridSize.x * 1.6, gridSize.y * 1.5, gridSize.z / 2);
+                perspectiveCamera.position.set(gridSize.x * 1.5 + gridSize.x * 1.6, gridSize.y * 1.5, gridSize.z / 2);
             }*/
 
-            camera.position.set(gridSize.x , gridSize.y , gridSize.z );
 
             orbitControls.target = new THREE.Vector3(gridSize.x / 3, 0, gridSize.z / 3);
             orbitControls.update();
@@ -266,20 +316,20 @@ export class Scene extends Component<any, any> {
 
        // scene.background = new THREE.Color(Settings().ui.colorBackgroundScene);
 
-        let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
+        let tanFOV = Math.tan(((Math.PI / 180) * perspectiveCamera.fov / 2));
         let windowHeight = window.innerHeight;
 
 
         let transformWorking = false;
 
-        let animate = function () {
+        const animate = function () {
             thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
 
             thisObj.renderer.clearDepth(); // important!
 
-            light0.position.set(camera.position.x, camera.position.y, camera.position.z);
+            light0.position.set(sceneStore.activeCamera.position.x, sceneStore.activeCamera.position.y, sceneStore.activeCamera.position.z);
 
-            thisObj.outlineEffect?.render(scene, camera);
+            thisObj.outlineEffect?.render(scene, sceneStore.activeCamera);
 
             if(transformWorking)
             {
@@ -288,16 +338,17 @@ export class Scene extends Component<any, any> {
         };
 
         let onWindowResize = (event) => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            if(sceneStore.activeCamera instanceof THREE.PerspectiveCamera) {
+                sceneStore.activeCamera.aspect = window.innerWidth / window.innerHeight;
+                // adjust the FOV
+                sceneStore.activeCamera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
+                sceneStore.activeCamera.updateProjectionMatrix();
+            }
 
-            // adjust the FOV
-            camera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
-
-            camera.updateProjectionMatrix();
-            camera.lookAt(scene.position);
+            sceneStore.activeCamera.lookAt(scene.position);
 
             thisObj.renderer.setSize(window.innerWidth, window.innerHeight);
-            thisObj.renderer.render(scene, camera);
+            thisObj.renderer.render(scene, sceneStore.activeCamera);
 
             orbitControls.update();
             animate();
@@ -313,7 +364,6 @@ export class Scene extends Component<any, any> {
         this.renderer.domElement.style.background =  'linear-gradient(to bottom,  '+Settings().ui.colorBackgroundScene+' 0%,'+ Settings().ui.colorBackgroundSceneBottom +' 100%)'
 
 
-        const transform = new TransformControls(camera, this.renderer.domElement);
         transform.addEventListener( 'change', (event) => {
             let transformObj = sceneStore.sceneStoreGetSelectObj;
 
@@ -415,6 +465,9 @@ export class Scene extends Component<any, any> {
         });
 
 
+        transform.setSize(1.3);
+        
+
         transform.addEventListener( 'dragging-changed', function ( event ) {
             orbitControls.enabled = !event.value;
 
@@ -493,7 +546,7 @@ export class Scene extends Component<any, any> {
             if(e.button !== 0) {
                 return;
             }
-            else
+            else if(mouseTrack)
             {
                 let dist = Math.sqrt(Math.pow(Math.abs(e.clientX - mouseTrack.start.x), 2) + Math.pow(Math.abs(e.clientY - mouseTrack.start.y), 2));
 
@@ -503,6 +556,9 @@ export class Scene extends Component<any, any> {
                 {
                     return;
                 }
+            }
+            else {
+                return;
             }
 
             const titleBarX = 36; 
@@ -516,27 +572,35 @@ export class Scene extends Component<any, any> {
                 0.5 );
 
 
-            camera.updateProjectionMatrix();
-            camera.updateMatrix();
-            camera.updateMatrixWorld(true);
-            camera.updateWorldMatrix(true, true)
-            vec.unproject( camera );
+            if(sceneStore.activeCamera instanceof THREE.PerspectiveCamera) {
+                sceneStore.activeCamera.updateProjectionMatrix();
+            }
 
-            vec.sub( camera.position ).normalize();
+            sceneStore.activeCamera.updateMatrix();
+            sceneStore.activeCamera.updateMatrixWorld(true);
+            sceneStore.activeCamera.updateWorldMatrix(true, true)
 
-            var distance = - camera.position.z / vec.z;
+            vec.unproject( sceneStore.activeCamera );
 
-            pos.copy( camera.position ).add( vec.multiplyScalar( distance ) );
+            vec.sub( sceneStore.activeCamera.position ).normalize();
+
+           // var distance = - sceneStore.camera.position.z / vec.z;
+
+            //pos.copy( sceneStore.camera.position ).add( vec.multiplyScalar( distance ) );
+
 
             let raycaster = new Raycaster();
 
             raycaster.ray.direction = vec
-            //raycaster.setFromCamera( mouse3D, camera );
+            //raycaster.setFromCamera( mouse3D, sceneStore.camera );
             //console.log(raycaster.ray.direction)
-             raycaster.ray.origin.set(camera.position.x,camera.position.y,camera.position.z);
+             raycaster.ray.origin.set(sceneStore.activeCamera.position.x,sceneStore.activeCamera.position.y,sceneStore.activeCamera.position.z);
             //raycaster.firstHitOnly = true;
 
             //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction)
+
+            let nearestSceneObj:any = null;
+            let nearestDistance:any = null;
 
             sceneStore.objects.forEach(t => {
 
@@ -544,12 +608,39 @@ export class Scene extends Component<any, any> {
 
                  geometry.computeBoundsTree();
 
-                let intersection: any[] = new MeshBVH(geometry).raycast(raycaster.ray, THREE.DoubleSide);
+                let result: any = new MeshBVH(geometry).raycastFirst(raycaster.ray, THREE.DoubleSide);
 
-                console.log(intersection)
+                /*result.sort((a, b) => {
+                    return a.distance < b.distance ? -1 : 1;
+                })*/
 
+                if( result && (!nearestDistance || result.distance < nearestDistance) )
+                {
+                    nearestDistance = result.distance;
+                    nearestSceneObj = t;
+                }
+
+                //console.log(result)
                 //requestAnimationFrame(animate)
             });
+
+            if(nearestSceneObj)
+            {
+                if(!this.keysPressed.includes(Key.Ctrl) && !this.keysPressed.includes(Key.Shift)) {
+                    sceneStore.objects.forEach(t => {
+                        if(nearestSceneObj === t)
+                        {
+                            return;
+                        }
+
+                        t.isSelected = false;
+                    })
+                }
+
+                nearestSceneObj.isSelected = !nearestSceneObj.isSelected;
+                sceneStoreSelectionChanged(true);
+                requestAnimationFrame(animate);
+            }
         })
 
         animate();
@@ -583,8 +674,7 @@ export class Scene extends Component<any, any> {
             <div>
                 <div ref={ref => (this.mount = ref)} style={{
                     position: "fixed"
-                }}>
-                </div>
+                }} />
 
                 {!this.printerConfig && <ContainerPrinterConfigurator setupConfiguration={(config: Printer)=>{
                     storeMain.set('printer', config.name);
