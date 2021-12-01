@@ -225,6 +225,23 @@ export class Scene extends Component<any, any> {
         scene.add( cameraRig );
 
 
+        let windowHeight = window.innerHeight;
+
+        const updateCameraWindowsSize = () => {
+
+            if(sceneStore.activeCamera instanceof THREE.PerspectiveCamera) {
+                sceneStore.activeCamera.aspect = window.innerWidth / window.innerHeight;
+                sceneStore.activeCamera.fov = (360 / Math.PI) * Math.atan(Math.tan(((Math.PI / 180) * sceneStore.perspectiveCamera.fov / 2)) * (window.innerHeight / windowHeight));
+                sceneStore.activeCamera.updateProjectionMatrix();
+            }
+            else {
+                sceneStore.activeCamera.left = window.innerWidth / -2;
+                sceneStore.activeCamera.right = window.innerWidth / 2;
+                sceneStore.activeCamera.top = window.innerHeight / 2;
+                sceneStore.activeCamera.bottom = window.innerHeight / -2;
+            }
+        }
+
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -264,6 +281,8 @@ export class Scene extends Component<any, any> {
             orbitControls.update();
 
             transform.camera = sceneStore.activeCamera;
+
+            updateCameraWindowsSize();
 
             sceneStore.activeCamera.updateProjectionMatrix()
 
@@ -316,8 +335,6 @@ export class Scene extends Component<any, any> {
 
        // scene.background = new THREE.Color(Settings().ui.colorBackgroundScene);
 
-        let tanFOV = Math.tan(((Math.PI / 180) * perspectiveCamera.fov / 2));
-        let windowHeight = window.innerHeight;
 
 
         let transformWorking = false;
@@ -338,12 +355,7 @@ export class Scene extends Component<any, any> {
         };
 
         let onWindowResize = (event) => {
-            if(sceneStore.activeCamera instanceof THREE.PerspectiveCamera) {
-                sceneStore.activeCamera.aspect = window.innerWidth / window.innerHeight;
-                // adjust the FOV
-                sceneStore.activeCamera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
-                sceneStore.activeCamera.updateProjectionMatrix();
-            }
+            updateCameraWindowsSize();
 
             sceneStore.activeCamera.lookAt(scene.position);
 
@@ -465,8 +477,8 @@ export class Scene extends Component<any, any> {
         });
 
 
-        transform.setSize(1.3);
-
+        transform.setSize(0.85);
+        transform.setSpace('world');
 
         transform.addEventListener( 'dragging-changed', function ( event ) {
             orbitControls.enabled = !event.value;
@@ -477,8 +489,8 @@ export class Scene extends Component<any, any> {
                 sceneStoreSelectObjsAlignY();
             }
 
-            sceneStore.transformObjectGroup.rotation.set(0,0,0);
-            sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
+            //sceneStore.transformObjectGroup.rotation.set(0,0,0);
+            //sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
 
             requestAnimationFrame(animate);
         });
