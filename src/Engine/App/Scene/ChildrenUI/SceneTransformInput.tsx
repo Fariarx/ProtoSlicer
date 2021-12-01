@@ -1,5 +1,5 @@
 import {Input, Label} from "semantic-ui-react";
-import {sceneStoreUpdateFrame} from "./SceneStore";
+import {sceneStoreUpdateFrame} from "../SceneStore";
 import React, {RefObject, useState} from "react";
 
 

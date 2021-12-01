@@ -10,7 +10,7 @@ import {
     Header,
     Grid,
     GridColumn,
-    Feed, Item, Container, SegmentGroup
+    Feed, Item, Container, SegmentGroup, ButtonGroup
 } from "semantic-ui-react";
 import {storeMain} from "../../Bridge";
 import {Log, Settings} from "../../Globals";
@@ -19,10 +19,21 @@ import {inject, observer} from "mobx-react";
 import {SceneObject} from "../Scene/SceneObject";
 import {action, observable} from "mobx";
 import {sceneStoreSelectionChanged} from "../Scene/SceneStore";
+import {Dispatch, EventEnum} from "../Managers/Events";
+import {TransformInstrumentEnum} from "../Scene/ChildrenUI/SceneTransformBar";
 
-@inject("sceneStore")
+export enum AddingSupportsMode {
+    none = 0,
+    addSupports ,
+    removeSupports ,
+}
+
 @observer
 class AddingSupports extends Component<any, any> {
+    supportButtons = (e, obj) => {
+        Dispatch(EventEnum.SELECT_SUPPORTS_MODE, { mode: AddingSupportsMode[obj.name] });
+    }
+
     render() {
         return (
             <SegmentGroup padded size={"tiny"} color='black' style={{
@@ -31,11 +42,30 @@ class AddingSupports extends Component<any, any> {
                 marginTop: '-1vmin',
             }}>
                 <Segment inverted>
-                    <Button fluid inverted size={"tiny"} onClick={()=>{
-
-                    }}>
+                    <Header as='h4'>
                         Adding supports
-                    </Button>
+                    </Header>
+                </Segment>
+                <Segment inverted>
+                    <ButtonGroup  size={"tiny"}>
+                        <Button name={'addSupports'} inverted onClick={this.supportButtons}>
+                            <p>
+                                <Icon name='low vision'   />
+                            </p>
+                        </Button>
+                        <Button name={'removeSupports'} inverted onClick={this.supportButtons}>
+                            <p>
+                                <Icon name='low vision'   />
+                            </p>
+                        </Button>
+                        <Button name={'auto'} inverted onClick={()=>{
+
+                        }}>
+                            <p>
+                                Auto
+                            </p>
+                        </Button>
+                    </ButtonGroup>
                 </Segment>
             </SegmentGroup>
         );

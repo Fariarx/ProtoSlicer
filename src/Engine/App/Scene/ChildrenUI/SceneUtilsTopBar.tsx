@@ -1,9 +1,9 @@
 import {observer} from "mobx-react";
 import React, {Component} from "react";
-import {SaveSettings, Settings} from "../../Globals";
+import {SaveSettings, Settings} from "../../../Globals";
 import SceneTransformBar, {TransformInstrumentEnum} from "./SceneTransformBar";
 import {Icon, Menu} from "semantic-ui-react";
-import {sceneStore} from "./SceneStore";
+import {sceneStore} from "../SceneStore";
 import {PerspectiveCamera} from "three";
 
 @observer

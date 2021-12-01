@@ -1,5 +1,5 @@
 import {observable, runInAction} from "mobx";
-import { TransformInstrumentEnum} from "../Scene/SceneTransformBar";
+import { TransformInstrumentEnum} from "../Scene/ChildrenUI/SceneTransformBar";
 import {ElementStepsSelect, StepsEnum} from "../Steps";
 import {
     sceneStore,
@@ -15,7 +15,8 @@ export enum EventEnum {
     SELECT_TRANSFORM_MODE,
     SELECT_MENU_STEP,
     ADD_OBJECT,
-    TRANSFORM_OBJECT
+    TRANSFORM_OBJECT,
+    SELECT_SUPPORTS_MODE
 }
 
 type Message = {
@@ -121,7 +122,7 @@ const Handler = (message) => {
             sceneStoreSelectionChanged();
             sceneStoreInstrumentStateChanged();
             break;
-        case EventEnum.SELECT_MENU_STEP:
+        case EventEnum.SELECT_SUPPORTS_MODE:
             /*runInAction(()=>{
                 ElementStepsSelect.name = message.args.value;
             })*/

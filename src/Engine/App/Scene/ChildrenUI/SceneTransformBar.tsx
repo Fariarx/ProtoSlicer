@@ -1,9 +1,9 @@
 import {Button, Card, Header, Icon, Input, Label, List, Menu, Segment, SegmentGroup} from "semantic-ui-react";
-import {SaveSettings, Settings} from "../../Globals";
+import {SaveSettings, Settings} from "../../../Globals";
 import React, {Component, RefObject} from "react";
 import {inject, observer} from "mobx-react";
 import {autorun, observable, runInAction} from "mobx";
-import {Dispatch, EventEnum } from "../Managers/Events";
+import {Dispatch, EventEnum } from "../../Managers/Events";
 import {
     sceneStore,
     sceneStoreSelectionChanged,
@@ -12,12 +12,12 @@ import {
     sceneStoreSelectObjsResetRotation,
     sceneStoreSelectObjsResetScale,
     sceneStoreUpdateFrame, sceneStoreUpdateTransformControls
-} from "./SceneStore";
+} from "../SceneStore";
 import {MathUtils, Vector3} from "three";
-import {isFloat, isNumeric, LinearGenerator} from "../Utils/Utils";
+import {isFloat, isNumeric, LinearGenerator} from "../../Utils/Utils";
 import {SceneTransformInput} from "./SceneTransformInput";
-import {SceneObject} from "./SceneObject";
-import {MoveObject} from "../Managers/Entities/MoveObject";
+import {SceneObject} from "../SceneObject";
+import {MoveObject} from "../../Managers/Entities/MoveObject";
 
 export enum TransformInstrumentEnum {
     None = 0,

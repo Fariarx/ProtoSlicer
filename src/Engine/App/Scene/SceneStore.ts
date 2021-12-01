@@ -3,7 +3,7 @@ import {Euler, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
 import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import {TransformInstrumentEnum} from "./SceneTransformBar";
+import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {action, makeAutoObservable} from "mobx";
 import {Dispatch, EventEnum  } from "../Managers/Events";
 import {LinearGenerator} from "../Utils/Utils";
