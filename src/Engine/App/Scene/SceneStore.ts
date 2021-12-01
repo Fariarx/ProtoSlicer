@@ -18,7 +18,7 @@ export class CSceneStore {
     perspectiveCamera = new THREE.PerspectiveCamera(
         45,
         window.innerWidth / window.innerHeight,
-        0.1,
+        0.01,
         1000
     );
     orthographicCamera = new THREE.OrthographicCamera(
@@ -26,13 +26,15 @@ export class CSceneStore {
         window.innerWidth / 2,
         window.innerHeight / 2,
         window.innerHeight / - 2,
-        0.1,
+        0.01,
         1000,
     );
     activeCamera: THREE.OrthographicCamera | THREE.PerspectiveCamera = this.perspectiveCamera;
     switchCameraType: Function = (isPerspective: boolean | undefined, isIni: boolean = false) => {};
 
-    scene: THREE.Scene = new THREE.Scene();
+    scene: THREE.Scene = new THREE.Scene(
+
+    );
     decorations: THREE.Group = new THREE.Group();
     objects: SceneObject[] = [];
 
@@ -48,6 +50,7 @@ export class CSceneStore {
     materialForPlaneLimit: THREE.Material = new THREE.MeshBasicMaterial({
         color: Settings().scene.workingPlaneLimitColor,
         side: THREE.DoubleSide,
+        opacity: 0.7,
         transparent: true
     });
     materialForObjects: ISceneMaterial = SceneMaterials.default;

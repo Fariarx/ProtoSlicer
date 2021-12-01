@@ -123,7 +123,7 @@ function createWindow() {
     if (isDev) {
         // Open the DevTools.
         mainWindow.webContents.openDevTools();
-        mainWindow.webContents.setFrameRate(50);
+        //mainWindow.webContents.setFrameRate(50);
         console.log(electron.app.getPath('userData'));
     }
     else {

@@ -1,5 +1,5 @@
 export let DefaultConfig = {
-    version:1,
+    version: 9,
     versionPrinterConfigs: 3,
     settings: {
         ui: {
@@ -10,13 +10,14 @@ export let DefaultConfig = {
             color1:'#2a2a2a',
         },
         scene:{
-            workingPlaneLimitColor:'#c4736c',
+            workingPlaneLimitColor:'#d4605a',
             workingPlaneColor:"#68798d",
             transformAlignToPlane: true,
             setStartupPerspectiveCamera: true,
             sharpness:.0001
         },
         workerCount: 10,
+        printerName: ''
     }
 };
 

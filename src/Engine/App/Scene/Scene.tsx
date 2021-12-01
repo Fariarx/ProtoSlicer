@@ -39,8 +39,6 @@ export class Scene extends Component<any, any> {
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha:true,
-        preserveDrawingBuffer: true,
-        powerPreference: "high-performance"
     });
     outlineEffect?: OutlineEffect;
 
@@ -232,14 +230,17 @@ export class Scene extends Component<any, any> {
             if(sceneStore.activeCamera instanceof THREE.PerspectiveCamera) {
                 sceneStore.activeCamera.aspect = window.innerWidth / window.innerHeight;
                 sceneStore.activeCamera.fov = (360 / Math.PI) * Math.atan(Math.tan(((Math.PI / 180) * sceneStore.perspectiveCamera.fov / 2)) * (window.innerHeight / windowHeight));
-                sceneStore.activeCamera.updateProjectionMatrix();
+
             }
             else {
                 sceneStore.activeCamera.left = window.innerWidth / -2;
                 sceneStore.activeCamera.right = window.innerWidth / 2;
                 sceneStore.activeCamera.top = window.innerHeight / 2;
                 sceneStore.activeCamera.bottom = window.innerHeight / -2;
+
             }
+
+            sceneStore.activeCamera.updateProjectionMatrix();
         }
 
 
@@ -268,11 +269,16 @@ export class Scene extends Component<any, any> {
             else
             {
                 sceneStore.activeCamera = sceneStore.orthographicCamera;
+
             }
 
             if(position)
             {
-                sceneStore.activeCamera.position.set(...position.toArray());
+                let newPosition = [...position.toArray().map(v => {
+                    return v + 100;
+                })];
+
+                sceneStore.activeCamera.position.set(newPosition[0], newPosition[1], newPosition[2]);
             }
 
 
@@ -283,8 +289,6 @@ export class Scene extends Component<any, any> {
             transform.camera = sceneStore.activeCamera;
 
             updateCameraWindowsSize();
-
-            sceneStore.activeCamera.updateProjectionMatrix()
 
             if(!isIni)
             {

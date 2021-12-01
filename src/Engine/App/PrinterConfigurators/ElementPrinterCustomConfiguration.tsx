@@ -104,7 +104,8 @@ export class ElementPrinterCustomConfiguration extends Component<any, any> {
                 height: "100vh",
                 width: "100vw",
                 backgroundColor: "rgba(0,0,0,0.35)",
-                position: "absolute"
+                position: "absolute",
+                zIndex: 99,
             }}>
                 <Container className='position-absolute top-50 start-50 translate-middle' style={{
                     width: "70vw",
