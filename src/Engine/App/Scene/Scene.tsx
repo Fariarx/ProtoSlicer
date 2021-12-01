@@ -549,7 +549,7 @@ export class Scene extends Component<any, any> {
         let mouseTrack: any;
 
         window.addEventListener("mousedown", (e)=> {
-            if(e.button !== 0) return;
+            if(e.button !== 0 || !this.printerName) return;
 
             mouseTrack = {
                 start: {
@@ -559,7 +559,7 @@ export class Scene extends Component<any, any> {
             }
         })
         window.addEventListener('mouseup', (e)=>{
-            if(e.button !== 0) {
+            if(e.button !== 0 || !this.printerName) {
                 return;
             }
             else if(mouseTrack)
