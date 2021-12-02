@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {Euler, Vector3} from "three";
+import {BufferGeometry, Euler, Vector3} from "three";
 import {SceneObject} from "./SceneObject";
 import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
@@ -9,6 +9,7 @@ import {Dispatch, EventEnum  } from "../Managers/Events";
 import {LinearGenerator} from "../Utils/Utils";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {Printer} from "../Configs/Printer";
+import {MeshBVH} from "three-mesh-bvh";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;
@@ -97,32 +98,29 @@ export const sceneStoreUpdateTransformTool = action(()=>{
 });
 
 
-export const sceneStoreSelectionChanged = action((updateSelectPanel: boolean = false)=>{
+export const sceneStoreSelectionChanged = action((updateSelectPanel: boolean = false)=> {
     sceneStore.transformInstrument?.detach();
 
     sceneStore.groupSelected = [];
 
-    for(let object of sceneStore.objects)
-    {
-        if(object.isSelected)
-        {
+    for (let object of sceneStore.objects) {
+        if (object.isSelected) {
             sceneStore.groupSelected.push(object);
         }
 
         object.SetSelection();
     }
 
-    if( sceneStore.groupSelected.length) {
+    if (sceneStore.groupSelected.length) {
         let centerGroup = SceneObject.CalculateGroupCenter(sceneStore.groupSelected);
 
-        sceneStore.transformObjectGroup.position.set(centerGroup.x, 0 , centerGroup.z);
-        sceneStore.transformObjectGroupOld.position.set(centerGroup.x, 0 , centerGroup.z);
+        sceneStore.transformObjectGroup.position.set(centerGroup.x, 0, centerGroup.z);
+        sceneStore.transformObjectGroupOld.position.set(centerGroup.x, 0, centerGroup.z);
     }
 
     sceneStoreUpdateTransformControls();
 
-    if(updateSelectPanel)
-    {
+    if (updateSelectPanel) {
         sceneStore.needUpdateSelectTool = true;
     }
 

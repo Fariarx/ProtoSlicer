@@ -136,6 +136,19 @@ export class SceneObject {
         return _mesh === this.mesh;
     }
 
+    static GetAllSelected(objs: SceneObject[], isSelected = true) //use sceneStore.groupSelected
+    {
+        let result: SceneObject[] = [];
+
+        objs.forEach(function(element, index) {
+            if(element.isSelected === isSelected)
+            {
+                result.push(element);
+            }
+        })
+
+        return result;
+    }
     static SearchObject(objs: SceneObject[], _mesh: THREE.Mesh)
     {
         let _index = -1;
@@ -222,6 +235,11 @@ export class SceneObject {
     }
     static CalculateGeometry(objs: SceneObject[]) : BufferGeometry
     {
+        if(!objs.length)
+        {
+            throw("CalculateGeometry objs is null length");
+        }
+
         let geometry = objs[0].mesh.geometry.clone().applyMatrix4(objs[0].mesh.matrix);
 
         objs.forEach(function(element, index) {

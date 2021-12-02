@@ -19,7 +19,12 @@ import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {Dispatch, EventEnum} from "../Managers/Events";
-import {sceneStore, sceneStoreCreate, sceneStoreSelectionChanged, sceneStoreSelectObjsAlignY} from "./SceneStore";
+import {
+    sceneStore,
+    sceneStoreCreate,
+    sceneStoreSelectionChanged,
+    sceneStoreSelectObjsAlignY
+} from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {addJob} from "../Managers/Workers";
 import {Job, WorkerType} from "../Managers/Entities/Job";
@@ -361,13 +366,42 @@ export class Scene extends Component<any, any> {
 
        // scene.background = new THREE.Color(Settings().ui.colorBackgroundScene);
 
+// initialize brush cursor
+        const brushSegments = [ new THREE.Vector3(), new THREE.Vector3( 0, 0, 1 ) ];
+        for ( let i = 0; i < 20; i ++ ) {
 
+            const nexti = i + 1;
+            const x1 = Math.sin( 2 * Math.PI * i / 20 );
+            const y1 = Math.cos( 2 * Math.PI * i / 20 );
+
+            const x2 = Math.sin( 2 * Math.PI * nexti / 20 );
+            const y2 = Math.cos( 2 * Math.PI * nexti / 20 );
+
+            brushSegments.push(
+                new THREE.Vector3( x1, y1, 0 ),
+                new THREE.Vector3( x2, y2, 0 )
+            );
+
+        }
+
+        let brush = new THREE.LineSegments();
+        brush.scale.set(.08, .08, .08)
+        brush.geometry.setFromPoints( brushSegments );
+        // @ts-ignore
+        brush.material.color.set( 0xfb8c00 );
+        scene.add( brush );
+
+        brush.visible = false;
+
+        let add_supports_mode = true;
 
         let transformWorking = false;
 
         let stats =  Stats();
 
         let outlineTimer: NodeJS.Timer | null = null;
+
+        let wasChangeLook = false;
 
         const animate = function () {
             thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
@@ -411,7 +445,9 @@ export class Scene extends Component<any, any> {
         }
         window.addEventListener('resize', onWindowResize, false);
 
+
         orbitControls.addEventListener( 'change', () => {
+            wasChangeLook = true;
             requestAnimationFrame(animate);
         });
 
@@ -587,6 +623,40 @@ export class Scene extends Component<any, any> {
         }, false );
 
         let mouseTrack: any;
+        const vec = new THREE.Vector3();
+        const titleBarX = 36;
+        let normalZ = new THREE.Vector3( 0, 0, 1 );
+
+        window.addEventListener("mousemove", (e)=>{
+
+                let raycaster = new Raycaster();
+
+                vec.set(
+                    ( (e.clientX) / window.innerWidth ) * 2 - 1,
+                    - ( (e.clientY -  titleBarX) / window.innerHeight ) * 2 + 1,
+                    0.5 );
+
+                raycaster.setFromCamera(vec, sceneStore.activeCamera);
+
+                let intersects = raycaster.intersectObjects(SceneObject.GetMeshesFromObjs(sceneStore.groupSelected), false);
+
+
+            intersects.sort((a, b) => {
+                return a.distance < b.distance ? -1 : 1;
+            })
+
+            if(intersects.length && intersects[0].face )
+            {
+                brush.visible = true;
+                brush.quaternion.setFromUnitVectors(normalZ, intersects[0].face .normal);
+                brush.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z)
+
+                requestAnimationFrame(animate);
+            }
+            else {
+                brush.visible = false;
+            }
+        })
 
         window.addEventListener("mousedown", (e)=> {
             if(e.button !== 0 || !this.printerName) return;
@@ -617,9 +687,6 @@ export class Scene extends Component<any, any> {
                 return;
             }
 
-            const titleBarX = 36; 
-
-            var vec = new THREE.Vector3();
 
             vec.set(
                 ( (e.clientX) / window.innerWidth ) * 2 - 1,
@@ -644,44 +711,28 @@ export class Scene extends Component<any, any> {
             let raycaster = new Raycaster();
 
             raycaster.setFromCamera(vec, sceneStore.activeCamera);
-            //raycaster.ray.direction = vec
-            //raycaster.setFromCamera( mouse3D, sceneStore.camera );
-            //console.log(raycaster.ray.direction)
-             //raycaster.ray.origin.set(sceneStore.activeCamera.position.x,sceneStore.activeCamera.position.y,sceneStore.activeCamera.position.z);
-            //raycaster.firstHitOnly = true;
 
-            //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction)
 
-            let nearestSceneObj:any = null;
-            let nearestDistance:any = null;
+            let intersects = raycaster.intersectObjects(SceneObject.GetMeshesFromObjs(sceneStore.objects), false);
 
-            sceneStore.objects.forEach(t => {
+            intersects.sort((a, b) => {
+                return a.distance < b.distance ? -1 : 1;
+            })
 
-                let geometry = SceneObject.CalculateGeometry([t]);
+            if(intersects.length && intersects[0].face )
+            {
+                let sceneObjIndex = SceneObject.SearchObject(sceneStore.objects, intersects[0].object as THREE.Mesh)
 
-                 geometry.computeBoundsTree();
-
-                let result: any = new MeshBVH(geometry).raycastFirst(raycaster.ray, THREE.DoubleSide);
-
-                /*result.sort((a, b) => {
-                    return a.distance < b.distance ? -1 : 1;
-                })*/
-
-                if( result && (!nearestDistance || result.distance < nearestDistance) )
+                if(sceneObjIndex < -1)
                 {
-                    nearestDistance = result.distance;
-                    nearestSceneObj = t;
+                    return;
                 }
 
-                //console.log(result)
-                //requestAnimationFrame(animate)
-            });
+                let sceneObj  = sceneStore.objects[sceneObjIndex];
 
-            if(nearestSceneObj)
-            {
-                if(!this.keysPressed.includes(Key.Ctrl) && !this.keysPressed.includes(Key.Shift)) {
-                    sceneStore.objects.forEach(t => {
-                        if(nearestSceneObj === t)
+                if(!this.keysPressed.includes(Key.Ctrl) && !this.keysPressed.includes(Key.Shift) && !sceneObj.isSelected) {
+                    sceneStore.objects.forEach((t, i) => {
+                        if(i === sceneObjIndex)
                         {
                             return;
                         }
@@ -690,10 +741,11 @@ export class Scene extends Component<any, any> {
                     })
                 }
 
-                nearestSceneObj.isSelected = !nearestSceneObj.isSelected;
+                sceneObj.isSelected = !sceneObj.isSelected;
                 sceneStoreSelectionChanged(true);
                 requestAnimationFrame(animate);
             }
+
         })
 
         animate();
