@@ -43,7 +43,7 @@ export class SceneObject {
         this.bbox = new THREE.BoxHelper( this.mesh, 0xffff00 );
 
         this.mesh.castShadow = true;
-        this.mesh.receiveShadow = true;
+        this.mesh.receiveShadow = false;
         this.mesh.scale.set(0.1, 0.1, 0.1);
 
         let nullVector = new Vector3();

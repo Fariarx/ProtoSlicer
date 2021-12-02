@@ -29,8 +29,8 @@ export const SceneMaterials = {
         select: new THREE.MeshPhongMaterial({ color: '#858dff', opacity: 0.7, transparent: true }),
     } as ISceneMaterial,
     default: {
-        normal: new THREE.MeshPhongMaterial( { color: '#f8a745', emissive:'#ffd4d4', emissiveIntensity:0.4 , flatShading: true, side: THREE.DoubleSide, shininess: 60 } ),
-        select: new THREE.MeshPhongMaterial( { color: '#858dff', emissive:'#ffd4d4', emissiveIntensity:0.4 , flatShading: true, side: THREE.DoubleSide, shininess: 60 } ),
+        normal: new THREE.MeshPhongMaterial( { color: '#f8a745', emissive:'#ffd4d4', emissiveIntensity:0.3 , flatShading: true, side: THREE.FrontSide, shininess: 20 } ),
+        select: new THREE.MeshPhongMaterial( { color: '#858dff', emissive:'#ffd4d4', emissiveIntensity:0.3 , flatShading: true, side: THREE.FrontSide, shininess: 20 } ),
     } as ISceneMaterial,
 }
 

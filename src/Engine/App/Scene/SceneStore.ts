@@ -42,10 +42,13 @@ export class CSceneStore {
 
     printer?: Printer;
 
+    materialForPlaneShadow: THREE.Material = new THREE.ShadowMaterial({
+        color: '#444444',
+        side: THREE.FrontSide,
+    });
     materialForPlane: THREE.Material = new THREE.MeshBasicMaterial({
         color: Settings().scene.workingPlaneColor,
-        side: THREE.FrontSide,
-        transparent: true
+        side: THREE.FrontSide
     });
     materialForPlaneLimit: THREE.Material = new THREE.MeshBasicMaterial({
         color: Settings().scene.workingPlaneLimitColor,

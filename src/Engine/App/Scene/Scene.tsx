@@ -56,6 +56,9 @@ export class Scene extends Component<any, any> {
     constructor(props) {
         super(props);
 
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
         let printer;
 
         if(this.printerName)
@@ -107,8 +110,10 @@ export class Scene extends Component<any, any> {
                 // onLoad callback
                 function (texture) {
 
-                    materialForText = new THREE.MeshStandardMaterial({
-                        map: texture
+                    materialForText = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        opacity:0.4
                     });
 
                     const geometry = new THREE.PlaneGeometry(1, 1);
@@ -149,6 +154,12 @@ export class Scene extends Component<any, any> {
             plane1.rotateX(-Math.PI / 2);
             plane1.position.set(sceneStore.gridSize.x / 2, -0.02, sceneStore.gridSize.z / 2);
             sceneStore.decorations.add(plane1);
+
+            const plane2 = new THREE.Mesh(geometry1, sceneStore.materialForPlaneShadow);
+            plane2.rotateX(-Math.PI / 2);
+            plane2.receiveShadow = true;
+            plane2.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
+            sceneStore.decorations.add(plane2);
 
             sceneStore.printer = this.printerConfig;
         }
@@ -307,12 +318,33 @@ export class Scene extends Component<any, any> {
 
         this.mount.appendChild(this.renderer.domElement);
 
-        const light0 = new THREE.DirectionalLight(0xffffff, 0.5);
+        const light0 = new THREE.DirectionalLight(0xffffff, 0.3);
         light0.castShadow = false;
         scene.add(light0);
 
         const light1 = new THREE.AmbientLight( 0xffffff , 0.3); // soft white light
         scene.add( light1 );
+
+        const light2 = new THREE.DirectionalLight(0xffffff, 0.2  );
+        light2.position.set( sceneStore.gridSize.x / 2, 10, sceneStore.gridSize.z / 2 ); //default; light shining from top
+
+        const target = new THREE.Object3D();
+        target.position.set(sceneStore.gridSize.x / 2, 0, sceneStore.gridSize.z / 2);
+        light2.target = target;
+        light0.target = target;
+        scene.add(target);
+
+        light2.castShadow = true; // default false
+        const value = gridSize.x > gridSize.z ? gridSize.x : gridSize.z;
+
+        light2.shadowCameraLeft = -value;
+        light2.shadowCameraRight = value;
+        light2.shadowCameraTop = value;
+        light2.shadowCameraBottom = -value;
+        scene.add(light2);
+
+        //const helper = new THREE.CameraHelper( light2.shadow.camera );
+        //scene.add( helper );
 
         /*var materialArray = [];
 	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/xpos.png' ) }));
@@ -335,6 +367,7 @@ export class Scene extends Component<any, any> {
 
         let stats =  Stats();
 
+        let outlineTimer: NodeJS.Timer | null = null;
 
         const animate = function () {
             thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
@@ -343,7 +376,18 @@ export class Scene extends Component<any, any> {
 
             light0.position.set(sceneStore.activeCamera.position.x, sceneStore.activeCamera.position.y, sceneStore.activeCamera.position.z);
 
-            thisObj.outlineEffect?.render(scene, sceneStore.activeCamera);
+
+            thisObj.renderer.render(scene, sceneStore.activeCamera);
+
+            if(outlineTimer)
+            {
+                clearTimeout(outlineTimer);
+            }
+
+            outlineTimer = setTimeout(()=>{
+                thisObj.renderer.render(scene, sceneStore.activeCamera);
+                thisObj.outlineEffect?.renderOutline(scene, sceneStore.activeCamera);
+            }, 100);
 
             stats.update();
 
@@ -575,8 +619,7 @@ export class Scene extends Component<any, any> {
 
             const titleBarX = 36; 
 
-            var vec = new THREE.Vector3(); // create once and reuse
-            var pos = new THREE.Vector3(); // create once and reuse
+            var vec = new THREE.Vector3();
 
             vec.set(
                 ( (e.clientX) / window.innerWidth ) * 2 - 1,

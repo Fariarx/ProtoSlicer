@@ -1,5 +1,5 @@
 export let DefaultConfig = {
-    version: 9,
+    version: 7,
     versionPrinterConfigs: 3,
     settings: {
         ui: {
