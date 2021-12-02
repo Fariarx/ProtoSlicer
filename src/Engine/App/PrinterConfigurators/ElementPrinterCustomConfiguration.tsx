@@ -10,9 +10,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {PrinterConfiguratorState} from "./ContainerPrinterConfigurator";
 import {observer} from "mobx-react";
 import {Printer} from "../Configs/Printer";
-import {PopupLabelSendText} from "../Notifications/ElementPopupLabel";
+import {PopupLabelSendText} from "../Scene/ChildrenUI/Notifications/ElementPopupLabel";
 import {isFloat, isInteger, isNumeric} from "../Utils/Utils";
-import {LogSendText} from "../Notifications/ElementConsole";
+import {LogSendText} from "../Scene/ChildrenUI/Notifications/ElementConsole";
 
 export class ElementPrinterCustomConfiguration extends Component<any, any> {
     constructor(props) {

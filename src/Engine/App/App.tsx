@@ -1,15 +1,15 @@
 import {Scene} from './Scene/Scene';
-import { ElementConsole } from "./Notifications/ElementConsole";
+import { ElementConsole } from "./Scene/ChildrenUI/Notifications/ElementConsole";
 import React, {Component} from "react";
-import DragAndDropModal from "./Scene/SceneDragAndDropModal";
-import LabelPopup from "./Notifications/ElementPopupLabel";
-import ContainerRight from "./ContainerRight/ContainerRight";
+import DragAndDropModal from "./Scene/ChildrenUI/SceneDragAndDropModal";
+import LabelPopup from "./Scene/ChildrenUI/Notifications/ElementPopupLabel";
+import ContainerRight from "./Scene/ChildrenUI/ContainerRight/ContainerRight";
 import {Button, Card, Feed} from "semantic-ui-react";
 import {Provider} from "mobx-react";
 import {sceneStore} from "./Scene/SceneStore";
 import {AppTitleBar} from "./AppTitleBar";
-import SceneTransformBar from "./Scene/SceneTransformBar";
-import SceneUtilsTopBar from "./Scene/SceneUtilsTopBar";
+import SceneTransformBar from "./Scene/ChildrenUI/SceneTransformBar";
+import SceneUtilsTopBar from "./Scene/ChildrenUI/SceneUtilsTopBar";
 
 let stores = {
     sceneStore

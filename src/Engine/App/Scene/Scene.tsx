@@ -15,7 +15,7 @@ import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrint
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Key} from "ts-keycode-enum";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import {TransformInstrumentEnum} from "./SceneTransformBar";
+import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {Dispatch, EventEnum} from "../Managers/Events";
@@ -25,6 +25,7 @@ import {addJob} from "../Managers/Workers";
 import {Job, WorkerType} from "../Managers/Entities/Job";
 import {DrawDirLine} from "../Utils/Utils";
 import {MeshBVH} from "three-mesh-bvh";
+import Stats from "three/examples/jsm/libs/stats.module";
 
 sceneStoreCreate();
 
@@ -153,6 +154,10 @@ export class Scene extends Component<any, any> {
         }
 
         this.grid = SceneHelper.CreateGrid(sceneStore.gridSize, sceneStore.scene);
+
+
+        sceneStore.perspectiveCamera.position.set(sceneStore.gridSize.x , sceneStore.gridSize.y , sceneStore.gridSize.z );
+        sceneStore.orthographicCamera.position.set(sceneStore.gridSize.x * 2 , sceneStore.gridSize.y * 2 , sceneStore.gridSize.z * 2 );
     }
 
     setupDragNDrop = () => {
@@ -255,13 +260,6 @@ export class Scene extends Component<any, any> {
         const transform = new TransformControls(perspectiveCamera, this.renderer.domElement);
 
         sceneStore.switchCameraType = (isPerspective , isIni) => {
-            let position: Vector3 | null = null;
-
-            if(sceneStore.activeCamera)
-            {
-                position = sceneStore.activeCamera.position;
-            }
-
             if(isPerspective)
             {
                 sceneStore.activeCamera = sceneStore.perspectiveCamera;
@@ -270,15 +268,6 @@ export class Scene extends Component<any, any> {
             {
                 sceneStore.activeCamera = sceneStore.orthographicCamera;
 
-            }
-
-            if(position)
-            {
-                let newPosition = [...position.toArray().map(v => {
-                    return v + 100;
-                })];
-
-                sceneStore.activeCamera.position.set(newPosition[0], newPosition[1], newPosition[2]);
             }
 
 
@@ -292,7 +281,7 @@ export class Scene extends Component<any, any> {
 
             if(!isIni)
             {
-                requestAnimationFrame(animate);
+                animate();
             }
         }
 
@@ -302,6 +291,7 @@ export class Scene extends Component<any, any> {
 
 
         perspectiveCamera.position.set(gridSize.x , gridSize.y , gridSize.z );
+        orthographicCamera.position.set(gridSize.x * 2 , gridSize.y * 2 , gridSize.z * 2 );
 
         this.updateCameraPositionRelativelyToGrid = () => {
             /*if (gridSize.x >= gridSize.z) {
@@ -318,10 +308,10 @@ export class Scene extends Component<any, any> {
         this.mount.appendChild(this.renderer.domElement);
 
         const light0 = new THREE.DirectionalLight(0xffffff, 0.5);
-        light0.castShadow = true;
+        light0.castShadow = false;
         scene.add(light0);
 
-        const light1 = new THREE.AmbientLight( 0xffffff , 0.4); // soft white light
+        const light1 = new THREE.AmbientLight( 0xffffff , 0.3); // soft white light
         scene.add( light1 );
 
         /*var materialArray = [];
@@ -343,6 +333,9 @@ export class Scene extends Component<any, any> {
 
         let transformWorking = false;
 
+        let stats =  Stats();
+
+
         const animate = function () {
             thisObj.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
 
@@ -351,6 +344,9 @@ export class Scene extends Component<any, any> {
             light0.position.set(sceneStore.activeCamera.position.x, sceneStore.activeCamera.position.y, sceneStore.activeCamera.position.z);
 
             thisObj.outlineEffect?.render(scene, sceneStore.activeCamera);
+
+            stats.update();
+
 
             if(transformWorking)
             {
@@ -588,17 +584,14 @@ export class Scene extends Component<any, any> {
                 0.5 );
 
 
-            if(sceneStore.activeCamera instanceof THREE.PerspectiveCamera) {
-                sceneStore.activeCamera.updateProjectionMatrix();
-            }
+            //sceneStore.activeCamera.updateProjectionMatrix();
+            //sceneStore.activeCamera.updateMatrix();
+            //sceneStore.activeCamera.updateMatrixWorld(true);
+            //sceneStore.activeCamera.updateWorldMatrix(true, true)
 
-            sceneStore.activeCamera.updateMatrix();
-            sceneStore.activeCamera.updateMatrixWorld(true);
-            sceneStore.activeCamera.updateWorldMatrix(true, true)
+            //vec.unproject( sceneStore.activeCamera );
 
-            vec.unproject( sceneStore.activeCamera );
-
-            vec.sub( sceneStore.activeCamera.position ).normalize();
+            //vec.sub( sceneStore.activeCamera.position ).normalize();
 
            // var distance = - sceneStore.camera.position.z / vec.z;
 
@@ -607,10 +600,11 @@ export class Scene extends Component<any, any> {
 
             let raycaster = new Raycaster();
 
-            raycaster.ray.direction = vec
+            raycaster.setFromCamera(vec, sceneStore.activeCamera);
+            //raycaster.ray.direction = vec
             //raycaster.setFromCamera( mouse3D, sceneStore.camera );
             //console.log(raycaster.ray.direction)
-             raycaster.ray.origin.set(sceneStore.activeCamera.position.x,sceneStore.activeCamera.position.y,sceneStore.activeCamera.position.z);
+             //raycaster.ray.origin.set(sceneStore.activeCamera.position.x,sceneStore.activeCamera.position.y,sceneStore.activeCamera.position.z);
             //raycaster.firstHitOnly = true;
 
             //DrawDirLine(raycaster.ray.origin, raycaster.ray.direction)
@@ -662,6 +656,15 @@ export class Scene extends Component<any, any> {
         animate();
 
         this.animate = animate;
+
+
+        stats.setMode(0);
+
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0';
+        stats.domElement.style.top = '0';
+
+        this.mount.appendChild(stats.domElement);
 
         Log("Scene loaded!");
     }

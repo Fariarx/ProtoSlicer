@@ -26,7 +26,7 @@ export enum TransformInstrumentEnum {
     Scale = 'scale'
 }
 
-const MenuItemStyleCenter = {marginLeft: 'auto', marginRight: 'auto', display: 'block'};
+export const MenuItemStyleCenter = {marginLeft: 'auto', marginRight: 'auto', display: 'block'};
 
 
 @observer

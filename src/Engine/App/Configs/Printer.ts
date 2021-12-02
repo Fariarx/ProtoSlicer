@@ -2,7 +2,7 @@ import * as path from 'path'
 import Globals, {  Log } from "../../Globals";
 import {fs} from "../../Bridge";
 import {Resin} from "./Resin";
-import {LogSendText} from "../Notifications/ElementConsole";
+import {LogSendText} from "../Scene/ChildrenUI/Notifications/ElementConsole";
 import { DefaultConfig } from '../../DefaultConfig';
 
 export type Workspace = {

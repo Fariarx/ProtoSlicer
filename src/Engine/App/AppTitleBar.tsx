@@ -1,10 +1,10 @@
 import React, {Component} from "react";
 import {Provider} from "mobx-react";
 import {Scene} from "./Scene/Scene";
-import DragAndDropModal from "./Scene/SceneDragAndDropModal";
-import {ElementConsole} from "./Notifications/ElementConsole";
-import ContainerRight from "./ContainerRight/ContainerRight";
-import LabelPopup from "./Notifications/ElementPopupLabel";
+import DragAndDropModal from "./Scene/ChildrenUI/SceneDragAndDropModal";
+import {ElementConsole} from "./Scene/ChildrenUI/Notifications/ElementConsole";
+import ContainerRight from "./Scene/ChildrenUI/ContainerRight/ContainerRight";
+import LabelPopup from "./Scene/ChildrenUI/Notifications/ElementPopupLabel";
 import  './AppTitleBar.css'
 import {Button, Header, Icon, Label} from "semantic-ui-react";
 import {closeWindow, maximizeWindow, minimizeWindow} from "../Bridge";

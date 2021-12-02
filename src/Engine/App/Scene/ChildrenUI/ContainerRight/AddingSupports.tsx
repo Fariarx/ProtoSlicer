@@ -10,17 +10,17 @@ import {
     Header,
     Grid,
     GridColumn,
-    Feed, Item, Container, SegmentGroup, ButtonGroup
+    Feed, Item, Container, SegmentGroup, ButtonGroup, Menu
 } from "semantic-ui-react";
-import {storeMain} from "../../Bridge";
-import {Log, Settings} from "../../Globals";
+import {storeMain} from "../../../../Bridge";
+import {Log, Settings} from "../../../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
-import {SceneObject} from "../Scene/SceneObject";
+import {SceneObject} from "../../SceneObject";
 import {action, observable} from "mobx";
-import {sceneStoreSelectionChanged} from "../Scene/SceneStore";
-import {Dispatch, EventEnum} from "../Managers/Events";
-import {TransformInstrumentEnum} from "../Scene/ChildrenUI/SceneTransformBar";
+import {sceneStoreSelectionChanged} from "../../SceneStore";
+import {Dispatch, EventEnum} from "../../../Managers/Events";
+import {MenuItemStyleCenter, TransformInstrumentEnum} from "../SceneTransformBar";
 
 export enum AddingSupportsMode {
     none = 0,
@@ -47,25 +47,21 @@ class AddingSupports extends Component<any, any> {
                     </Header>
                 </Segment>
                 <Segment inverted>
-                    <ButtonGroup  size={"tiny"}>
-                        <Button name={'addSupports'} inverted onClick={this.supportButtons}>
-                            <p>
-                                <Icon name='low vision'   />
-                            </p>
-                        </Button>
-                        <Button name={'removeSupports'} inverted onClick={this.supportButtons}>
-                            <p>
-                                <Icon name='low vision'   />
-                            </p>
-                        </Button>
-                        <Button name={'auto'} inverted onClick={()=>{
+                    <Menu inverted  size={"mini"}  fluid >
+                        <Menu.Item name={'addSupports'}    onClick={this.supportButtons}>
+                                <Icon name='bullseye'   size={"large"} />
+                        </Menu.Item>
+                        <Menu.Item name={'removeSupports'}     onClick={this.supportButtons}>
+                                <Icon name='eraser'  size={"large"} />
+                        </Menu.Item>
+                        <Menu.Item name={'auto'} position='right'  onClick={()=>{
 
                         }}>
                             <p>
                                 Auto
                             </p>
-                        </Button>
-                    </ButtonGroup>
+                        </Menu.Item>
+                    </Menu>
                 </Segment>
             </SegmentGroup>
         );

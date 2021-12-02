@@ -12,13 +12,13 @@ import {
     GridColumn,
     Feed, Item, Container, SegmentGroup
 } from "semantic-ui-react";
-import {storeMain} from "../../Bridge";
-import {Log, Settings} from "../../Globals";
+import {storeMain} from "../../../../Bridge";
+import {Log, Settings} from "../../../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
-import {SceneObject} from "../Scene/SceneObject";
+import {SceneObject} from "../../SceneObject";
 import {action, observable, runInAction} from "mobx";
-import {sceneStore, sceneStoreSelectionChanged} from "../Scene/SceneStore";
+import {sceneStore, sceneStoreSelectionChanged} from "../../SceneStore";
 
 @observer
 class SelectObjectsView extends Component<any, any> {
@@ -90,7 +90,7 @@ class SelectObjectsView extends Component<any, any> {
                 <Segment inverted >
                     <div style={{
                         width: "100%",
-                        height: '14vh',
+                        height: '12vh',
                         overflowY:"auto"
                     }}>
                         {list}

@@ -17,8 +17,8 @@ import {LinearGenerator} from "../Utils/Utils";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Printer} from "../Configs/Printer";
 import {PrinterConfiguratorState} from "./ContainerPrinterConfigurator";
-import {PopupLabelSendText} from "../Notifications/ElementPopupLabel";
-import {LogSendText} from "../Notifications/ElementConsole";
+import {PopupLabelSendText} from "../Scene/ChildrenUI/Notifications/ElementPopupLabel";
+import {LogSendText} from "../Scene/ChildrenUI/Notifications/ElementConsole";
 
 
 function ListElement(props: any) {

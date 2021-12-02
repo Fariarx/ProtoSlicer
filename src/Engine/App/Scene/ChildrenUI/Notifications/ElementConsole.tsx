@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { observable, action } from "mobx";
 import { observer } from "mobx-react";
 
-import {LinearGenerator} from '../Utils/Utils'
+import {LinearGenerator} from '../../../Utils/Utils'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ElementConsole.css';
