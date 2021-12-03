@@ -56,12 +56,13 @@ export class SceneComponent extends Component<any, any> {
     }
 
     componentWillUnmount() {
-        this.mount.removeChild(sceneStore.renderer.domElement)
+        this.mount.removeChild(sceneStore.renderer.domElement);
+
         sceneStore.ini.dispose();
+        sceneStore.grid?.dispose();
     }
 
     render() {
-        console.log(2)
         if(sceneStore.needUpdateFrame)
         {
             runInAction(()=>{

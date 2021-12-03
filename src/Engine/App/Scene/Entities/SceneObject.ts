@@ -22,22 +22,19 @@ export class SceneObject {
     private wasSelected: boolean;
 
     constructor(geometry: THREE.BufferGeometry, _name: string, objs: SceneObject[], selected: boolean = false) {
-        if(SceneObject.GetByName(objs, _name) === null)
+        let index = 0;
+        let newName = index + ' : ' + _name;
+
+        while (SceneObject.GetByName(objs, newName) !== null)
         {
-            this.name = _name;
-        }
-        else {
-            let index = 0;
-            let newName = index + '-' + _name;
+            objs[index].name = newName;
 
-            while (SceneObject.GetByName(objs, newName) !== null)
-            {
-                index++;
-                newName = index + '-' + _name;
-            }
-
-            this.name = newName;
+            index++;
+            newName = index + ' : ' + _name;
         }
+
+        this.name = newName;
+
 
         this.mesh = new THREE.Mesh( geometry, sceneStore.materialForObjects.normal );
         this.bbox = new THREE.BoxHelper( this.mesh, 0xffff00 );

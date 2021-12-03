@@ -42,14 +42,13 @@ export class SceneInitialization {
         this.sceneStore = _sceneStore;
         this.props = _props;
 
-        this.setupPrinter();
-        this.updatePrinter();
-
         this.temp.listners = [];
         this.temp.addListener = (name, callback) => {
-            window.addEventListener(name, callback);
             this.temp.listners.push([name, callback]);
         }
+
+        this.setupPrinter();
+        this.updatePrinter();
 
         this.stats.setMode(0);
         this.stats.domElement.style.position = 'absolute';
@@ -70,13 +69,14 @@ export class SceneInitialization {
 
         this.orbitControls = new OrbitControls(this.sceneStore.activeCamera, this.sceneStore.renderer.domElement);
         this.transformControls = new TransformControls(this.sceneStore.activeCamera, this.sceneStore.renderer.domElement);
+        this.setupCameraType(Settings().scene.setStartupPerspectiveCamera, true);
         this.setupOrbitController();
         this.setupTransformControls();
 
         this.addSupportsCursor = new THREE.LineSegments();
         this.setupAddSupportCursor();
+        this.setupMouse();
 
-        this.setupCameraType(Settings().scene.setStartupPerspectiveCamera, true);
         this.updateCameraLookPosition();
 
         this.dev();
@@ -87,6 +87,11 @@ export class SceneInitialization {
     setupCanvas(canvas) {
         canvas.appendChild(this.sceneStore.renderer.domElement);
         canvas.appendChild(this.stats.domElement);
+
+        for(let listener of this.temp.listners)
+        {
+            window.addEventListener(listener[0], listener[1]);
+        }
     }
     setupPrinter() {
         let printer;
@@ -202,10 +207,11 @@ export class SceneInitialization {
             }
         })
         this.temp.addListener('mouseup', (e)=> {
+            //console.log(e)
+
             if(e.button !== 0 || !this.sceneStore.printerName) {
                 return;
             }
-
             else if(mouseTrack)
             {
                 let dist = Math.sqrt(Math.pow(Math.abs(e.clientX - mouseTrack.start.x), 2) + Math.pow(Math.abs(e.clientY - mouseTrack.start.y), 2));
@@ -293,6 +299,9 @@ export class SceneInitialization {
         this.addSupportsCursor.visible = false;
     }
     setupCameraRig() {
+        this.cameraRig.attach( this.sceneStore.perspectiveCamera );
+        this.cameraRig.attach( this.sceneStore.orthographicCamera );
+
         this.sceneStore.perspectiveCamera.position.set(this.sceneStore.gridSize.x , this.sceneStore.gridSize.y , this.sceneStore.gridSize.z );
         this.sceneStore.orthographicCamera.position.set(this.sceneStore.gridSize.x * 2 , this.sceneStore.gridSize.y * 2 , this.sceneStore.gridSize.z * 2 );
     }
@@ -444,11 +453,9 @@ export class SceneInitialization {
         });
     }
     setupOrbitController() {
-        const orbitControls = new OrbitControls(this.sceneStore.activeCamera, this.sceneStore.renderer.domElement);
-
         this.temp.wasChangeLook = false;
 
-        orbitControls.addEventListener( 'change', () => {
+        this.orbitControls.addEventListener( 'change', () => {
             this.temp.wasChangeLook = true;
             this.animate();
         });
@@ -506,7 +513,7 @@ export class SceneInitialization {
         this.sceneStore.scene.add(this.lightGroup);
     }
 
-    dispose() {
+     dispose() {
         for(let listener of this.temp.listners)
         {
             window.removeEventListener(listener[0], listener[1]);
@@ -583,13 +590,13 @@ export class SceneInitialization {
             const geometry = new THREE.PlaneGeometry(this.sceneStore.printer.Workspace.sizeX * 0.1, this.sceneStore.printer.Workspace.sizeY * 0.1);
             const plane = new THREE.Mesh(geometry, this.sceneStore.materialForPlane);
             plane.rotateX(-Math.PI / 2);
-            plane.position.set(this.sceneStore.gridSize.x / 2, -0.01, this.sceneStore.gridSize.z / 2);
+            plane.position.set(this.sceneStore.gridSize.x / 2, -0.02, this.sceneStore.gridSize.z / 2);
             this.sceneStore.decorations.add(plane);
 
             const geometry1 = new THREE.PlaneGeometry(Math.ceil(this.sceneStore.printer.Workspace.sizeX * 0.1), Math.ceil(this.sceneStore.printer.Workspace.sizeY * 0.1));
             const plane1 = new THREE.Mesh(geometry1, this.sceneStore.materialForPlaneLimit);
             plane1.rotateX(-Math.PI / 2);
-            plane1.position.set(this.sceneStore.gridSize.x / 2, -0.02, this.sceneStore.gridSize.z / 2);
+            plane1.position.set(this.sceneStore.gridSize.x / 2, -0.04, this.sceneStore.gridSize.z / 2);
             this.sceneStore.decorations.add(plane1);
 
             const plane2 = new THREE.Mesh(geometry1, this.sceneStore.materialForPlaneShadow);
@@ -622,7 +629,7 @@ export class SceneInitialization {
             this.temp.outlineTimer = setTimeout(() => {
                 this.sceneStore.renderer.render(this.sceneStore.scene, this.sceneStore.activeCamera);
                 this.sceneStore.outlineEffectRenderer.renderOutline(this.sceneStore.scene, this.sceneStore.activeCamera);
-            }, 100);
+            }, 1000);
 
             this.stats.update();
 
@@ -636,6 +643,7 @@ export class SceneInitialization {
     dev() {
         let _this = this;
 
+
         SceneHelper.File3DLoad(url.format({
             pathname: path.join(dirname, '../test.stl'),
             protocol: 'file:',
@@ -647,6 +655,8 @@ export class SceneInitialization {
             obj.AddToScene(_this.sceneStore.scene);
             Dispatch(EventEnum.ADD_OBJECT, obj);
             _this.animate();
+
+            console.log(_this.sceneStore)
 
             /*addJob(new Job({
                 name: WorkerType.SliceFullScene,

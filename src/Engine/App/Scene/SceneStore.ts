@@ -78,8 +78,6 @@ export class CSceneStore {
     groupSelected: Array<SceneObject> = new Array<SceneObject>();
 
     constructor(_props: any) {
-        makeAutoObservable(this);
-
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -94,7 +92,9 @@ export class CSceneStore {
 
         this.orthographicCamera.zoom = 70;
 
-        this.ini = new SceneInitialization(this, _props);
+        this.ini = new SceneInitialization(this, _props );
+
+        makeAutoObservable(this);
     }
 }
 
