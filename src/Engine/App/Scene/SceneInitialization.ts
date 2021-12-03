@@ -264,20 +264,35 @@ export class SceneInitialization {
 
                 let sceneObj  = this.sceneStore.objects[sceneObjIndex];
 
-                if(!isKeyPressed(Key.Ctrl) && !isKeyPressed(Key.Shift) && !sceneObj.isSelected) {
-                    this.sceneStore.objects.forEach((t, i) => {
-                        if(i === sceneObjIndex)
-                        {
-                            return;
-                        }
+                if(!isKeyPressed(Key.Ctrl) && !isKeyPressed(Key.Shift)) {
+                    if (!sceneObj.isSelected) {
+                        this.sceneStore.objects.forEach((t, i) => {
+                            if (i === sceneObjIndex) {
+                                return;
+                            }
 
-                        t.isSelected = false;
-                    })
+                            t.isSelected = false;
+                        })
+
+                        sceneObj.isSelected = !sceneObj.isSelected;
+
+                    } else if (this.sceneStore.groupSelected.length > 1) {
+                        this.sceneStore.objects.forEach((t, i) => {
+                            t.isSelected = false;
+                        })
+
+
+                        sceneObj.isSelected = true;
+                    }
+
+                    SceneUtils.selectionChanged(true);
+                    _this.animate();
                 }
-
-                sceneObj.isSelected = !sceneObj.isSelected;
-                SceneUtils.selectionChanged(true);
-                _this.animate();
+                else {
+                    sceneObj.isSelected = !sceneObj.isSelected;
+                    SceneUtils.selectionChanged(true);
+                    _this.animate();
+                }
             }
 
         })
