@@ -17,21 +17,21 @@ export type SubstrateSizeBox = {
 export const generateSupport = (position: THREE.Vector3, quaternion: THREE.Quaternion, cylinder: SupportDescription | SupportDescriptionCylinder) => { //, cylinderCenter: CylinderSize, cylinderBottom: CylinderSize, substrate: SubstrateSizeBox
     if(cylinder instanceof SupportDescriptionCylinder)
     {
-        let meshTop = createCylinder(position, quaternion, cylinder.sizeTop);
+        let top = createCylinder(position, quaternion, cylinder.sizeTop);
 
-        sceneStore.scene.add(meshTop)
+        sceneStore.scene.add(top.mesh);
     }
 };
 
-const createCylinder = (position: THREE.Vector3, quaternion: THREE.Quaternion, cylinderSize: CylinderSize) => {
-    const geometry = new THREE.CylinderGeometry( 0.1 * cylinderSize.radiusTop / 2, 0.1 * cylinderSize.radiusBottom / 2, 0.1 * cylinderSize.height / 2, cylinderSize.radialSegments ); //to mm
+const createCylinder = (positionStart: THREE.Vector3, quaternion: THREE.Quaternion, cylinderSize: CylinderSize) => {
+    const geometry = new THREE.CylinderGeometry( 0.1 * cylinderSize.radiusTop / 2, 0.1 * cylinderSize.radiusBottom / 2, 0.1 * <number>cylinderSize.height / 2, cylinderSize.radialSegments ); //to mm
     //geometry.applyQuaternion(quaternion);
 
     const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
     const mesh = new THREE.Mesh( geometry, material );
 
     mesh.rotation.setFromQuaternion(quaternion);
-    mesh.position.set(position.x, position.y, position.z);
+    mesh.position.set(positionStart.x, positionStart.y, positionStart.z);
 
     let dir = new Vector3();
 
@@ -41,5 +41,8 @@ const createCylinder = (position: THREE.Vector3, quaternion: THREE.Quaternion, c
 
     mesh.rotateX(-Math.PI / 2);
 
-    return mesh;
+    return {
+        mesh: mesh,
+        end: mesh.position.clone().add(dir.multiplyScalar(geometry.parameters.height / 2))
+    };
 }

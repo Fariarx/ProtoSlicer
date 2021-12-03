@@ -6,7 +6,7 @@ import {SupportDescriptionContact} from "../Contact/SupportDescriptionContact";
 export type CylinderSize = {
     radiusTop : number,
     radiusBottom : number,
-    height : number,
+    height : number, //| [number, number], //min max
     radialSegments : number
 }
 
