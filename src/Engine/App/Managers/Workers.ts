@@ -7,7 +7,7 @@ import workerSliceLayerScene from './Entities/SliceLayerScene.worker';
 
 import {sceneStore} from "../Scene/SceneStore";
 import {Printer} from "../Configs/Printer";
-import {SceneObject} from "../Scene/SceneObject";
+import {SceneObject} from "../Scene/Entities/SceneObject";
 import {calculateVoxelSizes, SliceResult} from "../Utils/Slice";
 import {Settings} from "../../Globals";
 import * as THREE from "three";

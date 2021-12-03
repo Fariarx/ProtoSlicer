@@ -16,9 +16,9 @@ import {storeMain} from "../../../../Bridge";
 import {Log, Settings} from "../../../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
-import {SceneObject} from "../../SceneObject";
+import {SceneObject} from "../../Entities/SceneObject";
 import {action, observable, runInAction} from "mobx";
-import {sceneStore, sceneStoreSelectionChanged} from "../../SceneStore";
+import {sceneStore, SceneUtils } from "../../SceneStore";
 
 @observer
 class SelectObjectsView extends Component<any, any> {
@@ -47,7 +47,7 @@ class SelectObjectsView extends Component<any, any> {
                         {
                             //console.log(object.name)
                             object.isSelected = !object.isSelected;
-                            sceneStoreSelectionChanged();
+                            SceneUtils.selectionChanged();
                             this.setState({});
                             break;
                         }
@@ -103,7 +103,7 @@ class SelectObjectsView extends Component<any, any> {
                             {
                                 object.isSelected = true;
                             }
-                            sceneStoreSelectionChanged();
+                            SceneUtils.selectionChanged();
                             this.setState({});
                         }}/>
                         <Button icon='minus' onClick={()=>{
@@ -111,7 +111,7 @@ class SelectObjectsView extends Component<any, any> {
                             {
                                 object.isSelected = false;
                             }
-                            sceneStoreSelectionChanged();
+                            SceneUtils.selectionChanged();
                             this.setState({});
                         }}/>
                     </Button.Group>

@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import {Box3, BufferGeometry, Vector3} from "three";
-import {sceneStore} from "./SceneStore";
-import {Dispatch, EventEnum  } from "../Managers/Events";
-import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
-import {MoveObject} from "../Managers/Entities/MoveObject";
+import {sceneStore} from "../SceneStore";
+import {Dispatch, EventEnum  } from "../../Managers/Events";
+import {TransformInstrumentEnum} from "../ChildrenUI/SceneTransformBar";
+import {MoveObject} from "../../Managers/Entities/MoveObject";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 import {CENTER, MeshBVH, SAH, SplitStrategy} from "three-mesh-bvh";
 

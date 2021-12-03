@@ -3,11 +3,9 @@ import { TransformInstrumentEnum} from "../Scene/ChildrenUI/SceneTransformBar";
 import {ElementStepsSelect, StepsEnum} from "../Steps";
 import {
     sceneStore,
-    sceneStoreInstrumentStateChanged,
-    sceneStoreSelectionChanged,
-    sceneStoreUpdateFrame, sceneStoreUpdateTransformTool
+    SceneUtils
 } from "../Scene/SceneStore";
-import {SceneObject} from "../Scene/SceneObject";
+import {SceneObject} from "../Scene/Entities/SceneObject";
 import {Settings} from "../../Globals";
 import {MoveObject} from "./Entities/MoveObject";
 
@@ -44,9 +42,9 @@ const Handler = (message) => {
             message.last = sceneStore.transformInstrumentState;
 
             if (sceneStore.transformInstrumentState === message.args.value) {
-                sceneStoreInstrumentStateChanged();
+                SceneUtils.instrumentStateChanged();
             } else {
-                sceneStoreInstrumentStateChanged(message.args.value);
+                SceneUtils.instrumentStateChanged(message.args.value);
             }
             break;
         case EventEnum.TRANSFORM_OBJECT:
@@ -112,15 +110,15 @@ const Handler = (message) => {
 
             if(!moveObject.renderBreak)
             {
-                sceneStoreUpdateFrame();
+                SceneUtils.updateFrame();
             }
 
-            sceneStoreUpdateTransformTool();
+            SceneUtils.updateTransformTool();
             break;
         case EventEnum.ADD_OBJECT:
             sceneStore.objects.push(message.args);
-            sceneStoreSelectionChanged();
-            sceneStoreInstrumentStateChanged();
+            SceneUtils.selectionChanged();
+            SceneUtils.instrumentStateChanged();
             break;
         case EventEnum.SELECT_SUPPORTS_MODE:
             /*runInAction(()=>{

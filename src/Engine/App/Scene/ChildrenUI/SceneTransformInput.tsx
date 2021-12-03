@@ -1,5 +1,5 @@
 import {Input, Label} from "semantic-ui-react";
-import {sceneStoreUpdateFrame} from "../SceneStore";
+import {SceneUtils } from "../SceneStore";
 import React, {RefObject, useState} from "react";
 
 
@@ -28,7 +28,7 @@ export const SceneTransformInput = function (props) {
 
                     updateValue(value);
 
-                    sceneStoreUpdateFrame();
+                    SceneUtils.updateFrame();
                 }}
                 onBlur={(e) => {
                     if (parseFloat(labelValue)) {
@@ -39,7 +39,7 @@ export const SceneTransformInput = function (props) {
 
                     updateValue(labelValue);
 
-                    sceneStoreUpdateFrame();
+                    SceneUtils.updateFrame();
                 }}
             />
             <Label color={props.axisColor} >{props.unitsText}</Label>

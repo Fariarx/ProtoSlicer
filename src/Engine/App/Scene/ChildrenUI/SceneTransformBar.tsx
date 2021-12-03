@@ -6,17 +6,12 @@ import {autorun, observable, runInAction} from "mobx";
 import {Dispatch, EventEnum } from "../../Managers/Events";
 import {
     sceneStore,
-    sceneStoreSelectionChanged,
-    sceneStoreSelectObjsAlignXZ,
-    sceneStoreSelectObjsAlignY,
-    sceneStoreSelectObjsResetRotation,
-    sceneStoreSelectObjsResetScale,
-    sceneStoreUpdateFrame, sceneStoreUpdateTransformControls
+    SceneUtils
 } from "../SceneStore";
 import {MathUtils, Vector3} from "three";
 import {isFloat, isNumeric, LinearGenerator} from "../../Utils/Utils";
 import {SceneTransformInput} from "./SceneTransformInput";
-import {SceneObject} from "../SceneObject";
+import {SceneObject} from "../Entities/SceneObject";
 import {MoveObject} from "../../Managers/Entities/MoveObject";
 
 export enum TransformInstrumentEnum {
@@ -54,7 +49,7 @@ class SceneTransformBar extends Component<any, any> {
             SaveSettings();
 
             if (Settings().scene.transformAlignToPlane) {
-                sceneStoreSelectObjsAlignY();
+                SceneUtils.selectObjsAlignY();
             }
 
             this.setState({});
@@ -195,7 +190,7 @@ class SceneTransformBar extends Component<any, any> {
                                                     } as MoveObject)
 
                                                     if (Settings().scene.transformAlignToPlane) {
-                                                        sceneStoreSelectObjsAlignY();
+                                                        SceneUtils.selectObjsAlignY();
                                                     }
                                                 }}
                                             />
@@ -206,8 +201,8 @@ class SceneTransformBar extends Component<any, any> {
                         </Segment>
                         <Segment inverted size={"mini"}>
                             <Button size={"tiny"} inverted compact onClick={() => {
-                                sceneStoreUpdateTransformControls();
-                                sceneStoreSelectObjsAlignXZ();
+                                SceneUtils.updateTransformControls();
+                                SceneUtils.selectObjsAlignXZ();
                                 this.setState({});
                             }}>
                                 <Button.Content>Center</Button.Content>
@@ -283,10 +278,10 @@ class SceneTransformBar extends Component<any, any> {
                         </Segment>
                         <Segment inverted>
                             <Button inverted size={"tiny"} compact onClick={() => {
-                                sceneStoreSelectObjsResetRotation();
+                                SceneUtils.selectObjsResetRotation();
 
                                 if (Settings().scene.transformAlignToPlane) {
-                                    sceneStoreSelectObjsAlignY();
+                                    SceneUtils.selectObjsAlignY();
                                 }
 
                                 this.setState({});
@@ -552,7 +547,7 @@ class SceneTransformBar extends Component<any, any> {
                                                     });
 
                                                     if (Settings().scene.transformAlignToPlane) {
-                                                        sceneStoreSelectObjsAlignY();
+                                                        SceneUtils.selectObjsAlignY();
                                                     }
                                                 }}
                                                 selectObj={selectObj}
@@ -567,10 +562,10 @@ class SceneTransformBar extends Component<any, any> {
                         </Segment>
                         <Segment inverted>
                             <Button inverted size={"tiny"} compact onClick={() => {
-                                sceneStoreSelectObjsResetScale();
+                                SceneUtils.selectObjsResetScale();
 
                                 if (Settings().scene.transformAlignToPlane) {
-                                    sceneStoreSelectObjsAlignY();
+                                    SceneUtils.selectObjsAlignY();
                                 }
 
                                 this.setState({});

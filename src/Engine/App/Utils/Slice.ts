@@ -1,6 +1,6 @@
 import {Printer} from "../Configs/Printer";
 import {acceleratedRaycast, MeshBVH} from 'three-mesh-bvh';
-import {SceneObject} from "../Scene/SceneObject";
+import {SceneObject} from "../Scene/Entities/SceneObject";
 import {BufferGeometry, Float32BufferAttribute, Points, PointsMaterial, Raycaster, Vector3} from "three";
 import * as THREE from "three";
 import {DrawDirLine, DrawPoint} from "./Utils";

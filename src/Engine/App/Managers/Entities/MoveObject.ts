@@ -1,5 +1,5 @@
 import {TransformInstrumentEnum} from "../../Scene/ChildrenUI/SceneTransformBar";
-import {SceneObject} from "../../Scene/SceneObject";
+import {SceneObject} from "../../Scene/Entities/SceneObject";
 import {Euler, Vector3} from "three";
 import * as THREE from 'three'
 

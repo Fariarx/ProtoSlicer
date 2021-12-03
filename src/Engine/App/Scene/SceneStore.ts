@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {BufferGeometry, Euler, Vector3} from "three";
-import {SceneObject} from "./SceneObject";
+import {SceneObject} from "./Entities/SceneObject";
 import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
@@ -10,11 +10,17 @@ import {LinearGenerator} from "../Utils/Utils";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {Printer} from "../Configs/Printer";
 import {MeshBVH} from "three-mesh-bvh";
+import {Key} from "ts-keycode-enum";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;
     needUpdateTransformTool: boolean = false;
     needUpdateSelectTool: boolean = false;
+
+    keysPressed: Array<Key> = [];
+    isKeyPressed = (key: Key) => {
+        return this.keysPressed.indexOf(key) !== -1;
+    }
 
     perspectiveCamera = new THREE.PerspectiveCamera(
         45,
@@ -33,9 +39,7 @@ export class CSceneStore {
     activeCamera: THREE.OrthographicCamera | THREE.PerspectiveCamera = this.perspectiveCamera;
     switchCameraType: Function = (isPerspective: boolean | undefined, isIni: boolean = false) => {};
 
-    scene: THREE.Scene = new THREE.Scene(
-
-    );
+    scene: THREE.Scene = new THREE.Scene();
     decorations: THREE.Group = new THREE.Group();
     objects: SceneObject[] = [];
 
@@ -84,154 +88,148 @@ export class CSceneStore {
     }
 }
 
-export const sceneStoreCreate = () => {
-    sceneStore = new CSceneStore();
-}
-
 export let sceneStore: CSceneStore;
 
-export const sceneStoreUpdateFrame = action(()=>{
-    sceneStore.needUpdateFrame = true;
-});
-export const sceneStoreUpdateTransformTool = action(()=>{
-    sceneStore.needUpdateTransformTool = true;
-});
+export namespace SceneUtils
+{
+    export const create = () => {
+        sceneStore = new CSceneStore();
+    }
+    export const updateFrame = action(()=>{
+        sceneStore.needUpdateFrame = true;
+    });
+    export const updateTransformTool = action(()=>{
+        sceneStore.needUpdateTransformTool = true;
+    });
+    export const selectionChanged = action((updateSelectPanel: boolean = false)=> {
+        sceneStore.transformInstrument?.detach();
 
+        sceneStore.groupSelected = [];
 
-export const sceneStoreSelectionChanged = action((updateSelectPanel: boolean = false)=> {
-    sceneStore.transformInstrument?.detach();
+        for (let object of sceneStore.objects) {
+            if (object.isSelected) {
+                sceneStore.groupSelected.push(object);
+            }
 
-    sceneStore.groupSelected = [];
-
-    for (let object of sceneStore.objects) {
-        if (object.isSelected) {
-            sceneStore.groupSelected.push(object);
+            object.SetSelection();
         }
 
-        object.SetSelection();
-    }
+        if (sceneStore.groupSelected.length) {
+            let centerGroup = SceneObject.CalculateGroupCenter(sceneStore.groupSelected);
 
-    if (sceneStore.groupSelected.length) {
-        let centerGroup = SceneObject.CalculateGroupCenter(sceneStore.groupSelected);
+            sceneStore.transformObjectGroup.position.set(centerGroup.x, 0, centerGroup.z);
+            sceneStore.transformObjectGroupOld.position.set(centerGroup.x, 0, centerGroup.z);
+        }
 
-        sceneStore.transformObjectGroup.position.set(centerGroup.x, 0, centerGroup.z);
-        sceneStore.transformObjectGroupOld.position.set(centerGroup.x, 0, centerGroup.z);
-    }
+        updateTransformControls();
 
-    sceneStoreUpdateTransformControls();
+        if (updateSelectPanel) {
+            sceneStore.needUpdateSelectTool = true;
+        }
 
-    if (updateSelectPanel) {
-        sceneStore.needUpdateSelectTool = true;
-    }
+        updateFrame();
+    });
+    export const updateTransformControls = action(() => {
+        let isWorkingInstrument = sceneStore.transformInstrumentState !== TransformInstrumentEnum.None;
 
-    sceneStoreUpdateFrame();
-});
+        sceneStore.transformObjectGroup.position.setX(sceneStore.gridSize.x / 2).setZ(sceneStore.gridSize.z / 2).setY(0);
+        sceneStore.transformObjectGroupOld.position.setX(sceneStore.gridSize.x / 2).setZ(sceneStore.gridSize.z / 2).setY(0);
+        sceneStore.transformObjectGroup.rotation.set(0,0,0);
+        sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
 
-export const sceneStoreUpdateTransformControls = () => {
-    let isWorkingInstrument = sceneStore.transformInstrumentState !== TransformInstrumentEnum.None;
+        if(isWorkingInstrument && sceneStore.groupSelected.length)
+        {
+            sceneStore.transformInstrument?.attach(sceneStore.transformObjectGroup);
+        }
+        else {
+            sceneStore.transformInstrument?.detach();
+        }
+    })
+    export const instrumentStateChanged = action((state: TransformInstrumentEnum = TransformInstrumentEnum.None)=>{
+        sceneStore.transformInstrumentState = state;
 
-    sceneStore.transformObjectGroup.position.setX(sceneStore.gridSize.x / 2).setZ(sceneStore.gridSize.z / 2).setY(0);
-    sceneStore.transformObjectGroupOld.position.setX(sceneStore.gridSize.x / 2).setZ(sceneStore.gridSize.z / 2).setY(0);
-    sceneStore.transformObjectGroup.rotation.set(0,0,0);
-    sceneStore.transformObjectGroupOld.rotation.set(0,0,0);
+        if(state !== TransformInstrumentEnum.None)
+        {
+            sceneStore.transformInstrument?.setMode(state);
 
-    if(isWorkingInstrument && sceneStore.groupSelected.length)
-    {
-        sceneStore.transformInstrument?.attach(sceneStore.transformObjectGroup);
-    }
-    else {
-        sceneStore.transformInstrument?.detach();
-    }
-}
+            updateTransformControls();
+        }
+        else {
+            sceneStore.transformInstrument?.detach();
+        }
 
-export const sceneStoreInstrumentStateChanged = action((state: TransformInstrumentEnum = TransformInstrumentEnum.None)=>{
-    sceneStore.transformInstrumentState = state;
-
-    if(state !== TransformInstrumentEnum.None)
-    {
-        sceneStore.transformInstrument?.setMode(state);
-
-        sceneStoreUpdateTransformControls();
-    }
-    else {
-        sceneStore.transformInstrument?.detach();
-    }
-
-    sceneStoreUpdateFrame();
-})
-
-export const sceneStoreSelectObjsAlignY = () => {
-    if (sceneStore.groupSelected.length ) {
+        updateFrame();
+    })
+    export const selectObjsAlignY = () => {
+        if (sceneStore.groupSelected.length ) {
             for (let sceneObject of sceneStore.groupSelected) {
                 sceneObject.AlignToPlaneY();
             }
         }
 
-        sceneStoreUpdateFrame();
-}
-
-export const sceneStoreSelectObjsResetRotation = () => {
-    let id = LinearGenerator();
-
-    if(sceneStore.groupSelected.length ) {
-        for (let sceneObject of sceneStore.groupSelected) {
-            Dispatch(EventEnum.TRANSFORM_OBJECT, {
-                from: sceneObject.mesh.rotation.clone(),
-                to: new Euler(0,0,0),
-                sceneObject: sceneObject,
-                instrument: TransformInstrumentEnum.Rotate,
-                id:id
-            } as MoveObject)
-        }
+        updateFrame();
     }
+    export const selectObjsResetRotation = () => {
+        let id = LinearGenerator();
 
-    Dispatch(EventEnum.TRANSFORM_OBJECT, {
-        from: sceneStore.transformObjectGroup.rotation.clone(),
-        to: new Euler(0,0,0),
-        sceneObject: sceneStore.transformObjectGroup,
-        instrument: TransformInstrumentEnum.Rotate,
-        id:id
-    } as MoveObject)
-
-    sceneStoreUpdateFrame();
-    sceneStoreUpdateTransformTool();
-}
-
-export const sceneStoreSelectObjsResetScale = () => {
-    let id = LinearGenerator();
-
-    if (sceneStore.groupSelected.length) {
-        for (let sceneObject of sceneStore.groupSelected) {
-            Dispatch(EventEnum.TRANSFORM_OBJECT, {
-                from: sceneObject.mesh.scale.clone(),
-                to: new Vector3(0.1,0.1,0.1),
-                sceneObject: sceneObject,
-                instrument: TransformInstrumentEnum.Scale,
-                id:id
-            } as MoveObject)
-
-            sceneObject.Update();
+        if(sceneStore.groupSelected.length ) {
+            for (let sceneObject of sceneStore.groupSelected) {
+                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                    from: sceneObject.mesh.rotation.clone(),
+                    to: new Euler(0,0,0),
+                    sceneObject: sceneObject,
+                    instrument: TransformInstrumentEnum.Rotate,
+                    id:id
+                } as MoveObject)
+            }
         }
+
+        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+            from: sceneStore.transformObjectGroup.rotation.clone(),
+            to: new Euler(0,0,0),
+            sceneObject: sceneStore.transformObjectGroup,
+            instrument: TransformInstrumentEnum.Rotate,
+            id:id
+        } as MoveObject)
+
+        updateFrame();
+        updateTransformTool();
     }
+    export const selectObjsResetScale = () => {
+        let id = LinearGenerator();
 
-    Dispatch(EventEnum.TRANSFORM_OBJECT, {
-        from: sceneStore.transformObjectGroup.scale.clone(),
-        to: new Vector3(1,1,1),
-        sceneObject: sceneStore.transformObjectGroup,
-        instrument: TransformInstrumentEnum.Scale,
-        id:id
-    } as MoveObject)
+        if (sceneStore.groupSelected.length) {
+            for (let sceneObject of sceneStore.groupSelected) {
+                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                    from: sceneObject.mesh.scale.clone(),
+                    to: new Vector3(0.1,0.1,0.1),
+                    sceneObject: sceneObject,
+                    instrument: TransformInstrumentEnum.Scale,
+                    id:id
+                } as MoveObject)
 
-    sceneStoreUpdateFrame();
-    sceneStoreUpdateTransformTool();
-}
+                sceneObject.Update();
+            }
+        }
 
-export const sceneStoreSelectObjsAlignXZ = () => {
-    if(sceneStore.groupSelected.length ) {
-        for (let sceneObject of sceneStore.groupSelected) {
+        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+            from: sceneStore.transformObjectGroup.scale.clone(),
+            to: new Vector3(1,1,1),
+            sceneObject: sceneStore.transformObjectGroup,
+            instrument: TransformInstrumentEnum.Scale,
+            id:id
+        } as MoveObject)
+
+        updateFrame();
+        updateTransformTool();
+    }
+    export const selectObjsAlignXZ = () => {
+        if(sceneStore.groupSelected.length ) {
+            for (let sceneObject of sceneStore.groupSelected) {
                 sceneObject.AlignToPlaneXZ(sceneStore.gridSize);
+            }
         }
-    }
 
-    sceneStoreUpdateFrame();
+        updateFrame();
+    }
 }

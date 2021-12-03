@@ -16,9 +16,8 @@ import {storeMain} from "../../../../Bridge";
 import {Log, Settings} from "../../../../Globals";
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
-import {SceneObject} from "../../SceneObject";
+import {SceneObject} from "../../Entities/SceneObject";
 import {action, observable} from "mobx";
-import {sceneStoreSelectionChanged} from "../../SceneStore";
 import {Dispatch, EventEnum} from "../../../Managers/Events";
 import {MenuItemStyleCenter, TransformInstrumentEnum} from "../SceneTransformBar";
 

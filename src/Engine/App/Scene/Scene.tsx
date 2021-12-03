@@ -6,11 +6,9 @@ import {BufferGeometry, PerspectiveCamera, Raycaster, Vector3} from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {Printer} from "../Configs/Printer";
-import * as SceneHelper from "./SceneHelper";
-import {File3DLoad} from "./SceneHelper";
 import {dirname, path, storeMain, url} from "../../Bridge";
 import {Log, Settings} from "../../Globals";
-import {SceneObject} from "./SceneObject";
+import {SceneObject} from "./Entities/SceneObject";
 import ContainerPrinterConfigurator from "../PrinterConfigurators/ContainerPrinterConfigurator";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {Key} from "ts-keycode-enum";
@@ -21,26 +19,21 @@ import {observer} from "mobx-react";
 import {Dispatch, EventEnum} from "../Managers/Events";
 import {
     sceneStore,
-    sceneStoreCreate,
-    sceneStoreSelectionChanged,
-    sceneStoreSelectObjsAlignY
+    SceneUtils
 } from "./SceneStore";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {addJob} from "../Managers/Workers";
 import {Job, WorkerType} from "../Managers/Entities/Job";
-import {DrawDirLine} from "../Utils/Utils";
+import {DrawDirLine, SceneHelper} from "../Utils/Utils";
 import {MeshBVH} from "three-mesh-bvh";
 import Stats from "three/examples/jsm/libs/stats.module";
+import {isKeyPressed} from "../Utils/Keys";
 
-sceneStoreCreate();
+SceneUtils.create();
 
 @observer
 export class Scene extends Component<any, any> {
     mount: any;
-    keysPressed: Array<Key> = [];
-    isKeyPressed = (key: Key) => {
-        return this.keysPressed.indexOf(key) !== -1;
-    }
 
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -202,7 +195,7 @@ export class Scene extends Component<any, any> {
 
                 for(let file of e.dataTransfer.files)
                 {
-                    let result = File3DLoad(file, function (geometry: BufferGeometry) {
+                    let result = SceneHelper.File3DLoad(file, function (geometry: BufferGeometry) {
                         let obj = new SceneObject(geometry, file.name, sceneStore.objects, true);
                         obj.AlignToPlaneXZ(sceneStore.gridSize);
                         obj.AlignToPlaneY();
@@ -566,7 +559,7 @@ export class Scene extends Component<any, any> {
             transformWorking = event.value;
 
             if (!event.value && Settings().scene.transformAlignToPlane) {
-                sceneStoreSelectObjsAlignY();
+                SceneUtils.selectObjsAlignY();
             }
 
             //sceneStore.transformObjectGroup.rotation.set(0,0,0);
@@ -575,7 +568,7 @@ export class Scene extends Component<any, any> {
             requestAnimationFrame(animate);
         });
 
-        File3DLoad(url.format({
+        SceneHelper.File3DLoad(url.format({
             pathname: path.join(dirname, '../test.stl'),
             protocol: 'file:',
             slashes: true,
@@ -607,20 +600,6 @@ export class Scene extends Component<any, any> {
 
         sceneStore.transformInstrument = transform;
 
-        window.addEventListener( 'keydown', (e)=>{
-            if(thisObj.keysPressed.indexOf(e.keyCode as Key) === -1)
-            {
-                thisObj.keysPressed.push(e.keyCode as Key);
-            }
-        }, false);
-        window.addEventListener( 'keyup',(e)=>{
-            let index = thisObj.keysPressed.indexOf(e.keyCode as Key);
-
-            if(index > -1)
-            {
-                thisObj.keysPressed.splice(index, 1);
-            }
-        }, false );
 
         let mouseTrack: any;
         const vec = new THREE.Vector3();
@@ -730,7 +709,7 @@ export class Scene extends Component<any, any> {
 
                 let sceneObj  = sceneStore.objects[sceneObjIndex];
 
-                if(!this.keysPressed.includes(Key.Ctrl) && !this.keysPressed.includes(Key.Shift) && !sceneObj.isSelected) {
+                if(!isKeyPressed(Key.Ctrl) && !isKeyPressed(Key.Shift) && !sceneObj.isSelected) {
                     sceneStore.objects.forEach((t, i) => {
                         if(i === sceneObjIndex)
                         {
@@ -742,7 +721,7 @@ export class Scene extends Component<any, any> {
                 }
 
                 sceneObj.isSelected = !sceneObj.isSelected;
-                sceneStoreSelectionChanged(true);
+                SceneUtils.selectionChanged(true);
                 requestAnimationFrame(animate);
             }
 
