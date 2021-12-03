@@ -79,8 +79,6 @@ export class SceneInitialization {
 
         this.updateCameraLookPosition();
 
-        this.dev();
-
         Log("SceneComponent loaded!");
     }
 
@@ -88,10 +86,14 @@ export class SceneInitialization {
         canvas.appendChild(this.sceneStore.renderer.domElement);
         canvas.appendChild(this.stats.domElement);
 
+        this.setupDragNDrop();
+
         for(let listener of this.temp.listners)
         {
             window.addEventListener(listener[0], listener[1]);
         }
+
+        this.dev();
     }
     setupPrinter() {
         let printer;
@@ -184,6 +186,8 @@ export class SceneInitialization {
                 })
 
                 if (intersects.length && intersects[0].face) {
+                    _this.temp.lastStateSupportsCursor = true;
+
                     _this.addSupportsCursor.visible = true;
                     _this.addSupportsCursor.quaternion.setFromUnitVectors(normalZ, intersects[0].face.normal);
                     _this.addSupportsCursor.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z)
@@ -191,6 +195,12 @@ export class SceneInitialization {
                     _this.animate();
                 } else {
                     _this.addSupportsCursor.visible = false;
+
+                    if(_this.temp.lastStateSupportsCursor)
+                    {
+                        _this.animate();
+                        delete _this.temp.lastStateSupportsCursor;
+                    }
                 }
             }
         })
@@ -513,7 +523,7 @@ export class SceneInitialization {
         this.sceneStore.scene.add(this.lightGroup);
     }
 
-     dispose() {
+    dispose() {
         for(let listener of this.temp.listners)
         {
             window.removeEventListener(listener[0], listener[1]);
@@ -612,6 +622,14 @@ export class SceneInitialization {
         this.sceneStore.grid = SceneHelper.CreateGrid(this.sceneStore.gridSize, this.sceneStore.scene);
     }
     animate () {
+        if(this.temp.lastFrameTime && Date.now() - this.temp.lastFrameTime < 8)
+        {
+            return;
+        }
+        else {
+            this.temp.lastFrameTime = Date.now();
+        }
+
         const _animate = () => {
             this.sceneStore.grid?.mat.resolution.set(window.innerWidth, window.innerHeight);
 
