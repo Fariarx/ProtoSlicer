@@ -34,6 +34,7 @@ class SceneTransformBar extends Component<any, any> {
         let instrumentEnum = sceneStore.transformInstrumentState;
         let instrumentMenu = <div/>;
         let selectObj = sceneStore.groupSelected.length ? sceneStore.transformObjectGroup : null;
+        let sharpnessCountDefault = (Settings().scene.sharpness.toString().match(/0/g)||[]).length;
 
         if (sceneStore.needUpdateTransformTool) {
             runInAction(() => {
@@ -89,7 +90,7 @@ class SceneTransformBar extends Component<any, any> {
                                                 unitsText={'cm'}
                                                 axisColor={'red'}
                                                 axisText={'X'}
-                                                updateValue={() => Number(selectObj?.position.x).toFixed(2)}
+                                                updateValue={() => Number(selectObj?.position.x).toFixed(sharpnessCountDefault)}
                                                 setValue={(number) => {
                                                     if (!selectObj) return;
 
@@ -125,7 +126,7 @@ class SceneTransformBar extends Component<any, any> {
                                                 unitsText={'cm'}
                                                 axisColor={'blue'}
                                                 axisText={'Y'}
-                                                updateValue={() => Number(selectObj?.position.z).toFixed(2)}
+                                                updateValue={() => Number(selectObj?.position.z).toFixed(sharpnessCountDefault)}
                                                 setValue={(number) => {
                                                     if (!selectObj) return;
 
@@ -161,7 +162,7 @@ class SceneTransformBar extends Component<any, any> {
                                                 unitsText={'cm'}
                                                 axisColor={'green'}
                                                 axisText={'Z'}
-                                                updateValue={() => Number(selectObj?.position.y).toFixed(2)}
+                                                updateValue={() => Number(selectObj?.position.y).toFixed(sharpnessCountDefault)}
                                                 setValue={(number) => {
                                                     if (!selectObj) return;
 
@@ -238,7 +239,7 @@ class SceneTransformBar extends Component<any, any> {
                                     <List>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.x)).toFixed(2) : undefined}
+                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.x)).toFixed(sharpnessCountDefault) : undefined}
                                                 setValue={(number) => {
                                                     selectObj?.rotation.set(MathUtils.degToRad(number), selectObj?.rotation.y, selectObj?.rotation.z)
                                                 }}
@@ -250,7 +251,7 @@ class SceneTransformBar extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.z)).toFixed(2) : undefined}
+                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.z)).toFixed(sharpnessCountDefault) : undefined}
                                                 setValue={(number) => {
                                                     selectObj?.rotation.set(selectObj?.rotation.x, selectObj?.rotation.y, MathUtils.degToRad(number))
                                                 }}
@@ -262,7 +263,7 @@ class SceneTransformBar extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.y)).toFixed(2) : undefined}
+                                                updateValue={() => selectObj ? Number(MathUtils.radToDeg(selectObj.rotation.y)).toFixed(sharpnessCountDefault) : undefined}
                                                 setValue={(number) => {
                                                     selectObj?.rotation.set(selectObj?.rotation.x, MathUtils.degToRad(number), selectObj?.rotation.z)
                                                 }}
@@ -319,7 +320,7 @@ class SceneTransformBar extends Component<any, any> {
                                     <List>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).x).toFixed(2) : undefined}
+                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).x).toFixed(sharpnessCountDefault) : undefined}
                                                 setValue={(number) => {
                                                     if (!selectObj) {
                                                         return;
@@ -398,7 +399,7 @@ class SceneTransformBar extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).z).toFixed(2) : undefined}
+                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).z).toFixed(sharpnessCountDefault) : undefined}
                                                 setValue={(number) => {
                                                     if (!selectObj) {
                                                         return;
@@ -476,7 +477,7 @@ class SceneTransformBar extends Component<any, any> {
                                         </List.Item>
                                         <List.Item>
                                             <SceneTransformInput
-                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).y).toFixed(2) : undefined}
+                                                updateValue={() => selectObj ? Number(SceneObject.CalculateGroupMaxSize(sceneStore.groupSelected).y).toFixed(sharpnessCountDefault) : undefined}
                                                 setValue={(number) => {
                                                     if (!selectObj) {
                                                         return;

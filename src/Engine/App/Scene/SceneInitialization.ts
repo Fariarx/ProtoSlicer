@@ -15,6 +15,10 @@ import {SceneObject} from "./Entities/SceneObject";
 import {isKeyPressed} from "../Utils/Keys";
 import {Printer} from "../Configs/Printer";
 import {CSceneStore, SceneUtils} from "./SceneStore";
+import {  generateSupport} from "../Utils/GenerateSupport";
+import {SupportDescription} from "./Entities/Supports/SupprotStruct/Body/SupportDescription";
+import {CylinderSize, SupportDescriptionCylinder} from "./Entities/Supports/SupprotStruct/Body/SupportDescriptionCylinder";
+import {SupportDescriptionContactSphere} from "./Entities/Supports/SupprotStruct/Contact/SupportDescriptionContactSphere";
 
 export class SceneInitialization {
     sceneStore: CSceneStore;
@@ -35,6 +39,8 @@ export class SceneInitialization {
 
     isTransformWorking = false;
     isWorkingAddSupports = true;
+
+    supportDescription?: SupportDescription;
 
     private temp: any = {};
 
@@ -79,9 +85,34 @@ export class SceneInitialization {
 
         this.updateCameraLookPosition();
 
+        this.setupSupportDescription();
+
         Log("SceneComponent loaded!");
     }
 
+    setupSupportDescription() {
+        let contact = new SupportDescriptionContactSphere(0.40, 0.1);
+        let top: CylinderSize = {
+            radiusTop : 0.4,
+            radiusBottom : 0.6,
+            height : 2,
+            radialSegments : 8
+        };
+        let center: CylinderSize = {
+            radiusTop : 1,
+            radiusBottom : 1,
+            height : 0.1,
+            radialSegments : 8
+        };
+        let bot: CylinderSize = {
+            radiusTop : 1,
+            radiusBottom : 1,
+            height : 0.1,
+            radialSegments : 8
+        };
+
+        this.supportDescription = new SupportDescriptionCylinder(top, center, bot, contact);
+    }
     setupCanvas(canvas) {
         canvas.appendChild(this.sceneStore.renderer.domElement);
         canvas.appendChild(this.stats.domElement);
@@ -217,7 +248,10 @@ export class SceneInitialization {
             }
         })
         this.temp.addListener('mouseup', (e)=> {
-            //console.log(e)
+            if(e.button === 0 && _this.addSupportsCursor.visible)
+            {
+                generateSupport(_this.addSupportsCursor.position, _this.addSupportsCursor.quaternion, <SupportDescriptionCylinder>this.supportDescription);
+            }
 
             if(e.button !== 0 || !this.sceneStore.printerName) {
                 return;
@@ -315,7 +349,7 @@ export class SceneInitialization {
 
         }
 
-        this.addSupportsCursor.scale.set(.08, .08, .08)
+        this.addSupportsCursor.scale.set(.05, .05, .05); //1 mm
         this.addSupportsCursor.geometry.setFromPoints( brushSegments );
         // @ts-ignore
         this.addSupportsCursor.material.color.set( 0xfb8c00 );
@@ -689,7 +723,6 @@ export class SceneInitialization {
             Dispatch(EventEnum.ADD_OBJECT, obj);
             _this.animate();
 
-            console.log(_this.sceneStore)
 
             /*addJob(new Job({
                 name: WorkerType.SliceFullScene,
