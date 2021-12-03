@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Provider} from "mobx-react";
-import {Scene} from "./Scene/Scene";
+import {SceneComponent} from "./Scene/SceneComponent";
 import DragAndDropModal from "./Scene/ChildrenUI/SceneDragAndDropModal";
 import {ElementConsole} from "./Scene/ChildrenUI/Notifications/ElementConsole";
 import ContainerRight from "./Scene/ChildrenUI/ContainerRight/ContainerRight";

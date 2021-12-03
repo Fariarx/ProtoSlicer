@@ -35,7 +35,7 @@ class SelectObjectsView extends Component<any, any> {
 
             if(obj === null)
             {
-                Log("Error! Scene object by name is null");
+                Log("Error! SceneComponent object by name is null");
                 return <div></div>;
             }
 

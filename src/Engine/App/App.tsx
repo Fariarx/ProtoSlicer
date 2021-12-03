@@ -1,14 +1,11 @@
-import {Scene} from './Scene/Scene';
+import {SceneComponent} from './Scene/SceneComponent';
 import { ElementConsole } from "./Scene/ChildrenUI/Notifications/ElementConsole";
 import React, {Component} from "react";
-import DragAndDropModal from "./Scene/ChildrenUI/SceneDragAndDropModal";
 import LabelPopup from "./Scene/ChildrenUI/Notifications/ElementPopupLabel";
 import ContainerRight from "./Scene/ChildrenUI/ContainerRight/ContainerRight";
-import {Button, Card, Feed} from "semantic-ui-react";
 import {Provider} from "mobx-react";
 import {sceneStore} from "./Scene/SceneStore";
 import {AppTitleBar} from "./AppTitleBar";
-import SceneTransformBar from "./Scene/ChildrenUI/SceneTransformBar";
 import SceneUtilsTopBar from "./Scene/ChildrenUI/SceneUtilsTopBar";
 
 let stores = {
@@ -16,18 +13,6 @@ let stores = {
 }
 
 export class App extends Component<any, any> {
-    state: any = {
-        isShowDragAndDropModal: false
-    }
-    showDragAndDropModal = (state: boolean) => {
-        this.setState({
-            isShowDragAndDropModal: state
-        });
-    }
-    update = function () {
-
-    }
-
     render(): React.ReactNode {
         return (
             <Provider {...stores}>
@@ -48,10 +33,9 @@ export class App extends Component<any, any> {
                         background: 'firebrick',
                         justifyContent: 'space-between'
                     }}>
-                         <Scene dragAndDropSetState={this.showDragAndDropModal}>
-                            {this.state.isShowDragAndDropModal && <DragAndDropModal/>}
+                         <SceneComponent>
                             <ElementConsole/>
-                        </Scene>
+                        </SceneComponent>
                         <SceneUtilsTopBar />
                         <ContainerRight />
                         <LabelPopup/>

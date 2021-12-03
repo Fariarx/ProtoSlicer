@@ -6,24 +6,30 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {action, makeAutoObservable} from "mobx";
 import {Dispatch, EventEnum  } from "../Managers/Events";
-import {LinearGenerator} from "../Utils/Utils";
+import {LinearGenerator, SceneHelper} from "../Utils/Utils";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {Printer} from "../Configs/Printer";
 import {MeshBVH} from "three-mesh-bvh";
 import {Key} from "ts-keycode-enum";
+import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
+import {storeMain} from "../../Bridge";
+import {SceneInitialization} from "./SceneInitialization";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;
     needUpdateTransformTool: boolean = false;
     needUpdateSelectTool: boolean = false;
 
-    keysPressed: Array<Key> = [];
-    isKeyPressed = (key: Key) => {
-        return this.keysPressed.indexOf(key) !== -1;
-    }
+    renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha:true,
+    });
+    outlineEffectRenderer: OutlineEffect = new OutlineEffect( this.renderer, {
+        defaultThickness:0.001
+    });
 
     perspectiveCamera = new THREE.PerspectiveCamera(
-        45,
+        40,
         window.innerWidth / window.innerHeight,
         0.01,
         1000
@@ -37,14 +43,16 @@ export class CSceneStore {
         1000,
     );
     activeCamera: THREE.OrthographicCamera | THREE.PerspectiveCamera = this.perspectiveCamera;
-    switchCameraType: Function = (isPerspective: boolean | undefined, isIni: boolean = false) => {};
 
+    ini: SceneInitialization;
     scene: THREE.Scene = new THREE.Scene();
     decorations: THREE.Group = new THREE.Group();
     objects: SceneObject[] = [];
 
+    grid?: SceneHelper.Grid;
     gridSize: Vector3 = new Vector3(1, 1, 1);
 
+    printerName: string = storeMain.get('printer');
     printer?: Printer;
 
     materialForPlaneShadow: THREE.Material = new THREE.ShadowMaterial({
@@ -63,28 +71,30 @@ export class CSceneStore {
     });
     materialForObjects: ISceneMaterial = SceneMaterials.default;
 
-    transformInstrument?: TransformControls;
     transformInstrumentState: TransformInstrumentEnum = TransformInstrumentEnum.None;
     transformObjectGroupOld: THREE.Object3D = new THREE.Object3D();
     transformObjectGroup: THREE.Object3D = new THREE.Object3D();
 
     groupSelected: Array<SceneObject> = new Array<SceneObject>();
 
-    constructor() {
+    constructor(_props: any) {
         makeAutoObservable(this);
+
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+
+        this.renderer.setClearColor(0x000000, 0);
+        this.renderer.domElement.style.background =  'linear-gradient(to bottom,  '+Settings().ui.colorBackgroundScene+' 0%,'+ Settings().ui.colorBackgroundSceneBottom +' 100%)'
 
         this.scene.add(this.transformObjectGroup);
         this.scene.add(this.decorations);
 
         this.orthographicCamera.zoom = 70;
-    }
 
-    get sceneStoreGetSelectObj() {
-        if (sceneStore.groupSelected.length) {
-            return (sceneStore.transformObjectGroup);
-        } else {
-            return null;
-        }
+        this.ini = new SceneInitialization(this, _props);
     }
 }
 
@@ -92,8 +102,8 @@ export let sceneStore: CSceneStore;
 
 export namespace SceneUtils
 {
-    export const create = () => {
-        sceneStore = new CSceneStore();
+    export const create = (props) => {
+        sceneStore = new CSceneStore(props);
     }
     export const updateFrame = action(()=>{
         sceneStore.needUpdateFrame = true;
@@ -102,7 +112,7 @@ export namespace SceneUtils
         sceneStore.needUpdateTransformTool = true;
     });
     export const selectionChanged = action((updateSelectPanel: boolean = false)=> {
-        sceneStore.transformInstrument?.detach();
+        sceneStore.ini.transformControls.detach();
 
         sceneStore.groupSelected = [];
 
@@ -139,10 +149,10 @@ export namespace SceneUtils
 
         if(isWorkingInstrument && sceneStore.groupSelected.length)
         {
-            sceneStore.transformInstrument?.attach(sceneStore.transformObjectGroup);
+            sceneStore.ini.transformControls.attach(sceneStore.transformObjectGroup);
         }
         else {
-            sceneStore.transformInstrument?.detach();
+            sceneStore.ini.transformControls.detach();
         }
     })
     export const instrumentStateChanged = action((state: TransformInstrumentEnum = TransformInstrumentEnum.None)=>{
@@ -150,12 +160,12 @@ export namespace SceneUtils
 
         if(state !== TransformInstrumentEnum.None)
         {
-            sceneStore.transformInstrument?.setMode(state);
+            sceneStore.ini.transformControls.setMode(state);
 
             updateTransformControls();
         }
         else {
-            sceneStore.transformInstrument?.detach();
+            sceneStore.ini.transformControls.detach();
         }
 
         updateFrame();

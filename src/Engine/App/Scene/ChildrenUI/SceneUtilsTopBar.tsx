@@ -24,7 +24,7 @@ class SceneUtilsTopBar extends Component<any, any> {
                 <Menu  inverted  compact style={{marginLeft: '10vmin'}}>
                     <Menu.Item name='SwitchCameraType' onClick={() => {
                         Settings().scene.setStartupPerspectiveCamera = !(sceneStore.activeCamera instanceof PerspectiveCamera);
-                        sceneStore.switchCameraType(Settings().scene.setStartupPerspectiveCamera);
+                        sceneStore.ini.setupCameraType(Settings().scene.setStartupPerspectiveCamera);
                         SaveSettings();
                     }}>
                         <p>

@@ -33,7 +33,7 @@ class SceneTransformBar extends Component<any, any> {
     render() {
         let instrumentEnum = sceneStore.transformInstrumentState;
         let instrumentMenu = <div/>;
-        let selectObj = sceneStore.sceneStoreGetSelectObj;
+        let selectObj = sceneStore.groupSelected.length ? sceneStore.transformObjectGroup : null;
 
         if (sceneStore.needUpdateTransformTool) {
             runInAction(() => {

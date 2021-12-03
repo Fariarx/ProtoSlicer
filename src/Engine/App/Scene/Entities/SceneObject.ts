@@ -136,19 +136,6 @@ export class SceneObject {
         return _mesh === this.mesh;
     }
 
-    static GetAllSelected(objs: SceneObject[], isSelected = true) //use sceneStore.groupSelected
-    {
-        let result: SceneObject[] = [];
-
-        objs.forEach(function(element, index) {
-            if(element.isSelected === isSelected)
-            {
-                result.push(element);
-            }
-        })
-
-        return result;
-    }
     static SearchObject(objs: SceneObject[], _mesh: THREE.Mesh)
     {
         let _index = -1;
