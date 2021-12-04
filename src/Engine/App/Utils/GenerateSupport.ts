@@ -24,9 +24,8 @@ export const generateSupport = (positionStart: THREE.Vector3, quaternion: THREE.
         let topCylinder = createCylinder(cylinder.material, positionStart, quaternion, cylinder.sizeTop);
         let topContact = createContactSphere(cylinder.material, positionStart, topCylinder.trueDir, cylinder.contact as SupportDescriptionContactSphere);
         let centerContact = createContactSphere(cylinder.material, topCylinder.end, null, cylinder.contactForSupport as SupportDescriptionContactSphere);
-        let centerCylinder = createCylinder(cylinder.material, topCylinder.end, Directions.Down, cylinder.sizeCenter, topCylinder.end.distanceTo(topCylinder.end.clone().setY(0)));
+        let centerCylinder = createCylinder(cylinder.material, topCylinder.end, Directions.Down, cylinder.sizeCenter, Math.abs( topCylinder.end.y ));
         let botCylinder = createCylinderBottom(cylinder.material, centerCylinder.end, cylinder.sizeBottom);
-        //let botContact = createContactSphere(cylinder.material, botCylinder.mesh.position, null, cylinder.contact as SupportDescriptionContactSphere);
 
         {
             const angleBetweenPlane = radToDeg(topCylinder.trueDir.angleTo(centerCylinder.trueDir));

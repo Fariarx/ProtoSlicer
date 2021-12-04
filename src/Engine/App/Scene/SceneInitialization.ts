@@ -95,16 +95,16 @@ export class SceneInitialization {
     }
 
     setupSupportDescription() {
-        let contact = new SupportDescriptionContactSphere(0.6, 0.1);
+        let contact = new SupportDescriptionContactSphere(0.45, 0.1);
 
         let top: CylinderSize = {
             radiusTop : 0.4,
-            radiusBottom : 0.6,
+            radiusBottom : 0.5,
             height : [2, 6],
             radialSegments : 8
         };
         let center: CylinderSizeCenter = {
-            radiusTop : 0.6,
+            radiusTop : 0.5,
             radiusBottom : 0.6,
             radialSegments : 8
         };
