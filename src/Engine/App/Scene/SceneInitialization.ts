@@ -7,7 +7,7 @@ import Globals, {Log, MaterialForSupports, Settings} from "../../Globals";
 import {SceneHelper} from "../Utils/Utils";
 import {runInAction} from "mobx";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
-import {BufferGeometry, Raycaster, Vector3} from "three";
+import {BufferGeometry, Mesh, Raycaster, Vector3} from "three";
 import {Dispatch, EventEnum} from "../Managers/Events";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {dirname, path, url} from "../../Bridge";
@@ -23,6 +23,7 @@ import {
     SupportDescriptionCylinder
 } from "./Entities/Supports/SupprotStruct/Body/SupportDescriptionCylinder";
 import {SupportDescriptionContactSphere} from "./Entities/Supports/SupprotStruct/Contact/SupportDescriptionContactSphere";
+import {SupportSceneObject} from "./Entities/Supports/SupportSceneObject";
 
 export class SceneInitialization {
     sceneStore: CSceneStore;
@@ -221,20 +222,30 @@ export class SceneInitialization {
                 })
 
                 if (intersects.length && intersects[0].face) {
-                    _this.temp.lastStateSupportsCursor = true;
+                    let objIndex = SceneObject.SearchObject(this.sceneStore.groupSelected, intersects[0].object as Mesh);
 
+                    if(objIndex === -1)
+                    {
+                        _this.temp.lastStateSupportsCursor = false;
+                        _this.addSupportsCursor.visible = false;
+                        _this.animate();
+                        return;
+                    }
+
+                    _this.temp.lastStateSupportsCursor = true;
                     _this.addSupportsCursor.visible = true;
                     _this.addSupportsCursor.quaternion.setFromUnitVectors(normalZ, intersects[0].face.normal);
-                    _this.addSupportsCursor.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z)
-
+                    _this.addSupportsCursor.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+                    _this.temp.addSupportsCursorTargetMesh = this.sceneStore.groupSelected[objIndex];
                     _this.animate();
+
                 } else {
                     _this.addSupportsCursor.visible = false;
 
                     if(_this.temp.lastStateSupportsCursor)
                     {
                         _this.animate();
-                        delete _this.temp.lastStateSupportsCursor;
+                        _this.temp.lastStateSupportsCursor = false;
                     }
                 }
             }
@@ -272,12 +283,21 @@ export class SceneInitialization {
 
             if(_this.addSupportsCursor.visible)
             {
+                let sceneObj: SceneObject | undefined = _this.temp.addSupportsCursorTargetMesh;
+
+                if(!sceneObj)
+                {
+                    return;
+                }
+
                 let result = generateSupport(_this.addSupportsCursor.position, _this.addSupportsCursor.quaternion, <SupportDescriptionCylinder>this.supportDescription);
 
                 if(result)
                 {
                     this.sceneStore.scene.add(result);
                 }
+
+                sceneObj.supports.push(new SupportSceneObject(result));
 
                 return;
             }
@@ -301,7 +321,7 @@ export class SceneInitialization {
             {
                 let sceneObjIndex = SceneObject.SearchObject(this.sceneStore.objects, intersects[0].object as THREE.Mesh)
 
-                if(sceneObjIndex < -1)
+                if(sceneObjIndex < 0)
                 {
                     return;
                 }
@@ -681,8 +701,17 @@ export class SceneInitialization {
         this.sceneStore.grid = SceneHelper.CreateGrid(this.sceneStore.gridSize, this.sceneStore.scene);
     }
     animate () {
+        if(this.temp.needAnimateTimer)
+        {
+            clearTimeout(this.temp.needAnimateTimer);
+            delete this.temp.needAnimateTimer;
+        }
+
         if(this.temp.lastFrameTime && Date.now() - this.temp.lastFrameTime < 8)
         {
+            this.temp.needAnimateTimer = setTimeout(()=>{
+                this.animate();
+            }, 8);
             return;
         }
         else {
@@ -719,7 +748,6 @@ export class SceneInitialization {
     }
     dev() {
         let _this = this;
-
 
         SceneHelper.File3DLoad(url.format({
             pathname: path.join(dirname, '../test.stl'),

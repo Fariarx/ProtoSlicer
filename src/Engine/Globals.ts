@@ -4,6 +4,7 @@ import {DefaultConfig} from './DefaultConfig'
 import {acceleratedRaycast, computeBoundsTree, disposeBoundsTree} from "three-mesh-bvh";
 import { Vector3 } from "three";
 import * as THREE from 'three'
+import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -35,6 +36,11 @@ export type ISceneMaterial = {
 export const MaterialForSupports = {
     normal: new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.7 })
 }
+
+export const  matLine = new LineMaterial({
+    color: 0xa1a1a1,
+    linewidth: 3
+});
 
 export const SceneMaterials = {
     transparent: {

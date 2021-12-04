@@ -6,6 +6,7 @@ import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import {LineGeometry} from "three/examples/jsm/lines/LineGeometry";
 import {Line2} from "three/examples/jsm/lines/Line2";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {matLine} from "../../Globals";
 
 export namespace SceneHelper {
     export type Grid = {
@@ -49,11 +50,6 @@ export namespace SceneHelper {
         var geometry = new LineGeometry();
         geometry.setPositions(positions);
 
-        var matLine = new LineMaterial({
-            color: 0xa1a1a1,
-            linewidth: 3
-        });
-
         var line = new Line2(geometry, matLine);
 
         scene.add(line);
@@ -63,7 +59,6 @@ export namespace SceneHelper {
             mat: matLine,
             dispose: ()=> {
                 geometry.dispose();
-                matLine.dispose();
                 scene.remove(line);
             }
         } as Grid;

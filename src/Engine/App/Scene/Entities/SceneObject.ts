@@ -6,6 +6,7 @@ import {TransformInstrumentEnum} from "../ChildrenUI/SceneTransformBar";
 import {MoveObject} from "../../Managers/Entities/MoveObject";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 import {CENTER, MeshBVH, SAH, SplitStrategy} from "three-mesh-bvh";
+import {SupportSceneObject} from "./Supports/SupportSceneObject";
 
 export class SceneObject {
     name: string;
@@ -17,6 +18,8 @@ export class SceneObject {
     center: Vector3;
     size: Vector3 = new Vector3();
     scaleFactor: number;
+
+    supports: SupportSceneObject[];
 
     isSelected: boolean;
     private wasSelected: boolean;
@@ -35,6 +38,7 @@ export class SceneObject {
 
         this.name = newName;
 
+        this.supports = [];
 
         this.mesh = new THREE.Mesh( geometry, sceneStore.materialForObjects.normal );
         this.bbox = new THREE.BoxHelper( this.mesh, 0xffff00 );
