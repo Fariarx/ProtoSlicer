@@ -1,4 +1,4 @@
-import {BufferGeometry, Scene} from "three";
+import {BufferGeometry, Scene, Vector3} from "three";
 import * as THREE from "three";
 import {sceneStore} from "../Scene/SceneStore";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
@@ -232,7 +232,7 @@ export function SimpleCopyObj(from: any, to:any) {
         to[val1] = from[val1];
     }
 }
-export function DrawDirLine(origin, dir, scene: Scene = sceneStore.scene, length : number = 100)
+export function DrawDirLine(origin, dir: Vector3, scene: Scene = sceneStore.scene, length : number = 100)
 {
     dir.normalize();
 

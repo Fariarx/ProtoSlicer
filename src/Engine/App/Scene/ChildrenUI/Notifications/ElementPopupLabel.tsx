@@ -13,7 +13,7 @@ const LabelPopup = observer(() => {
     {
         return (
             <Label className='start-50 top-0 position-absolute translate-middle' style={{
-                marginTop:'4vmin',
+                marginTop:'15vmin',
                 zIndex:500
             }}>
                 <Icon name='terminal' color='red'  /> {text.value}

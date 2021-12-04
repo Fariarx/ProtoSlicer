@@ -3,7 +3,7 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import {Log, Settings} from "../../Globals";
+import Globals, {Log, MaterialForSupports, Settings} from "../../Globals";
 import {SceneHelper} from "../Utils/Utils";
 import {runInAction} from "mobx";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
@@ -17,7 +17,11 @@ import {Printer} from "../Configs/Printer";
 import {CSceneStore, SceneUtils} from "./SceneStore";
 import {  generateSupport} from "../Utils/GenerateSupport";
 import {SupportDescription} from "./Entities/Supports/SupprotStruct/Body/SupportDescription";
-import {CylinderSize, SupportDescriptionCylinder} from "./Entities/Supports/SupprotStruct/Body/SupportDescriptionCylinder";
+import {
+    CylinderSize,
+    CylinderSizeCenter,
+    SupportDescriptionCylinder
+} from "./Entities/Supports/SupprotStruct/Body/SupportDescriptionCylinder";
 import {SupportDescriptionContactSphere} from "./Entities/Supports/SupprotStruct/Contact/SupportDescriptionContactSphere";
 
 export class SceneInitialization {
@@ -91,27 +95,27 @@ export class SceneInitialization {
     }
 
     setupSupportDescription() {
-        let contact = new SupportDescriptionContactSphere(0.40, 0.1);
+        let contact = new SupportDescriptionContactSphere(0.6, 0.1);
+
         let top: CylinderSize = {
             radiusTop : 0.4,
             radiusBottom : 0.6,
-            height : 2,
+            height : [2, 6],
             radialSegments : 8
         };
-        let center: CylinderSize = {
-            radiusTop : 1,
-            radiusBottom : 1,
-            height : 0.1,
+        let center: CylinderSizeCenter = {
+            radiusTop : 0.6,
+            radiusBottom : 0.6,
             radialSegments : 8
         };
         let bot: CylinderSize = {
-            radiusTop : 1,
-            radiusBottom : 1,
-            height : 0.1,
-            radialSegments : 8
+            radiusTop : 5,
+            radiusBottom : 3,
+            height : [1, 2],
+            radialSegments : 4
         };
 
-        this.supportDescription = new SupportDescriptionCylinder(top, center, bot, contact);
+        this.supportDescription = new SupportDescriptionCylinder(MaterialForSupports.normal, top, center, bot, contact);
     }
     setupCanvas(canvas) {
         canvas.appendChild(this.sceneStore.renderer.domElement);
@@ -248,11 +252,6 @@ export class SceneInitialization {
             }
         })
         this.temp.addListener('mouseup', (e)=> {
-            if(e.button === 0 && _this.addSupportsCursor.visible)
-            {
-                generateSupport(_this.addSupportsCursor.position, _this.addSupportsCursor.quaternion, <SupportDescriptionCylinder>this.supportDescription);
-            }
-
             if(e.button !== 0 || !this.sceneStore.printerName) {
                 return;
             }
@@ -271,6 +270,17 @@ export class SceneInitialization {
                 return;
             }
 
+            if(_this.addSupportsCursor.visible)
+            {
+                let result = generateSupport(_this.addSupportsCursor.position, _this.addSupportsCursor.quaternion, <SupportDescriptionCylinder>this.supportDescription);
+
+                if(result)
+                {
+                    this.sceneStore.scene.add(result);
+                }
+
+                return;
+            }
 
             vec.set(
                 ( (e.clientX) / window.innerWidth ) * 2 - 1,

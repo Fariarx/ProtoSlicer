@@ -1,11 +1,20 @@
-import * as THREE from 'three'
+
 import {storeMain} from "./Bridge";
 import {DefaultConfig} from './DefaultConfig'
 import {acceleratedRaycast, computeBoundsTree, disposeBoundsTree} from "three-mesh-bvh";
+import { Vector3 } from "three";
+import * as THREE from 'three'
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+export const Directions = {
+    Up: new Vector3() ,
+    Down: new Vector3().setX( Math.PI / 2),
+    Forward: new Vector3().setZ( Math.PI / 2),
+    //Left: new Vector3().setZ( Math.PI / 2).setY(Math.PI / 2),
+}
 
 export default this;
 
@@ -21,6 +30,10 @@ export let SaveSettings = () => {
 export type ISceneMaterial = {
     normal: THREE.Material;
     select: THREE.Material;
+}
+
+export const MaterialForSupports = {
+    normal: new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.7 })
 }
 
 export const SceneMaterials = {
