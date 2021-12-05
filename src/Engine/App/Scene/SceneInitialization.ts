@@ -117,7 +117,15 @@ export class SceneInitialization {
             radialSegments : 4
         };
 
-        this.supportDescription = new SupportDescriptionCylinder(MaterialForSupports.normal, top, center, bot, contact, 70);
+        this.supportDescription = new SupportDescriptionCylinder(
+            MaterialForSupports.normal,
+            MaterialForSupports.preview,
+            top,
+            center,
+            bot,
+            contact,
+            70
+        );
     }
     setupCanvas(canvas) {
         canvas.appendChild(this.sceneStore.renderer.domElement);
@@ -230,7 +238,7 @@ export class SceneInitialization {
                 }
 
                 if (intersects.length && intersects[0].face) {
-                    let objIndex = SceneObject.SearchObject(this.sceneStore.groupSelected, intersects[0].object as Mesh);
+                    let objIndex = SceneObject.SearchMesh(this.sceneStore.groupSelected, intersects[0].object as Mesh);
 
                     if(objIndex === -1)
                     {
@@ -246,7 +254,8 @@ export class SceneInitialization {
                             positionStart: _this.addSupportsCursor.position,
                             quaternion: _this.addSupportsCursor.quaternion,
                             cylinder: <SupportDescriptionCylinder>this.supportDescription,
-                            meshes: [...SceneObject.GetMeshesFromObjs(sceneStore.groupSelected), <THREE.Mesh>this.sceneStore.decorations.children[0]]
+                            meshes: [...SceneObject.GetMeshesFromObjs(sceneStore.groupSelected), <THREE.Mesh>this.sceneStore.decorations.children[0]],
+                            isPreview: true
                         } as GenerateSupportType);
 
                         if (result) {
@@ -343,7 +352,7 @@ export class SceneInitialization {
 
             if(intersects.length && intersects[0].face )
             {
-                let sceneObjIndex = SceneObject.SearchObject(this.sceneStore.objects, intersects[0].object as THREE.Mesh)
+                let sceneObjIndex = SceneObject.SearchMesh(this.sceneStore.objects, intersects[0].object as THREE.Mesh)
 
                 if(sceneObjIndex < 0)
                 {
@@ -700,16 +709,23 @@ export class SceneInitialization {
             );
 
 
+            const geometryForSupports = new THREE.PlaneGeometry(Math.ceil(this.sceneStore.printer.Workspace.sizeX * 0.1), Math.ceil(this.sceneStore.printer.Workspace.sizeY * 0.1));
+            const planeForSupports = new THREE.Mesh(geometryForSupports, );
+            planeForSupports.rotateX(-Math.PI / 2);
+            planeForSupports.position.set(this.sceneStore.gridSize.x / 2, 0, this.sceneStore.gridSize.z / 2);
+            planeForSupports.visible = false;
+            this.sceneStore.decorations.add(planeForSupports);
+
             const geometry = new THREE.PlaneGeometry(this.sceneStore.printer.Workspace.sizeX * 0.1, this.sceneStore.printer.Workspace.sizeY * 0.1);
             const plane = new THREE.Mesh(geometry, this.sceneStore.materialForPlane);
             plane.rotateX(-Math.PI / 2);
-            plane.position.set(this.sceneStore.gridSize.x / 2, 0, this.sceneStore.gridSize.z / 2);
+            plane.position.set(this.sceneStore.gridSize.x / 2, -0.03, this.sceneStore.gridSize.z / 2);
             this.sceneStore.decorations.add(plane);
 
             const geometry1 = new THREE.PlaneGeometry(Math.ceil(this.sceneStore.printer.Workspace.sizeX * 0.1), Math.ceil(this.sceneStore.printer.Workspace.sizeY * 0.1));
             const plane1 = new THREE.Mesh(geometry1, this.sceneStore.materialForPlaneLimit);
             plane1.rotateX(-Math.PI / 2);
-            plane1.position.set(this.sceneStore.gridSize.x / 2, -0.04, this.sceneStore.gridSize.z / 2);
+            plane1.position.set(this.sceneStore.gridSize.x / 2, -0.06, this.sceneStore.gridSize.z / 2);
             this.sceneStore.decorations.add(plane1);
 
             const plane2 = new THREE.Mesh(geometry1, this.sceneStore.materialForPlaneShadow);
@@ -728,7 +744,7 @@ export class SceneInitialization {
         if(this.temp.needAnimateTimer)
         {
             clearTimeout(this.temp.needAnimateTimer);
-            delete this.temp.needAnimateTimer;
+            this.temp.needAnimateTimer = null;
         }
 
         if(this.temp.lastFrameTime && Date.now() - this.temp.lastFrameTime < 8)
@@ -749,6 +765,16 @@ export class SceneInitialization {
 
             this.lightFromCamera.position.set(this.sceneStore.activeCamera.position.x, this.sceneStore.activeCamera.position.y, this.sceneStore.activeCamera.position.z);
 
+
+            if(this.sceneStore.activeCamera.position.y >= 0)
+            {
+                SceneObject.UpdateSupportRender(this.sceneStore.groupSelected, true);
+                SceneObject.UpdateSupportRender(SceneObject.GetUniqueInA(this.sceneStore.objects,this.sceneStore.groupSelected), false);
+            }
+            else {
+                SceneObject.UpdateSupportRender(this.sceneStore.objects, false);
+            }
+
             this.sceneStore.renderer.render(this.sceneStore.scene, this.sceneStore.activeCamera);
 
             if (this.temp.outlineTimer) {
@@ -758,7 +784,11 @@ export class SceneInitialization {
 
             this.temp.outlineTimer = setTimeout(() => {
                 this.sceneStore.renderer.render(this.sceneStore.scene, this.sceneStore.activeCamera);
-                this.sceneStore.outlineEffectRenderer.renderOutline(this.sceneStore.scene, this.sceneStore.activeCamera);
+
+                if(this.sceneStore.activeCamera.position.y >= 0)
+                {
+                    this.sceneStore.outlineEffectRenderer.renderOutline(this.sceneStore.scene, this.sceneStore.activeCamera);
+                }
             }, 1000);
 
             this.stats.update();

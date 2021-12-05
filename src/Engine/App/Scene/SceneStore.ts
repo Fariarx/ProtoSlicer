@@ -65,9 +65,7 @@ export class CSceneStore {
     });
     materialForPlaneLimit: THREE.Material = new THREE.MeshBasicMaterial({
         color: Settings().scene.workingPlaneLimitColor,
-        side: THREE.DoubleSide,
-        opacity: 0.7,
-        transparent: true
+        side: THREE.FrontSide
     });
     materialForObjects: ISceneMaterial = SceneMaterials.default;
 

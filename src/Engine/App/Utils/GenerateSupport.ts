@@ -20,13 +20,14 @@ export type GenerateSupportType = {
     quaternion: THREE.Quaternion,
     cylinder: SupportDescription | SupportDescriptionCylinder,
     meshes: THREE.Mesh[],
-    isAuto?: boolean
+    isAuto?: boolean,
+    isPreview?: boolean
 }
 export const generateSupport = (generate: GenerateSupportType) => {
-    return generateSupportAlgorithm(generate.positionStart, generate.quaternion, generate.cylinder, generate.meshes, <boolean>generate.isAuto);
+    return generateSupportAlgorithm(generate.positionStart, generate.quaternion, generate.cylinder, generate.meshes, <boolean>generate.isAuto, <boolean>generate.isPreview);
 }
 
-const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THREE.Quaternion, cylinder: SupportDescription | SupportDescriptionCylinder, meshes: THREE.Mesh[], isAuto: boolean) => { //, cylinderCenter: CylinderSize, cylinderBottom: CylinderSize, substrate: SubstrateSizeBox
+const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THREE.Quaternion, cylinder: SupportDescription | SupportDescriptionCylinder, meshes: THREE.Mesh[], isAuto: boolean, isPreview: boolean) => { //, cylinderCenter: CylinderSize, cylinderBottom: CylinderSize, substrate: SubstrateSizeBox
     if(cylinder instanceof SupportDescriptionCylinder)
     {
         // let date = Date.now();
@@ -36,18 +37,21 @@ const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THRE
             defineRaysObj(cylinder.sizeTop.diameterBottom);
         }
 
-        let calculated = calculateSupportRays(positionStart, quaternion, cylinder, meshes);
+        let material = isPreview ? cylinder.materialPreview : cylinder.material;
+
+        let calculated = calculateSupportRays(material, positionStart, quaternion, cylinder, meshes);
         if(!calculated)
         {
             return false;
         }
 
+
         let topCylinder = calculated.topCylinder;
 
-        let topContact = createContactSphere(cylinder.material, positionStart, topCylinder.trueDir, cylinder.contactWithModel as SupportDescriptionContactSphere);
-        let centerContact = createContactSphere(cylinder.material, topCylinder.end, null, cylinder.contact as SupportDescriptionContactSphere);
-        let centerCylinder = createCylinder(cylinder.material, topCylinder.end, Directions.Down, cylinder.sizeCenter, Math.abs( topCylinder.end.y ));
-        let botCylinder = createCylinderBottom(cylinder.material, centerCylinder.end, cylinder.sizeBottom);
+        let topContact = createContactSphere(material, positionStart, topCylinder.trueDir, cylinder.contactWithModel as SupportDescriptionContactSphere);
+        let centerContact = createContactSphere(material, topCylinder.end, null, cylinder.contact as SupportDescriptionContactSphere);
+        let centerCylinder = createCylinder(material, topCylinder.end, Directions.Down, cylinder.sizeCenter, Math.abs( topCylinder.end.y ));
+        let botCylinder = createCylinderBottom(material, centerCylinder.end, cylinder.sizeBottom);
 
         {
             const angleBetweenPlane = radToDeg(topCylinder.trueDir.angleTo(centerCylinder.trueDir));
@@ -66,8 +70,8 @@ const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THRE
 
         let support = new THREE.Group();
 
-        support.add(topCylinder.mesh);
         support.add(topContact.mesh);
+        support.add(topCylinder.mesh);
         support.add(centerCylinder.mesh);
         support.add(centerContact.mesh);
         support.add(botCylinder.mesh);
@@ -124,7 +128,7 @@ const calculateIntersects = (positionStart: Vector3, quaternion: THREE.Quaternio
 
     return intersects;
 }
-const calculateSupportRays = (positionStart: Vector3 , quaternion: THREE.Quaternion, cylinder:  SupportDescriptionCylinder, meshes: THREE.Mesh[]) : null | any => {
+const calculateSupportRays = (material: Material, positionStart: Vector3 , quaternion: THREE.Quaternion, cylinder:  SupportDescriptionCylinder, meshes: THREE.Mesh[]) : null | any => {
     //for top cylinder
     let intersects = calculateIntersects(positionStart, quaternion, meshes);
 
@@ -161,7 +165,7 @@ const calculateSupportRays = (positionStart: Vector3 , quaternion: THREE.Quatern
 
     while (!hasTouchingToPlate && minimumDistance < maximumDistance)
     {
-        topCylinder = createCylinder(cylinder.material, positionStart, quaternion, {
+        topCylinder = createCylinder(material, positionStart, quaternion, {
             diameterTop : cylinder.sizeTop.diameterTop,
             diameterBottom : cylinder.sizeTop.diameterBottom,
             height: [ toMM(minimumDistance) , 0 ],

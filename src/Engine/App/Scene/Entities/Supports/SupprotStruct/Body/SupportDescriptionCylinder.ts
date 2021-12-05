@@ -25,8 +25,8 @@ export class SupportDescriptionCylinder extends SupportDescription {
 
     contact: SupportDescriptionContact;
 
-    constructor(material: Material, sizeTop: CylinderSize, sizeCenter: CylinderSizeCenter, sizeBottom: CylinderSize, contact: SupportDescriptionContact, maximumAngle: number) {
-        super(contact, material);
+    constructor(material: Material, materialPreview: Material, sizeTop: CylinderSize, sizeCenter: CylinderSizeCenter, sizeBottom: CylinderSize, contact: SupportDescriptionContact, maximumAngle: number) {
+        super(contact, material, materialPreview);
 
         this.contact = new SupportDescriptionContactSphere(sizeCenter.diameterTop, 0);
         this.sizeTop = sizeTop;

@@ -7,9 +7,11 @@ export enum SupportType {
 export abstract class SupportDescription {
     contactWithModel: SupportDescriptionContact;
     material: THREE.Material;
+    materialPreview: THREE.Material;
     
-    constructor(contact, material) {
+    constructor(contact, material, materialPreview) {
         this.contactWithModel = contact;
         this.material = material;
+        this.materialPreview = materialPreview;
     }
 }

@@ -34,7 +34,8 @@ export type ISceneMaterial = {
 }
 
 export const MaterialForSupports = {
-    normal: new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.7 })
+    normal: new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.4, color: '#80caff' }),
+    preview: new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.2 })
 }
 
 export const  matLine = new LineMaterial({

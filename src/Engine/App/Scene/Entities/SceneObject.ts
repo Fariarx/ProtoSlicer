@@ -4,8 +4,6 @@ import {sceneStore} from "../SceneStore";
 import {Dispatch, EventEnum  } from "../../Managers/Events";
 import {TransformInstrumentEnum} from "../ChildrenUI/SceneTransformBar";
 import {MoveObject} from "../../Managers/Entities/MoveObject";
-import {Geometry} from "three/examples/jsm/deprecated/Geometry";
-import {CENTER, MeshBVH, SAH, SplitStrategy} from "three-mesh-bvh";
 import {SupportSceneObject} from "./Supports/SupportSceneObject";
 
 export class SceneObject {
@@ -28,8 +26,7 @@ export class SceneObject {
         let index = 0;
         let newName = index + ' : ' + _name;
 
-        while (SceneObject.GetByName(objs, newName) !== null)
-        {
+        while (SceneObject.GetByName(objs, newName) !== null) {
             objs[index].name = newName;
 
             index++;
@@ -40,8 +37,8 @@ export class SceneObject {
 
         this.supports = [];
 
-        this.mesh = new THREE.Mesh( geometry, sceneStore.materialForObjects.normal );
-        this.bbox = new THREE.BoxHelper( this.mesh, 0xffff00 );
+        this.mesh = new THREE.Mesh(geometry, sceneStore.materialForObjects.normal);
+        this.bbox = new THREE.BoxHelper(this.mesh, 0xffff00);
 
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = false;
@@ -64,18 +61,15 @@ export class SceneObject {
     }
 
     SetSelection() {
-        if(this.isSelected)
-        {
+        if (this.isSelected) {
             this.mesh.material = sceneStore.materialForObjects.select
-        }
-        else
-        {
+        } else {
             this.mesh.material = sceneStore.materialForObjects.normal
         }
     }
+
     Update() {
-        if(this.wasSelected !== this.isSelected)
-        {
+        if (this.wasSelected !== this.isSelected) {
             this.SetSelection();
             this.wasSelected = this.isSelected;
         }
@@ -93,22 +87,22 @@ export class SceneObject {
         this.max = (this.mesh.geometry.boundingBox as Box3).max;
         this.center = (this.mesh.geometry.boundingSphere as THREE.Sphere).center;
     }
+
     UpdateSize() {
         new THREE.Box3().setFromObject(this.mesh).getSize(this.size);
     }
 
-
     UpdateGeometryCenter() {
-        this.mesh.geometry.applyMatrix4( new THREE.Matrix4().makeTranslation(   -this.center.x, -this.center.y, -this.center.z));
+        this.mesh.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(-this.center.x, -this.center.y, -this.center.z));
         this.Update();
     }
 
     AddToScene(scene: THREE.Scene, withBoxHelper?: boolean) {
-        if(withBoxHelper) {
-            scene.add( this.bbox );
+        if (withBoxHelper) {
+            scene.add(this.bbox);
         }
 
-        scene.add( this.mesh );
+        scene.add(this.mesh);
     }
 
     AlignToPlaneY() {
@@ -118,7 +112,7 @@ export class SceneObject {
             from: this.mesh.position.clone(),
             to: this.mesh.position.clone().setY(this.size.y / 2),
             sceneObject: this as SceneObject,
-            instrument:TransformInstrumentEnum.Move
+            instrument: TransformInstrumentEnum.Move
         } as MoveObject)
     }
 
@@ -129,7 +123,7 @@ export class SceneObject {
             from: this.mesh.position.clone(),
             to: this.mesh.position.clone().setX(gridVec.x / 2).setZ(gridVec.z / 2),
             sceneObject: this as SceneObject,
-            instrument:TransformInstrumentEnum.Move
+            instrument: TransformInstrumentEnum.Move
         } as MoveObject)
     }
 
@@ -137,13 +131,11 @@ export class SceneObject {
         return _mesh === this.mesh;
     }
 
-    static SearchObject(objs: SceneObject[], _mesh: THREE.Mesh)
-    {
+    static SearchMesh(objs: SceneObject[], _mesh: THREE.Mesh) {
         let _index = -1;
 
-        objs.every(function(element, index) {
-            if(element.mesh === _mesh)
-            {
+        objs.every(function (element, index) {
+            if (element.mesh === _mesh) {
                 _index = index;
                 return false;
             }
@@ -153,25 +145,39 @@ export class SceneObject {
 
         return _index;
     }
+
     static UpdateObjs(objs: SceneObject[]) {
-        objs.every(function(element, index) {
+        objs.every(function (element, index) {
             element.Update();
         });
     }
-    static GetMeshesFromObjs(objs: SceneObject[]) : THREE.Mesh[] {
-        let arr: THREE.Mesh[] = objs.map(function(element, index) {
+
+    static GetUniqueInA(a: SceneObject[], b: SceneObject[]): SceneObject[] {
+        let result:SceneObject[] = [];
+
+        a.forEach((element) => {
+            if(b.indexOf(element) === -1)
+            {
+                result.push(element);
+            }
+        })
+
+        return result;
+    }
+
+    static GetMeshesFromObjs(objs: SceneObject[]): THREE.Mesh[] {
+        let arr: THREE.Mesh[] = objs.map(function (element, index) {
             return element.mesh;
         });
 
         return arr;
     }
-    static GetByName(objs: SceneObject[], name:string) : SceneObject | null
-    {
+
+    static GetByName(objs: SceneObject[], name: string): SceneObject | null {
         let _element: SceneObject | null = null;
 
-        objs.every(function(element, index) {
-            if(element.name === name)
-            {
+        objs.every(function (element, index) {
+            if (element.name === name) {
                 _element = element;
                 return false;
             }
@@ -181,61 +187,64 @@ export class SceneObject {
 
         return _element;
     }
-    static CalculateGroupMaxSize(objs: SceneObject[]) : Vector3
-    {
+
+    static CalculateGroupMaxSize(objs: SceneObject[]): Vector3 {
         let deltaSize;
 
-        objs.every(function(element, index) {
+        objs.every(function (element, index) {
             let size = element.size;
 
-            if(index === 0)
-            {
+            if (index === 0) {
                 deltaSize = size.clone();
-            }
-            else {
-                deltaSize.x = (deltaSize.x + size.x)/2;
-                deltaSize.y = (deltaSize.y + size.y)/2;
-                deltaSize.z = (deltaSize.z + size.z)/2;
+            } else {
+                deltaSize.x = (deltaSize.x + size.x) / 2;
+                deltaSize.y = (deltaSize.y + size.y) / 2;
+                deltaSize.z = (deltaSize.z + size.z) / 2;
             }
         })
 
         return deltaSize;
     }
-    static CalculateGroupCenter(objs: SceneObject[]) : Vector3
-    {
+
+    static CalculateGroupCenter(objs: SceneObject[]): Vector3 {
         let delta;
 
-        objs.every(function(element, index) {
+        objs.every(function (element, index) {
             let position = element.mesh.position;
 
-            if(index === 0)
-            {
+            if (index === 0) {
                 delta = position.clone();
-            }
-            else {
-                delta.x = (delta.x + position.x)/2;
-                delta.y = (delta.y + position.y)/2;
-                delta.z = (delta.z + position.z)/2;
+            } else {
+                delta.x = (delta.x + position.x) / 2;
+                delta.y = (delta.y + position.y) / 2;
+                delta.z = (delta.z + position.z) / 2;
             }
         })
 
         return delta;
     }
-    static CalculateGeometry(objs: SceneObject[]) : BufferGeometry
-    {
-        if(!objs.length)
-        {
+
+    static CalculateGeometry(objs: SceneObject[]): BufferGeometry {
+        if (!objs.length) {
             throw("CalculateGeometry objs is null length");
         }
 
         let geometry = objs[0].mesh.geometry.clone().applyMatrix4(objs[0].mesh.matrix);
 
-        objs.forEach(function(element, index) {
-            if(index !== 0) {
+        objs.forEach(function (element, index) {
+            if (index !== 0) {
                 geometry.merge(element.mesh.geometry.clone().applyMatrix4(objs[index].mesh.matrix));
             }
         })
 
         return geometry;
+    }
+
+    static UpdateSupportRender(objs: SceneObject[], value: boolean) {
+        objs.every(function (element, index) {
+            element.supports.forEach((support)=>{
+                value ? support.setFullRenderMode() : support.setPrerenderMode();
+            })
+        });
     }
 }
