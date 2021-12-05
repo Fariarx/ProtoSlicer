@@ -1,19 +1,17 @@
 import * as THREE from "three";
-import {BufferGeometry, Euler, Vector3} from "three";
+import {Euler, Vector3} from "three";
 import {SceneObject} from "./Entities/SceneObject";
 import {ISceneMaterial, SceneMaterials, Settings} from "../../Globals";
-import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {action, makeAutoObservable} from "mobx";
-import {Dispatch, EventEnum  } from "../Managers/Events";
+import {AppEvents , EventEnum} from "../Managers/Events";
 import {LinearGenerator, SceneHelper} from "../Utils/Utils";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {Printer} from "../Configs/Printer";
-import {MeshBVH} from "three-mesh-bvh";
-import {Key} from "ts-keycode-enum";
 import {OutlineEffect} from "three/examples/jsm/effects/OutlineEffect";
 import {storeMain} from "../../Bridge";
 import {SceneInitialization} from "./SceneInitialization";
+import {AddingSupportsMode} from "./ChildrenUI/ContainerRight/AddingSupports";
 
 export class CSceneStore {
     needUpdateFrame: boolean = false;
@@ -69,6 +67,8 @@ export class CSceneStore {
     });
     materialForObjects: ISceneMaterial = SceneMaterials.default;
 
+    supportsInstrumentState: AddingSupportsMode = AddingSupportsMode.none;
+
     transformInstrumentState: TransformInstrumentEnum = TransformInstrumentEnum.None;
     transformObjectGroupOld: THREE.Object3D = new THREE.Object3D();
     transformObjectGroup: THREE.Object3D = new THREE.Object3D();
@@ -113,12 +113,25 @@ export namespace SceneUtils {
 
         sceneStore.groupSelected = [];
 
+        let changes: {
+            uuid: string,
+            state: {
+                now:boolean
+                was?:boolean
+            }
+        }[] = [];
+
         for (let object of sceneStore.objects) {
             if (object.isSelected) {
                 sceneStore.groupSelected.push(object);
             }
 
-            object.SetSelection();
+            let state = object.SetSelection();
+
+            changes.push({
+                uuid:object.mesh.uuid,
+                state: state
+            })
         }
 
         if (sceneStore.groupSelected.length) {
@@ -133,6 +146,8 @@ export namespace SceneUtils {
         if (updateSelectPanel) {
             sceneStore.needUpdateSelectTool = true;
         }
+
+        AppEvents.Dispatch(EventEnum.SELECTION_CHANGED, changes);
 
         updateFrame();
     });
@@ -167,6 +182,21 @@ export namespace SceneUtils {
 
         updateFrame();
     })
+    export const supportsInstrumentStateChanged = action((state: AddingSupportsMode = AddingSupportsMode.none)=> {
+        sceneStore.supportsInstrumentState = state;
+
+        switch (state)
+        {
+            case AddingSupportsMode.addSupports:
+                sceneStore.ini.isWorkingAddSupports = true;
+                break;
+            default:
+                sceneStore.ini.isWorkingAddSupports = false;
+                break;
+        }
+
+        updateFrame();
+    })
     export const selectObjsAlignY = () => {
         if (sceneStore.groupSelected.length ) {
             for (let sceneObject of sceneStore.groupSelected) {
@@ -181,7 +211,7 @@ export namespace SceneUtils {
 
         if(sceneStore.groupSelected.length ) {
             for (let sceneObject of sceneStore.groupSelected) {
-                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                     from: sceneObject.mesh.rotation.clone(),
                     to: new Euler(0,0,0),
                     sceneObject: sceneObject,
@@ -191,7 +221,7 @@ export namespace SceneUtils {
             }
         }
 
-        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
             from: sceneStore.transformObjectGroup.rotation.clone(),
             to: new Euler(0,0,0),
             sceneObject: sceneStore.transformObjectGroup,
@@ -207,7 +237,7 @@ export namespace SceneUtils {
 
         if (sceneStore.groupSelected.length) {
             for (let sceneObject of sceneStore.groupSelected) {
-                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                     from: sceneObject.mesh.scale.clone(),
                     to: new Vector3(0.1,0.1,0.1),
                     sceneObject: sceneObject,
@@ -219,7 +249,7 @@ export namespace SceneUtils {
             }
         }
 
-        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
             from: sceneStore.transformObjectGroup.scale.clone(),
             to: new Vector3(1,1,1),
             sceneObject: sceneStore.transformObjectGroup,

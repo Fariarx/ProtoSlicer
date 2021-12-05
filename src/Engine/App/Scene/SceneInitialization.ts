@@ -8,7 +8,7 @@ import {SceneHelper} from "../Utils/Utils";
 import {runInAction} from "mobx";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {BufferGeometry, Mesh, Raycaster, Vector3} from "three";
-import {Dispatch, EventEnum} from "../Managers/Events";
+import {AppEvents , EventEnum} from "../Managers/Events";
 import {MoveObject} from "../Managers/Entities/MoveObject";
 import {dirname, path, url} from "../../Bridge";
 import {SceneObject} from "./Entities/SceneObject";
@@ -44,7 +44,7 @@ export class SceneInitialization {
     stats = Stats();
 
     isTransformWorking = false;
-    isWorkingAddSupports = true;
+    isWorkingAddSupports = false;
 
     supportDescription?: SupportDescription;
 
@@ -187,7 +187,7 @@ export class SceneInitialization {
                         obj.AlignToPlaneXZ(_this.sceneStore.gridSize);
                         obj.AlignToPlaneY();
                         obj.AddToScene(_this.sceneStore.scene);
-                        Dispatch(EventEnum.ADD_OBJECT, obj);
+                        AppEvents.Dispatch(EventEnum.ADD_OBJECT, obj);
                         _this.animate();
                     });
 
@@ -478,7 +478,7 @@ export class SceneInitialization {
                                     newPosition.y -= differenceVector3.y;
                                     newPosition.z -= differenceVector3.z;
 
-                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                    AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         from: oldPosition,
                                         to: newPosition,
                                         sceneObject: sceneObject,
@@ -505,7 +505,7 @@ export class SceneInitialization {
                                     newPosition.y -= differenceVector3.y;
                                     newPosition.z -= differenceVector3.z;
 
-                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                    AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         from: oldPosition,
                                         to: newPosition,
                                         sceneObject: sceneObject,
@@ -533,7 +533,7 @@ export class SceneInitialization {
                                     newPosition.y -= differenceVector3.y;
                                     newPosition.z -= differenceVector3.z;
 
-                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                    AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                         from: oldPosition,
                                         to: newPosition,
                                         sceneObject: sceneObject,
@@ -813,7 +813,7 @@ export class SceneInitialization {
             obj.AlignToPlaneXZ(_this.sceneStore.gridSize);
             obj.AlignToPlaneY();
             obj.AddToScene(_this.sceneStore.scene);
-            Dispatch(EventEnum.ADD_OBJECT, obj);
+            AppEvents.Dispatch(EventEnum.ADD_OBJECT, obj);
             _this.animate();
 
 

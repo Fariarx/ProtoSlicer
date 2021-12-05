@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {Box3, BufferGeometry, Vector3} from "three";
 import {sceneStore} from "../SceneStore";
-import {Dispatch, EventEnum  } from "../../Managers/Events";
+import {AppEvents, EventEnum  } from "../../Managers/Events";
 import {TransformInstrumentEnum} from "../ChildrenUI/SceneTransformBar";
 import {MoveObject} from "../../Managers/Entities/MoveObject";
 import {SupportSceneObject} from "./Supports/SupportSceneObject";
@@ -65,7 +65,7 @@ export class SceneObject {
     }
 
     SetSelection() {
-        let wasSelectedChanged;
+        let wasSelectedChanged: undefined | boolean;
 
         if (this.wasSelected !== this.isSelected) {
             wasSelectedChanged = this.wasSelected;
@@ -115,7 +115,7 @@ export class SceneObject {
         {
             this.offsetY = toUnits((sceneStore.ini.supportDescription as SupportDescription).modelOffsetY);
 
-            Dispatch(EventEnum.TRANSFORM_OBJECT, {
+            AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                 from: this.mesh.position.clone(),
                 to: this.mesh.position.clone().setY(this.offsetY + (this.size.y / 2)),
                 sceneObject: this as SceneObject,
@@ -131,7 +131,7 @@ export class SceneObject {
             {
                 this.offsetY = (sceneStore.ini.supportDescription as SupportDescription).modelOffsetY;
 
-                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                     from: this.mesh.position.clone(),
                     to: this.mesh.position.clone().setY(this.offsetY + (this.size.y / 2)),
                     sceneObject: this as SceneObject,
@@ -145,7 +145,7 @@ export class SceneObject {
             {
                 this.offsetY = 0;
 
-                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                     from: this.mesh.position.clone(),
                     to: this.mesh.position.clone().setY( this.size.y / 2 ),
                     sceneObject: this as SceneObject,
@@ -166,7 +166,7 @@ export class SceneObject {
     AlignToPlaneY() {
         this.Update();
 
-        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
             from: this.mesh.position.clone(),
             to: this.mesh.position.clone().setY(this.size.y / 2),
             sceneObject: this as SceneObject,
@@ -177,7 +177,7 @@ export class SceneObject {
     AlignToPlaneXZ(gridVec: Vector3) {
         this.Update();
 
-        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
             from: this.mesh.position.clone(),
             to: this.mesh.position.clone().setX(gridVec.x / 2).setZ(gridVec.z / 2),
             sceneObject: this as SceneObject,

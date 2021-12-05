@@ -16,7 +16,7 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
 import {runInAction} from "mobx";
 import {observer} from "mobx-react";
-import {Dispatch, EventEnum} from "../Managers/Events";
+import {AppEvents , EventEnum} from "../Managers/Events";
 import {
     sceneStore,
     SceneUtils

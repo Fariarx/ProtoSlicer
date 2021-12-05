@@ -1,16 +1,8 @@
 import {
-    Icon,
-    Table,
-    Step,
-    Card,
     Button,
     Segment,
     List,
-    Checkbox,
-    Header,
-    Grid,
-    GridColumn,
-    Feed, Item, Container, SegmentGroup
+    Header,  SegmentGroup
 } from "semantic-ui-react";
 import {storeMain} from "../../../../Bridge";
 import {Log, Settings} from "../../../../Globals";

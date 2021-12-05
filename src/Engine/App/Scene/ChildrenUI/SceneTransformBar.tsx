@@ -1,15 +1,12 @@
-import {Button, Card, Header, Icon, Input, Label, List, Menu, Segment, SegmentGroup} from "semantic-ui-react";
+import {Button, Header, Icon, List, Menu, Segment, SegmentGroup} from "semantic-ui-react";
 import {SaveSettings, Settings} from "../../../Globals";
-import React, {Component, RefObject} from "react";
-import {inject, observer} from "mobx-react";
-import {autorun, observable, runInAction} from "mobx";
-import {Dispatch, EventEnum } from "../../Managers/Events";
-import {
-    sceneStore,
-    SceneUtils
-} from "../SceneStore";
-import {MathUtils, Vector3} from "three";
-import {isFloat, isNumeric, LinearGenerator} from "../../Utils/Utils";
+import React, {Component} from "react";
+import {observer} from "mobx-react";
+import {runInAction} from "mobx";
+import {AppEvents, EventEnum} from "../../Managers/Events";
+import {sceneStore, SceneUtils} from "../SceneStore";
+import {MathUtils} from "three";
+import {LinearGenerator} from "../../Utils/Utils";
 import {SceneTransformInput} from "./SceneTransformInput";
 import {SceneObject} from "../Entities/SceneObject";
 import {MoveObject} from "../../Managers/Entities/MoveObject";
@@ -27,7 +24,33 @@ export const MenuItemStyleCenter = {marginLeft: 'auto', marginRight: 'auto', dis
 @observer
 class SceneTransformBar extends Component<any, any> {
     handleItemClick = (e, obj) => {
-        Dispatch(EventEnum.SELECT_TRANSFORM_MODE, {value: TransformInstrumentEnum[obj.name]});
+        AppEvents.Dispatch(EventEnum.SELECT_TRANSFORM_MODE, {value: TransformInstrumentEnum[obj.name]});
+    }
+
+    state: any = {
+
+    }
+    componentDidMount() {
+        this.state.listener = AppEvents.AddListener((message, args: any) => {
+            const messages = [
+                EventEnum.SELECT_TRANSFORM_MODE,
+                EventEnum.TRANSFORM_OBJECT,
+                EventEnum.ADD_OBJECT,
+                EventEnum.SELECTION_CHANGED
+            ];
+
+            if(sceneStore.transformInstrumentState !== TransformInstrumentEnum.None) {
+                if (!messages.includes(message) || args.value === TransformInstrumentEnum.None) {
+                    SceneUtils.instrumentStateChanged();
+                }
+            }
+        })
+    }
+    componentWillUnmount() {
+        if(this.state.listener) {
+            AppEvents.DeleteListener(this.state.listener);
+            this.state.listener = null;
+        }
     }
 
     render() {
@@ -103,7 +126,7 @@ class SceneTransformBar extends Component<any, any> {
 
                                                         newPosition.x -= difference;
 
-                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: oldPosition,
                                                             to: newPosition,
                                                             sceneObject: sceneObject,
@@ -111,7 +134,7 @@ class SceneTransformBar extends Component<any, any> {
                                                         } as MoveObject)
                                                     }
 
-                                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                    AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setX(number),
                                                         sceneObject: selectObj,
@@ -139,7 +162,7 @@ class SceneTransformBar extends Component<any, any> {
 
                                                         newPosition.z -= difference;
 
-                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: oldPosition,
                                                             to: newPosition,
                                                             sceneObject: sceneObject,
@@ -147,7 +170,7 @@ class SceneTransformBar extends Component<any, any> {
                                                         } as MoveObject)
                                                     }
 
-                                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                    AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setZ(number),
                                                         sceneObject: selectObj,
@@ -175,7 +198,7 @@ class SceneTransformBar extends Component<any, any> {
 
                                                         newPosition.y -= difference;
 
-                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: oldPosition,
                                                             to: newPosition,
                                                             sceneObject: sceneObject,
@@ -183,7 +206,7 @@ class SceneTransformBar extends Component<any, any> {
                                                         } as MoveObject)
                                                     }
 
-                                                    Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                    AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                         from: selectObj?.position.clone(),
                                                         to: selectObj?.position.setY(number),
                                                         sceneObject: selectObj,
@@ -382,7 +405,7 @@ class SceneTransformBar extends Component<any, any> {
                                                     let id = LinearGenerator();
 
                                                     sceneStore.groupSelected.every((t, i) => {
-                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
@@ -460,7 +483,7 @@ class SceneTransformBar extends Component<any, any> {
                                                     let id = LinearGenerator();
 
                                                     sceneStore.groupSelected.every((t, i) => {
-                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,
@@ -538,7 +561,7 @@ class SceneTransformBar extends Component<any, any> {
                                                     let id = LinearGenerator();
 
                                                     sceneStore.groupSelected.every((t, i) => {
-                                                        Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                                                        AppEvents.Dispatch(EventEnum.TRANSFORM_OBJECT, {
                                                             from: scaleObjects[i],
                                                             to: selectObj?.scale,
                                                             sceneObject: selectObj,

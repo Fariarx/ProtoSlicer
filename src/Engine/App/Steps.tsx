@@ -2,7 +2,7 @@ import {Button, Card, Icon, Menu, Segment, Rating} from "semantic-ui-react";
 import React, {Component} from "react";
 import {observer} from "mobx-react";
 import {autorun, observable} from "mobx";
-import {Dispatch, EventEnum} from "./Managers/Events";
+import {AppEvents , EventEnum} from "./Managers/Events";
 import {Settings} from "../Globals";
 
 export enum StepsEnum {
@@ -20,7 +20,7 @@ class Steps extends Component<any, any> {
     }
 
     handleItemClick = (e, obj) => {
-        Dispatch(EventEnum.SELECT_MENU_STEP, {value: StepsEnum[obj.name]});
+        AppEvents.Dispatch(EventEnum.SELECT_MENU_STEP, {value: StepsEnum[obj.name]});
     }
 
     render() {
