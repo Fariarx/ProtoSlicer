@@ -1,4 +1,4 @@
-import {BufferGeometry, Scene, Vector3} from "three";
+import {BufferGeometry, Mesh, Object3D, Scene, Vector3} from "three";
 import * as THREE from "three";
 import {sceneStore} from "../Scene/SceneStore";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
@@ -196,7 +196,7 @@ export namespace SceneHelper {
             default:
                 return false;
         }
-    }
+    } 
 }
 
 

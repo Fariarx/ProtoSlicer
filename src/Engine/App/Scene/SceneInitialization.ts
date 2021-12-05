@@ -14,8 +14,8 @@ import {dirname, path, url} from "../../Bridge";
 import {SceneObject} from "./Entities/SceneObject";
 import {isKeyPressed} from "../Utils/Keys";
 import {Printer} from "../Configs/Printer";
-import {CSceneStore, SceneUtils} from "./SceneStore";
-import {  generateSupport} from "../Utils/GenerateSupport";
+import {CSceneStore, sceneStore, SceneUtils} from "./SceneStore";
+import {generateSupport, GenerateSupportType} from "../Utils/GenerateSupport";
 import {SupportDescription} from "./Entities/Supports/SupprotStruct/Body/SupportDescription";
 import {
     CylinderSize,
@@ -24,6 +24,7 @@ import {
 } from "./Entities/Supports/SupprotStruct/Body/SupportDescriptionCylinder";
 import {SupportDescriptionContactSphere} from "./Entities/Supports/SupprotStruct/Contact/SupportDescriptionContactSphere";
 import {SupportSceneObject} from "./Entities/Supports/SupportSceneObject";
+import GenerateSupportsAuto from "../Utils/GenerateSupportsAuto";
 
 export class SceneInitialization {
     sceneStore: CSceneStore;
@@ -96,27 +97,27 @@ export class SceneInitialization {
     }
 
     setupSupportDescription() {
-        let contact = new SupportDescriptionContactSphere(0.45, 0.1);
+        let contact = new SupportDescriptionContactSphere(0.45, 0);
 
         let top: CylinderSize = {
-            radiusTop : 0.4,
-            radiusBottom : 0.5,
-            height : [2, 6],
+            diameterTop : 0.4,
+            diameterBottom : 0.5,
+            height : [1, 15],
             radialSegments : 8
         };
         let center: CylinderSizeCenter = {
-            radiusTop : 0.5,
-            radiusBottom : 0.6,
+            diameterTop : 0.5,
+            diameterBottom : 0.6,
             radialSegments : 8
         };
         let bot: CylinderSize = {
-            radiusTop : 5,
-            radiusBottom : 3,
-            height : [1, 2],
+            diameterTop : 5,
+            diameterBottom : 3,
+            height : [1, 1],
             radialSegments : 4
         };
 
-        this.supportDescription = new SupportDescriptionCylinder(MaterialForSupports.normal, top, center, bot, contact);
+        this.supportDescription = new SupportDescriptionCylinder(MaterialForSupports.normal, top, center, bot, contact, 70);
     }
     setupCanvas(canvas) {
         canvas.appendChild(this.sceneStore.renderer.domElement);
@@ -221,6 +222,13 @@ export class SceneInitialization {
                     return a.distance < b.distance ? -1 : 1;
                 })
 
+
+                if(_this.temp.addSupportsPreview)
+                {
+                    this.sceneStore.scene.remove(_this.temp.addSupportsPreview)
+                    _this.temp.addSupportsPreview = false;
+                }
+
                 if (intersects.length && intersects[0].face) {
                     let objIndex = SceneObject.SearchObject(this.sceneStore.groupSelected, intersects[0].object as Mesh);
 
@@ -230,6 +238,21 @@ export class SceneInitialization {
                         _this.addSupportsCursor.visible = false;
                         _this.animate();
                         return;
+                    }
+
+                    //preview
+                    {
+                        let result = generateSupport({
+                            positionStart: _this.addSupportsCursor.position,
+                            quaternion: _this.addSupportsCursor.quaternion,
+                            cylinder: <SupportDescriptionCylinder>this.supportDescription,
+                            meshes: [...SceneObject.GetMeshesFromObjs(sceneStore.groupSelected), <THREE.Mesh>this.sceneStore.decorations.children[0]]
+                        } as GenerateSupportType);
+
+                        if (result) {
+                            this.sceneStore.scene.add(result.group);
+                            _this.temp.addSupportsPreview = result.group;
+                        }
                     }
 
                     _this.temp.lastStateSupportsCursor = true;
@@ -281,23 +304,24 @@ export class SceneInitialization {
                 return;
             }
 
-            if(_this.addSupportsCursor.visible)
-            {
+            if(_this.addSupportsCursor.visible) {
                 let sceneObj: SceneObject | undefined = _this.temp.addSupportsCursorTargetMesh;
 
-                if(!sceneObj)
-                {
+                if (!sceneObj) {
                     return;
                 }
 
-                let result = generateSupport(_this.addSupportsCursor.position, _this.addSupportsCursor.quaternion, <SupportDescriptionCylinder>this.supportDescription);
+                let result = generateSupport({
+                    positionStart: _this.addSupportsCursor.position,
+                    quaternion: _this.addSupportsCursor.quaternion,
+                    cylinder: <SupportDescriptionCylinder>this.supportDescription,
+                    meshes: [...SceneObject.GetMeshesFromObjs(sceneStore.groupSelected), <THREE.Mesh>this.sceneStore.decorations.children[0]]
+                } as GenerateSupportType);
 
-                if(result)
-                {
-                    this.sceneStore.scene.add(result);
+                if (result) {
+                    sceneObj.supports.push(result);
+                    this.sceneStore.scene.add(result.group);
                 }
-
-                sceneObj.supports.push(new SupportSceneObject(result));
 
                 return;
             }
@@ -679,7 +703,7 @@ export class SceneInitialization {
             const geometry = new THREE.PlaneGeometry(this.sceneStore.printer.Workspace.sizeX * 0.1, this.sceneStore.printer.Workspace.sizeY * 0.1);
             const plane = new THREE.Mesh(geometry, this.sceneStore.materialForPlane);
             plane.rotateX(-Math.PI / 2);
-            plane.position.set(this.sceneStore.gridSize.x / 2, -0.02, this.sceneStore.gridSize.z / 2);
+            plane.position.set(this.sceneStore.gridSize.x / 2, 0, this.sceneStore.gridSize.z / 2);
             this.sceneStore.decorations.add(plane);
 
             const geometry1 = new THREE.PlaneGeometry(Math.ceil(this.sceneStore.printer.Workspace.sizeX * 0.1), Math.ceil(this.sceneStore.printer.Workspace.sizeY * 0.1));

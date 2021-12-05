@@ -1,8 +1,8 @@
 export class SupportSceneObject
 {
-    support: THREE.Group;
+    group: THREE.Group;
     
-    constructor(support) {
-        this.support = support;
+    constructor(support : THREE.Group) {
+        this.group = support;
     }
 }

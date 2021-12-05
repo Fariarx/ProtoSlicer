@@ -5,13 +5,11 @@ export enum SupportType {
 } 
 
 export abstract class SupportDescription {
-    contact: SupportDescriptionContact;
-    contactForSupport: SupportDescriptionContact;
+    contactWithModel: SupportDescriptionContact;
     material: THREE.Material;
     
-    constructor(contact, material, contactForSupport) {
-        this.contact = contact;
+    constructor(contact, material) {
+        this.contactWithModel = contact;
         this.material = material;
-        this.contactForSupport = contactForSupport;
     }
 }
