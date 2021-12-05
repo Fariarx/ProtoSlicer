@@ -34,7 +34,8 @@ const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THRE
 
         if(!temp.raysObj)
         {
-            defineRaysObj(cylinder.sizeTop.diameterBottom);
+            //1.4 for gaps between support and model
+            defineRaysObj(cylinder.sizeTop.diameterBottom * 1.4);
         }
 
         let material = isPreview ? cylinder.materialPreview : cylinder.material;
