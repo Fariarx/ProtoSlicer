@@ -1,9 +1,12 @@
 export class SupportSceneObject
 {
     group: THREE.Group;
+
+    isPreview: boolean;
     
-    constructor(support : THREE.Group) {
+    constructor(support : THREE.Group, isPreview: boolean = false) {
         this.group = support;
+        this.isPreview = isPreview;
     }
 
     setPrerenderMode() {

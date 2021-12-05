@@ -42,6 +42,10 @@ const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THRE
         let calculated = calculateSupportRays(material, positionStart, quaternion, cylinder, meshes);
         if(!calculated)
         {
+            if(!isPreview && !isAuto)
+            {
+                Log("Path for support not found", true);
+            }
             return false;
         }
 
@@ -53,17 +57,22 @@ const generateSupportAlgorithm = (positionStart: THREE.Vector3, quaternion: THRE
         let centerCylinder = createCylinder(material, topCylinder.end, Directions.Down, cylinder.sizeCenter, Math.abs( topCylinder.end.y ));
         let botCylinder = createCylinderBottom(material, centerCylinder.end, cylinder.sizeBottom);
 
+
         {
             const angleBetweenPlane = radToDeg(topCylinder.trueDir.angleTo(centerCylinder.trueDir));
 
+
             if(angleBetweenPlane > 90)
             {
-                Log("Error generate support with ("+ angleBetweenPlane.toFixed(2) +") deg angle to plane", true);
+                if(!isPreview && !isAuto)
+                {
+                    Log("Error generate support with ("+ angleBetweenPlane.toFixed(2) +") deg angle to plane", true);
+                }
                 return false;
             }
             if(isAuto && angleBetweenPlane > cylinder.maximumAngle)
             {
-                Log("Error generate support with ("+ angleBetweenPlane.toFixed(2) +") deg angle to plane. Maximum: " + cylinder.maximumAngle, true);
+                //Log("Error generate support with ("+ angleBetweenPlane.toFixed(2) +") deg angle to plane. Maximum: " + cylinder.maximumAngle, true);
                 return false;
             }
         }
@@ -141,7 +150,7 @@ const calculateSupportRays = (material: Material, positionStart: Vector3 , quate
         {
             distance = intersects[index].distance;
 
-            if(distance > 0.0001)
+            if(distance > 0.1)
             {
                 maximumDistance = distance;
                 break;
@@ -154,6 +163,7 @@ const calculateSupportRays = (material: Material, positionStart: Vector3 , quate
 
     if(minimumDistance > maximumDistance)
     {
+        console.log(minimumDistance, maximumDistance)
         return null;
     }
 
@@ -174,6 +184,7 @@ const calculateSupportRays = (material: Material, positionStart: Vector3 , quate
 
         intersects = calculateIntersects( topCylinder.end, Directions.Down, meshes);
 
+        //console.log(intersects)
         if(intersects.length === 9)
         {
             hasTouchingToPlate = true;

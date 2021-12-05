@@ -330,6 +330,7 @@ export class SceneInitialization {
                 if (result) {
                     sceneObj.supports.push(result);
                     this.sceneStore.scene.add(result.group);
+                    this.animate();
                 }
 
                 return;
@@ -789,7 +790,7 @@ export class SceneInitialization {
                 {
                     this.sceneStore.outlineEffectRenderer.renderOutline(this.sceneStore.scene, this.sceneStore.activeCamera);
                 }
-            }, 1000);
+            }, 700);
 
             this.stats.update();
 

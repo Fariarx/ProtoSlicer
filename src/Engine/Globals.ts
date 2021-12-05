@@ -34,8 +34,8 @@ export type ISceneMaterial = {
 }
 
 export const MaterialForSupports = {
-    normal: new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.4, color: '#80caff' }),
-    preview: new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.2 })
+    normal: new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.6, color: '#5bc3fc' }),
+    preview: new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.2, color: '#80caff' })
 }
 
 export const  matLine = new LineMaterial({
@@ -49,8 +49,8 @@ export const SceneMaterials = {
         select: new THREE.MeshPhongMaterial({ color: '#858dff', opacity: 0.7, transparent: true }),
     } as ISceneMaterial,
     default: {
-        normal: new THREE.MeshPhongMaterial( { color: '#f8a745', emissive:'#ffd4d4', emissiveIntensity:0.3 , flatShading: true, side: THREE.DoubleSide, shininess: 20 } ),
-        select: new THREE.MeshPhongMaterial( { color: '#858dff', emissive:'#ffd4d4', emissiveIntensity:0.3 , flatShading: true, side: THREE.DoubleSide, shininess: 20 } ),
+        normal: new THREE.MeshPhongMaterial( { color: '#f8a745', emissive:'#ffd4d4', emissiveIntensity:0.2 , flatShading: true, side: THREE.DoubleSide, shininess: 20 } ),
+        select: new THREE.MeshPhongMaterial( { color: '#858dff', emissive:'#ffd4d4', emissiveIntensity:0.2 , flatShading: true, side: THREE.DoubleSide, shininess: 20 } ),
     } as ISceneMaterial,
 }
 
