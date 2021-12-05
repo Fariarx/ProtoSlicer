@@ -3,7 +3,7 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import Globals, {Log, MaterialForSupports, Settings} from "../../Globals";
+import Globals, {Log, MaterialForSupports, Settings, toUnits} from "../../Globals";
 import {SceneHelper} from "../Utils/Utils";
 import {runInAction} from "mobx";
 import {TransformInstrumentEnum} from "./ChildrenUI/SceneTransformBar";
@@ -33,7 +33,7 @@ export class SceneInitialization {
     orbitControls: OrbitControls;
     transformControls: TransformControls;
     axisHelper: THREE.Object3D;
-    addSupportsCursor: THREE.LineSegments;
+    addSupportsCursor: THREE.Mesh;
 
     cameraRig: THREE.Group;
 
@@ -85,13 +85,14 @@ export class SceneInitialization {
         this.setupOrbitController();
         this.setupTransformControls();
 
-        this.addSupportsCursor = new THREE.LineSegments();
+        this.setupSupportDescription();
+        
+        this.addSupportsCursor = new THREE.Mesh();
         this.setupAddSupportCursor();
         this.setupMouse();
 
         this.updateCameraLookPosition();
 
-        this.setupSupportDescription();
 
         Log("SceneComponent loaded!");
     }
@@ -237,8 +238,8 @@ export class SceneInitialization {
                     _this.temp.addSupportsPreview = false;
                 }
 
-                if (intersects.length && intersects[0].face) {
-                    let objIndex = SceneObject.SearchMesh(this.sceneStore.groupSelected, intersects[0].object as Mesh);
+                if (intersects.length) {
+                    let objIndex = SceneObject.SearchIndexByMesh(this.sceneStore.groupSelected, intersects[0].object as Mesh);
 
                     if(objIndex === -1)
                     {
@@ -266,7 +267,6 @@ export class SceneInitialization {
 
                     _this.temp.lastStateSupportsCursor = true;
                     _this.addSupportsCursor.visible = true;
-                    _this.addSupportsCursor.quaternion.setFromUnitVectors(normalZ, intersects[0].face.normal);
                     _this.addSupportsCursor.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
                     _this.temp.addSupportsCursorTargetMesh = this.sceneStore.groupSelected[objIndex];
                     _this.animate();
@@ -353,7 +353,7 @@ export class SceneInitialization {
 
             if(intersects.length && intersects[0].face )
             {
-                let sceneObjIndex = SceneObject.SearchMesh(this.sceneStore.objects, intersects[0].object as THREE.Mesh)
+                let sceneObjIndex = SceneObject.SearchIndexByMesh(this.sceneStore.objects, intersects[0].object as THREE.Mesh)
 
                 if(sceneObjIndex < 0)
                 {
@@ -396,29 +396,11 @@ export class SceneInitialization {
         })
     }
     setupAddSupportCursor() {
-        const brushSegments = [ new THREE.Vector3(), new THREE.Vector3( 0, 0, 1 ) ];
-        for ( let i = 0; i < 20; i ++ ) {
+        let diameter = ((this.supportDescription as SupportDescription).contactWithModel as SupportDescriptionContactSphere).diameter;
 
-            const nexti = i + 1;
-            const x1 = Math.sin( 2 * Math.PI * i / 20 );
-            const y1 = Math.cos( 2 * Math.PI * i / 20 );
-
-            const x2 = Math.sin( 2 * Math.PI * nexti / 20 );
-            const y2 = Math.cos( 2 * Math.PI * nexti / 20 );
-
-            brushSegments.push(
-                new THREE.Vector3( x1, y1, 0 ),
-                new THREE.Vector3( x2, y2, 0 )
-            );
-
-        }
-
-        this.addSupportsCursor.scale.set(.05, .05, .05); //1 mm
-        this.addSupportsCursor.geometry.setFromPoints( brushSegments );
-        // @ts-ignore
-        this.addSupportsCursor.material.color.set( 0xfb8c00 );
+        this.addSupportsCursor.geometry = new THREE.SphereGeometry(toUnits(diameter));
+        this.addSupportsCursor.material = MaterialForSupports.preview;
         this.sceneStore.scene.add( this.addSupportsCursor );
-
         this.addSupportsCursor.visible = false;
     }
     setupCameraRig() {

@@ -8,6 +8,7 @@ import {
 import {SceneObject} from "../Scene/Entities/SceneObject";
 import {Settings} from "../../Globals";
 import {MoveObject} from "./Entities/MoveObject";
+import {Mesh} from "three";
 
 
 type Message = {
@@ -64,7 +65,8 @@ export namespace AppEvents {
                 break;
             case EventEnum.TRANSFORM_OBJECT:
                 let moveObject = message.args as MoveObject;
-                let mesh = moveObject.sceneObject instanceof SceneObject ? moveObject.sceneObject.mesh : moveObject.sceneObject;
+                let mesh: Mesh = moveObject.sceneObject instanceof SceneObject ? moveObject.sceneObject.mesh : <Mesh>moveObject.sceneObject;
+                let sceneObj = SceneObject.SearchSceneObjByMesh(sceneStore.objects, mesh);
 
                 moveObject.to = moveObject.to.clone();
                 moveObject.from = moveObject.from.clone();
@@ -80,6 +82,21 @@ export namespace AppEvents {
                             break;
                         case TransformInstrumentEnum.Rotate:
                             mesh.rotation.set(moveObject.to.x, moveObject.to.y, moveObject.to.z);
+
+                            if(sceneObj)
+                            {
+                                message.args.deletedSupports = {
+                                    sceneObj: sceneObj,
+                                    supports: sceneObj.supports
+                                }
+
+                                for(let obj of sceneObj.supports)
+                                {
+                                    sceneStore.scene.remove(obj.group);
+                                }
+
+                                sceneObj.supports = [];
+                            }
                             break;
                         case TransformInstrumentEnum.Scale:
                             let minScale = Settings().scene.sharpness;

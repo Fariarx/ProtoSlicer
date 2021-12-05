@@ -189,7 +189,7 @@ export class SceneObject {
         return _mesh === this.mesh;
     }
 
-    static SearchMesh(objs: SceneObject[], _mesh: THREE.Mesh) {
+    static SearchIndexByMesh(objs: SceneObject[], _mesh: THREE.Mesh) {
         let _index = -1;
 
         objs.every(function (element, index) {
@@ -202,6 +202,19 @@ export class SceneObject {
         })
 
         return _index;
+    }
+
+    static SearchSceneObjByMesh(objs: SceneObject[], _mesh: THREE.Mesh) : SceneObject | null {
+        let result = this.SearchIndexByMesh(objs, _mesh);
+
+        if(result > -1)
+        {
+            return objs[result];
+        }
+        else
+        {
+            return null;
+        }
     }
 
     static UpdateObjs(objs: SceneObject[]) {

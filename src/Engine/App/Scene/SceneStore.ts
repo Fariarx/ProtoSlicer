@@ -188,6 +188,13 @@ export namespace SceneUtils {
         switch (state)
         {
             case AddingSupportsMode.addSupports:
+                for (let obj of sceneStore.objects)
+                {
+                    obj.mesh.geometry.normalizeNormals();
+                    obj.mesh.geometry.computeVertexNormals();
+                    obj.Update();
+                }
+
                 sceneStore.ini.isWorkingAddSupports = true;
                 break;
             default:
