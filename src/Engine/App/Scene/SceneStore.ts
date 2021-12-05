@@ -98,8 +98,7 @@ export class CSceneStore {
 
 export let sceneStore: CSceneStore;
 
-export namespace SceneUtils
-{
+export namespace SceneUtils {
     export const create = (props) => {
         sceneStore = new CSceneStore(props);
     }

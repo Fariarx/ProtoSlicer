@@ -19,6 +19,9 @@ export const Directions = {
 
 export default this;
 
+export const toUnits = (mm) =>  mm / 10;
+export const toMM = (units) => units * 10;
+
 export {LogSendText as Log}  from "./App/Scene/ChildrenUI/Notifications/ElementConsole";
 
 export let Settings = () => {

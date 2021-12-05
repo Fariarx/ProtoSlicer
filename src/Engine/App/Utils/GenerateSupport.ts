@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import {sceneStore} from "../Scene/SceneStore";
 import {SupportDescription} from "../Scene/Entities/Supports/SupprotStruct/Body/SupportDescription";
 import {
     CylinderSize, CylinderSizeCenter,
@@ -7,7 +6,7 @@ import {
 } from "../Scene/Entities/Supports/SupprotStruct/Body/SupportDescriptionCylinder";
 import {Float32BufferAttribute, Material, Object3D, Vector3} from "three";
 import {DrawDirLine} from "./Utils";
-import {Directions, Log} from "../../Globals";
+import {Directions, Log, toMM, toUnits} from "../../Globals";
 import {SupportDescriptionContact} from "../Scene/Entities/Supports/SupprotStruct/Contact/SupportDescriptionContact";
 import {SupportDescriptionContactSphere} from "../Scene/Entities/Supports/SupprotStruct/Contact/SupportDescriptionContactSphere";
 import {degToRad, radToDeg} from "three/src/math/MathUtils";
@@ -298,6 +297,3 @@ const createContactSphere = (material: Material, positionStart: THREE.Vector3, d
         mesh: mesh
     };
 }
-
-const toUnits = (mm) =>  mm / 10;
-const toMM = (units) => units * 10;

@@ -5,6 +5,8 @@ import {Dispatch, EventEnum  } from "../../Managers/Events";
 import {TransformInstrumentEnum} from "../ChildrenUI/SceneTransformBar";
 import {MoveObject} from "../../Managers/Entities/MoveObject";
 import {SupportSceneObject} from "./Supports/SupportSceneObject";
+import {SupportDescription} from "./Supports/SupprotStruct/Body/SupportDescription";
+import {toMM, toUnits} from "../../../Globals";
 
 export class SceneObject {
     name: string;
@@ -20,7 +22,9 @@ export class SceneObject {
     supports: SupportSceneObject[];
 
     isSelected: boolean;
+
     private wasSelected: boolean;
+    private offsetY = 0;
 
     constructor(geometry: THREE.BufferGeometry, _name: string, objs: SceneObject[], selected: boolean = false) {
         let index = 0;
@@ -61,18 +65,27 @@ export class SceneObject {
     }
 
     SetSelection() {
+        let wasSelectedChanged;
+
+        if (this.wasSelected !== this.isSelected) {
+            wasSelectedChanged = this.wasSelected;
+            this.wasSelected = this.isSelected;
+        }
+
         if (this.isSelected) {
             this.mesh.material = sceneStore.materialForObjects.select
         } else {
             this.mesh.material = sceneStore.materialForObjects.normal
         }
+
+        return {
+            now: this.isSelected,
+            was: wasSelectedChanged
+        }
     }
 
     Update() {
-        if (this.wasSelected !== this.isSelected) {
-            this.SetSelection();
-            this.wasSelected = this.isSelected;
-        }
+        this.SetSelection();
 
         this.UpdateSize();
 
@@ -95,6 +108,51 @@ export class SceneObject {
     UpdateGeometryCenter() {
         this.mesh.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(-this.center.x, -this.center.y, -this.center.z));
         this.Update();
+    }
+
+    SetSupportsOffsetY() {
+        if(!this.offsetY)
+        {
+            this.offsetY = toUnits((sceneStore.ini.supportDescription as SupportDescription).modelOffsetY);
+
+            Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                from: this.mesh.position.clone(),
+                to: this.mesh.position.clone().setY(this.offsetY + (this.size.y / 2)),
+                sceneObject: this as SceneObject,
+                instrument: TransformInstrumentEnum.Move
+            } as MoveObject)
+        }
+    }
+
+    UpdateSupportsOffsetY() {
+        if(this.supports.length)
+        {
+            if(!this.offsetY)
+            {
+                this.offsetY = (sceneStore.ini.supportDescription as SupportDescription).modelOffsetY;
+
+                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                    from: this.mesh.position.clone(),
+                    to: this.mesh.position.clone().setY(this.offsetY + (this.size.y / 2)),
+                    sceneObject: this as SceneObject,
+                    instrument: TransformInstrumentEnum.Move
+                } as MoveObject)
+            }
+        }
+        else
+        {
+            if(this.offsetY)
+            {
+                this.offsetY = 0;
+
+                Dispatch(EventEnum.TRANSFORM_OBJECT, {
+                    from: this.mesh.position.clone(),
+                    to: this.mesh.position.clone().setY( this.size.y / 2 ),
+                    sceneObject: this as SceneObject,
+                    instrument: TransformInstrumentEnum.Move
+                } as MoveObject)
+            }
+        }
     }
 
     AddToScene(scene: THREE.Scene, withBoxHelper?: boolean) {

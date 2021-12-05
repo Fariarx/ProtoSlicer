@@ -13,6 +13,7 @@ export enum EventEnum {
     SELECT_TRANSFORM_MODE,
     SELECT_MENU_STEP,
     ADD_OBJECT,
+    SELECTION_CHANGED,
     TRANSFORM_OBJECT,
     SELECT_SUPPORTS_MODE
 }
@@ -119,11 +120,6 @@ const Handler = (message) => {
             sceneStore.objects.push(message.args);
             SceneUtils.selectionChanged();
             SceneUtils.instrumentStateChanged();
-            break;
-        case EventEnum.SELECT_SUPPORTS_MODE:
-            /*runInAction(()=>{
-                ElementStepsSelect.name = message.args.value;
-            })*/
             break;
     }
     return true;
